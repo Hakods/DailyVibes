@@ -106,6 +106,13 @@ struct SettingsView: View {
                                 }
                                 Spacer()
                             }
+                            
+                            Button {
+                                Task { await RepositoryProvider.shared.notification.dumpPendingDetailed() }
+                            } label: {
+                                Label("Bekleyen bildirimleri yazdır", systemImage: "list.bullet.rectangle")
+                            }
+
 
                             Button {
                                 Task { await schedule.planForNext(days: 14) }

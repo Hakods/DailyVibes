@@ -11,71 +11,79 @@ struct HistoryView: View {
     @State private var filter: Filter = .all
     @Namespace private var anim
     @FocusState private var searchFocused: Bool
-
+    
     var body: some View {
-        ZStack {
-            // 👇 Auroral arka plan
-            AnimatedAuroraBackground()
-
-            VStack(spacing: 0) {
-                // 1) ÖZET BAŞLIK
-                SummaryHeader(entries: vm.entries)
-                    .background(Color.clear)
-
-                // 2) FİLTRE + ARAMA
-                VStack(spacing: 12) {
-                    Segmented(filter: $filter, anim: anim)
-                    SearchBar(text: $query, isFocused: $searchFocused)
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
-
-                // 3) LİSTE (Ay bazlı, Türkçe başlıklar)
-                let listData = makeListData()
-                if listData.isEmpty {
-                    EmptyState()
-                        .padding(.top, 40)
-                        .onTapGesture { searchFocused = false }
-                } else {
-                    List {
-                        ForEach(listData, id: \.monthKey) { section in
-                            Section {
-                                ForEach(section.items) { e in
-                                    HistoryRow(entry: e)
+        // YENİ: NavigationView eklendi
+        NavigationView {
+            ZStack {
+                AnimatedAuroraBackground()
+                
+                VStack(spacing: 0) {
+                    SummaryHeader(entries: vm.entries)
+                        .background(Color.clear)
+                    
+                    VStack(spacing: 12) {
+                        Segmented(filter: $filter, anim: anim)
+                        SearchBar(text: $query, isFocused: $searchFocused)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    .padding(.bottom, 4)
+                    
+                    let listData = makeListData()
+                    if listData.isEmpty {
+                        EmptyState()
+                            .padding(.top, 40)
+                            .onTapGesture { searchFocused = false }
+                    } else {
+                        List {
+                            ForEach(listData, id: \.monthKey) { section in
+                                Section {
+                                    ForEach(section.items) { e in
+                                        // GÜNCELLEME: NavigationLink'in en doğru kullanımı
+                                        NavigationLink {
+                                            // Hedef Sayfa
+                                            HistoryDetailView(entry: e)
+                                        } label: {
+                                            // Tıklanacak Görünüm (Kartın kendisi)
+                                            HistoryRow(entry: e)
+                                        }
                                         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                                         .listRowBackground(Color.clear)
+                                    }
+                                } header: {
+                                    MonthHeader(text: section.monthTitle)
+                                        .textCase(nil)
+                                        .listRowInsets(.init(top: 24, leading: 16, bottom: 8, trailing: 16))
                                 }
-                            } header: {
-                                MonthHeader(text: section.monthTitle)
-                                    .textCase(nil)
-                                    .listRowInsets(.init(top: 24, leading: 16, bottom: 8, trailing: 16))
                             }
                         }
+                        
+                        
+                        .listStyle(.insetGrouped)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.clear)
+                        .animation(.easeInOut(duration: 0.18), value: listData.map(\.monthKey))
+                        .refreshable { vm.refresh() }
+                        .scrollDismissesKeyboard(.interactively)
+                        .onTapGesture { searchFocused = false }
                     }
-                    .listStyle(.insetGrouped)
-                    .scrollContentBackground(.hidden)   // 👈 List zeminini gizle
-                    .background(Color.clear)            // 👈 tamamen şeffaf
-                    .animation(.easeInOut(duration: 0.18), value: listData.map(\.monthKey))
-                    .refreshable { vm.refresh() }
-                    .scrollDismissesKeyboard(.interactively)
-                    .onTapGesture { searchFocused = false }
                 }
+                .contentShape(Rectangle())
+                .onTapGesture { searchFocused = false }
+                .padding(.bottom, 4)
+                .appBackground()
             }
-            .contentShape(Rectangle())
-            .onTapGesture { searchFocused = false }
-            .padding(.bottom, 4)
-            .appBackground() // 👈 güvence: içerik zeminini şeffaf tut
+            .navigationTitle("Geçmiş")
+            .toolbar { Button("Yenile") { vm.refresh() } }
         }
-        .navigationTitle("Geçmiş")
-        .toolbar { Button("Yenile") { vm.refresh() } }
     }
-
+    
     // MARK: - Filtreleme & Gruplama
-
+    
     private func makeListData() -> [MonthSection] {
         let today = Calendar.current.startOfDay(for: Date())
-
+        
         // 1) filtrele (sadece bugün ve geçmiş)
         let filtered = vm.entries
             .filter { $0.day <= today }
@@ -90,23 +98,26 @@ struct HistoryView: View {
             }
             .filter {
                 let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-                return q.isEmpty ? true : (($0.text ?? "").localizedCaseInsensitiveContains(q))
+                guard !q.isEmpty else { return true }
+                let inText  = ($0.text ?? "").localizedCaseInsensitiveContains(q)
+                let inMood  = $0.mood?.title.localizedCaseInsensitiveContains(q) ?? false
+                return inText || inMood
             }
-
+        
         // 2) ay bazlı grupla
         let grouped = Dictionary(grouping: filtered) { (entry: DayEntry) -> MonthKey in
             let comps = Calendar.current.dateComponents([.year, .month], from: entry.day)
             return MonthKey(year: comps.year ?? 0, month: comps.month ?? 0)
         }
-
+        
         // 3) başlıkları hazırla (TR locale)
         let tr = Locale(identifier: "tr_TR")
         let df = DateFormatter()
         df.locale = tr
         df.dateFormat = "LLLL yyyy" // "Ekim 2025"
-
+        
         let sortedKeys = grouped.keys.sorted { (a, b) in (a.year, a.month) > (b.year, b.month) }
-
+        
         return sortedKeys.map { key in
             let comps = DateComponents(calendar: Calendar.current, year: key.year, month: key.month, day: 1)
             let date = comps.date ?? Date()
@@ -115,13 +126,13 @@ struct HistoryView: View {
             return MonthSection(monthKey: key, monthTitle: title, items: items)
         }
     }
-
+    
     // MARK: - Types
-
+    
     enum Filter: Hashable { case all, todayOnly, answered, missed, pending }
-
+    
     struct MonthKey: Hashable { let year: Int; let month: Int }
-
+    
     struct MonthSection {
         let monthKey: MonthKey
         let monthTitle: String
@@ -133,16 +144,16 @@ struct HistoryView: View {
 
 private struct SummaryHeader: View {
     let entries: [DayEntry]
-
+    
     var body: some View {
         let today = Calendar.current.startOfDay(for: Date())
         let answered = entries.filter { $0.status == .answered }.count
         let missed   = entries.filter { $0.status == .missed }.count
         let pendingToday =
-            entries.first(where: { Calendar.current.isDate($0.day, inSameDayAs: today) })?.status == .pending
-
+        entries.first(where: { Calendar.current.isDate($0.day, inSameDayAs: today) })?.status == .pending
+        
         let streak = calcStreak(entries: entries)
-
+        
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
                 MetricCard(title: "Seri", value: "\(streak) 🔥", subtitle: "art arda gün")
@@ -157,17 +168,17 @@ private struct SummaryHeader: View {
         }
         .background(Color.clear)
     }
-
+    
     private func calcStreak(entries: [DayEntry]) -> Int {
         let cal = Calendar.current
         var day = cal.startOfDay(for: Date())
         let keyDF = DateFormatter.dayKey
-
+        
         var set: Set<String> = []
         for e in entries where e.status == .answered {
             set.insert(keyDF.string(from: e.day))
         }
-
+        
         var count = 0
         while set.contains(keyDF.string(from: day)) {
             count += 1
@@ -181,7 +192,7 @@ private struct MetricCard: View {
     let title: String
     let value: String
     let subtitle: String
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title).font(.caption).foregroundStyle(Theme.textSec)
@@ -200,7 +211,7 @@ private struct MetricCard: View {
 private struct Segmented: View {
     @Binding var filter: HistoryView.Filter
     var anim: Namespace.ID
-
+    
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
@@ -216,7 +227,7 @@ private struct Segmented: View {
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 3)
     }
-
+    
     @ViewBuilder
     private func pill(_ f: HistoryView.Filter, _ title: String) -> some View {
         let isSel = filter == f
@@ -248,7 +259,7 @@ private struct Segmented: View {
 private struct SearchBar: View {
     @Binding var text: String
     var isFocused: FocusState<Bool>.Binding
-
+    
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
@@ -292,14 +303,14 @@ private struct MonthHeader: View {
 
 private struct HistoryRow: View {
     let entry: DayEntry
-
+    
     private var titleTR: String {
         let df = DateFormatter()
         df.locale = Locale(identifier: "tr_TR")
-        df.dateStyle = .long // "6 Ekim 2025"
+        df.dateStyle = .long
         return df.string(from: entry.day)
     }
-
+    
     private var badgeColor: Color {
         switch entry.status {
         case .answered: return Theme.good
@@ -308,7 +319,15 @@ private struct HistoryRow: View {
         case .pending:  return Theme.accent
         }
     }
-
+    
+    private var moodEmoji: String? {
+        entry.emojiVariant ?? entry.mood?.emoji
+    }
+    
+    private var moodTitle: String? {
+        entry.emojiTitle ?? entry.mood?.title
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
@@ -316,7 +335,8 @@ private struct HistoryRow: View {
                 Spacer()
                 StatusBadge(status: entry.status)
             }
-
+            
+            // Saat aralığı
             HStack(spacing: 12) {
                 Label(entry.scheduledAt.formatted(date: .omitted, time: .shortened), systemImage: "bell")
                 Text("→")
@@ -324,19 +344,48 @@ private struct HistoryRow: View {
                     .foregroundStyle(Theme.textSec)
             }
             .font(.caption)
-
+            
+            if moodEmoji != nil || entry.score != nil {
+                HStack(spacing: 8) {
+                    if let emo = moodEmoji, let lbl = moodTitle {
+                        HStack(spacing: 6) {
+                            Text(emo)
+                            Text(lbl)
+                                .font(.caption.weight(.semibold))
+                        }
+                        .padding(.horizontal, 10).padding(.vertical, 6)
+                        .background(Theme.accent.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    
+                    if let s = entry.score {
+                        HStack(spacing: 6) {
+                            Image(systemName: "star.fill")
+                            Text("\(s)/10")
+                                .font(.caption.weight(.semibold))
+                        }
+                        .padding(.horizontal, 10).padding(.vertical, 6)
+                        .background(Theme.card)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    
+                    Spacer(minLength: 0)
+                }
+            }
+            
             if let t = entry.text, !t.isEmpty {
                 Text(t).lineLimit(3)
-            } else {
+            } else if moodEmoji == nil && entry.score == nil {
                 Text("Metin yok").foregroundStyle(Theme.textSec)
             }
         }
-        .padding(16)
+        .padding(.horizontal, 16) // Yatay padding'i buraya taşıdık
+        .padding(.vertical, 16)   // Dikey padding zaten vardı
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 16)
                 .fill(Theme.card)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: 16)
                         .stroke(badgeColor.opacity(0.12), lineWidth: 1)
                 )
         )

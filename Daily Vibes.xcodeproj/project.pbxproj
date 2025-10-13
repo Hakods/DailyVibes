@@ -32,6 +32,7 @@
 		3CC8D0DA2E9416E800C5A259 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC8D0D82E9414FC00C5A259 /* Formatters.swift */; };
 		3CC8D0DC2E9516C100C5A259 /* DailyVibesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC8D0DB2E95168D00C5A259 /* DailyVibesApp.swift */; };
 		3CC8D0DE2E9525AF00C5A259 /* AnimatedAuroraBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC8D0DD2E9525A800C5A259 /* AnimatedAuroraBackground.swift */; };
+		3CEDF5052E9D193400595983 /* HistoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF5042E9D193400595983 /* HistoryDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,6 +62,7 @@
 		3CC8D0D82E9414FC00C5A259 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		3CC8D0DB2E95168D00C5A259 /* DailyVibesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyVibesApp.swift; sourceTree = "<group>"; };
 		3CC8D0DD2E9525A800C5A259 /* AnimatedAuroraBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedAuroraBackground.swift; sourceTree = "<group>"; };
+		3CEDF5042E9D193400595983 /* HistoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +133,7 @@
 		3C96F0522E85566C00BB73A9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				3CEDF5042E9D193400595983 /* HistoryDetailView.swift */,
 				3C96F06D2E85580800BB73A9 /* PaywallView.swift */,
 				3C96F06C2E85580300BB73A9 /* SettingsView.swift */,
 				3C96F06B2E8557FC00BB73A9 /* HistoryView.swift */,
@@ -246,6 +249,7 @@
 				3C96F08C2E855F1800BB73A9 /* StatusBadge.swift in Sources */,
 				3C96F07A2E8559AF00BB73A9 /* PaywallVM.swift in Sources */,
 				3C96F07B2E8559AF00BB73A9 /* SettingsVM.swift in Sources */,
+				3CEDF5052E9D193400595983 /* HistoryDetailView.swift in Sources */,
 				3C96F07C2E8559AF00BB73A9 /* HistoryVM.swift in Sources */,
 				3C96F07E2E8559AF00BB73A9 /* StoreService.swift in Sources */,
 				3CC8D0DC2E9516C100C5A259 /* DailyVibesApp.swift in Sources */,

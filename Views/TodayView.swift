@@ -14,67 +14,71 @@ struct TodayView: View {
     @State private var showAlert = false
     @State private var alertText = ""
     @Namespace private var anim
-
+    private let editorAnchorID = "EDITOR_ANCHOR"
+    
     struct Msg: Identifiable { let id: UUID; let text: String }
-
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             AnimatedAuroraBackground()
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    header
-
-                    if let e = vm.entry {
-                        Card {
-                            topRow(for: e)
-
-                            Divider().padding(.vertical, 6)
-
-                            if e.status == .pending {
-                                // 1) Mood + 2) Puan + 3) Metin + 4) Kaydet
-                                moodPicker
-                                ratingRow
-                                promptArea
-                                composer
-                                saveRow(for: e)
-                            } else {
-                                answeredBlock(for: e)
+            
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        header
+                        
+                        if let e = vm.entry {
+                            Card {
+                                topRow(for: e)
+                                Divider().padding(.vertical, 6)
+                                
+                                if e.status == .pending {
+                                    moodPicker
+                                    ratingRow
+                                    promptArea
+                                    Group { composer }.id(editorAnchorID)
+                                    saveRow(for: e)
+                                } else {
+                                    // GÜNCELLEME 3: Kayıt sonrası gösterim düzeltildi.
+                                    answeredBlock(for: e)
+                                }
+                            }
+                            .transition(.opacity.combined(with: .move(edge: .bottom)))
+                        } else {
+                            Card {
+                                Text("Bugün için planlanmış ping yok.")
+                                    .foregroundStyle(Theme.textSec)
                             }
                         }
-                        .transition(.opacity.combined(with: .move(edge: .bottom)))
-                    } else {
-                        Card {
-                            Text("Bugün için planlanmış ping yok.")
-                                .foregroundStyle(Theme.textSec)
+                    }
+                    .padding(20)
+                    .padding(.bottom, isEditing ? 300 : 0)
+                    .transaction { $0.animation = nil }
+                }
+                .appBackground()
+                .scrollDismissesKeyboard(.interactively)
+                .contentShape(Rectangle())
+                .onTapGesture { isEditing = false }
+                .onChange(of: isEditing) { _, editing in
+                    if editing {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                proxy.scrollTo(editorAnchorID, anchor: .bottom)
+                            }
                         }
                     }
                 }
-                .padding(20)
-                .transaction { $0.animation = nil } // yeniden layout’ta zıplamayı azaltır
             }
-            .appBackground()
-            .scrollDismissesKeyboard(.interactively)
-            .contentShape(Rectangle())
-            .onTapGesture { isEditing = false } // ekrana dokununca klavye kapanır
-
-            // mini toast
+            
             if showSavedToast {
                 SaveToast(text: "Kaydedildi")
                     .padding(.bottom, 16)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
         .navigationTitle("Bugün")
-        .alert(item: Binding(
-            get: { vm.lastSaveMessage.map { Msg(id: UUID(), text: $0) } },
-            set: { _ in vm.lastSaveMessage = nil }
-        )) { msg in
-            Alert(title: Text(msg.text))
-        }
     }
-
+    
     // MARK: - Header
     private var header: some View {
         HStack(spacing: 12) {
@@ -89,16 +93,14 @@ struct TodayView: View {
             }
         }
     }
-
+    
     // MARK: - Top Row
     private func topRow(for e: DayEntry) -> some View {
         HStack(spacing: 10) {
             Text("⏰")
             VStack(alignment: .leading) {
-                Text("Planlanan saat")
-                    .font(.subheadline).foregroundStyle(Theme.textSec)
-                Text(e.scheduledAt.formatted(date: .omitted, time: .shortened))
-                    .font(.title3.bold())
+                Text("Planlanan saat").font(.subheadline).foregroundStyle(Theme.textSec)
+                Text(e.scheduledAt.formatted(date: .omitted, time: .shortened)).font(.title3.bold())
             }
             Spacer()
             if e.status == .pending {
@@ -111,44 +113,54 @@ struct TodayView: View {
 
     // MARK: - Mood Picker
     private var moodPicker: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Bugünkü modun?")
-                .font(.headline)
+        let items = MoodEmojiCatalog.all
+        let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
+        let cellHeight: CGFloat = 64
+        let visibleRows: CGFloat = 3
+        let spacing: CGFloat = 10
+        let gridHeight = visibleRows * cellHeight + (visibleRows - 1) * spacing
 
-            let cols = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
-            LazyVGrid(columns: cols, spacing: 10) {
-                ForEach(Mood.allCases) { mood in
-                    let selected = vm.selectedMood == mood
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.15)) {
-                            vm.selectedMood = selected ? nil : mood
-                        }
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    } label: {
-                        VStack(spacing: 6) {
-                            Text(mood.emoji).font(.system(size: 28))
-                            Text(mood.title)
-                                .font(.caption2)
-                                .foregroundStyle(selected ? Theme.accent : Theme.textSec)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(selected ? Theme.accent.opacity(0.15) : Theme.card)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(selected ? Theme.accent : Color.clear, lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(.plain)
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Bugünkü modun?").font(.headline)
+                Spacer()
+                if let selected = vm.selectedEmojiVariant {
+                    Text(selected).font(.title2).padding(.horizontal, 8).background(Theme.accent.opacity(0.1)).clipShape(Capsule())
                 }
             }
+
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVGrid(columns: columns, spacing: spacing) {
+                    ForEach(items) { item in
+                        let isSelected = vm.selectedEmojiVariant == item.emoji
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                vm.selectedEmojiVariant = item.emoji
+                                vm.selectedEmojiTitle = item.title
+                                // GÜNCELLEME 1: Hatalı olan bu satırı siliyoruz.
+                                // vm.selectedMood = .happy
+                            }
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        } label: {
+                            VStack(spacing: 6) {
+                                Text(item.emoji).font(.system(size: 28)).frame(height: 28)
+                                Text(item.title).font(.caption2).lineLimit(1).minimumScaleFactor(0.8).foregroundStyle(isSelected ? Theme.accent : Theme.textSec)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: cellHeight)
+                            .background(RoundedRectangle(cornerRadius: 12).fill(isSelected ? Theme.accent.opacity(0.15) : Theme.card))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(isSelected ? Theme.accent : Color.clear, lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            .frame(height: gridHeight)
         }
     }
-
-    // MARK: - Rating Row
+    
+    // MARK: - Diğer View'lar (Değişiklik Yok)
     private var ratingRow: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -165,8 +177,6 @@ struct TodayView: View {
             .tint(Theme.accent)
         }
     }
-
-    // MARK: - Prompt + Composer
     private var promptArea: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Bugün nasılsın?").font(.headline)
@@ -175,19 +185,19 @@ struct TodayView: View {
                 .foregroundStyle(Theme.textSec)
         }
     }
-
     private var composer: some View {
         VStack(alignment: .leading, spacing: 8) {
             PlaceholderTextEditor(text: $vm.text,
                                   placeholder: "Bugün nasılsın? Birkaç cümle yeter…")
-                .focused($isEditing)
-                .frame(minHeight: 160)
-                .padding(10)
-                .background(Theme.bg)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .disableAutocorrection(true)
-                .textInputAutocapitalization(.sentences)
-
+            .focused($isEditing)
+            .frame(minHeight: 160)
+            .padding(10)
+            .background(Theme.bg)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .disableAutocorrection(true)
+            .textInputAutocapitalization(.sentences)
+            .id(editorAnchorID)
+            
             HStack {
                 let count = vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count
                 Text("\(count)/500")
@@ -205,11 +215,9 @@ struct TodayView: View {
             }
         }
     }
-
-    // MARK: - Save Row
     private func saveRow(for e: DayEntry) -> some View {
         HStack {
-            if !(vm.entry?.allowEarlyAnswer ?? false) {
+            if !e.allowEarlyAnswer {
                 Text("Cevap penceresi **\(format(seconds: Int(vm.remaining)))** içinde kapanır.")
                     .font(.caption)
                     .foregroundStyle(Theme.textSec)
@@ -221,6 +229,12 @@ struct TodayView: View {
             Spacer()
             Button {
                 vm.saveNow()
+                if vm.lastSaveMessage == "Kaydedildi ✅" {
+                    withAnimation { showSavedToast = true }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        withAnimation { showSavedToast = false }
+                    }
+                }
             } label: {
                 Label("Kaydet", systemImage: "checkmark.circle.fill")
                     .font(.body.weight(.semibold))
@@ -229,73 +243,69 @@ struct TodayView: View {
             .disabled(saveDisabled())
         }
     }
-
-    // MARK: - Answered Block (mood + score göster)
+    
+    // MARK: - Answered Block
+    // GÜNCELLEME 3: Bu fonksiyonu tamamen değiştiriyoruz.
     private func answeredBlock(for e: DayEntry) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 StatusBadge(status: e.status)
                 Spacer()
                 if let s = e.score {
                     Label("\(s)/10", systemImage: "star.fill")
-                        .labelStyle(.titleAndIcon)
                         .font(.caption.bold())
                         .padding(.horizontal, 10).padding(.vertical, 6)
                         .background(Theme.accent.opacity(0.12))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
-
-            if let m = e.mood {
-                HStack(spacing: 6) {
-                    Text(m.emoji)
-                    Text(m.title).font(.subheadline.weight(.semibold))
+            
+            // Tıpkı HistoryView gibi, özel emoji ve başlığı göster
+            if let emoji = e.emojiVariant, let title = e.emojiTitle {
+                HStack(spacing: 8) {
+                    Text(emoji).font(.title)
+                    Text(title).font(.headline.weight(.semibold))
                 }
-                .padding(.horizontal, 10).padding(.vertical, 6)
+                .padding(.horizontal, 12).padding(.vertical, 8)
                 .background(Theme.card)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-
+            
             if let t = e.text, !t.isEmpty {
                 Text(t)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(12)
                     .background(Theme.bg)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-            } else if e.mood == nil && e.score == nil {
-                Text("Bu gün için kayıt yok.")
-                    .foregroundStyle(Theme.textSec)
             }
         }
     }
-
+    
     // MARK: - Helpers
     private func saveDisabled() -> Bool {
         guard let e = vm.entry else { return true }
-
-        // pencere kontrolü
-        if !(e.allowEarlyAnswer ?? false) {
+        if !e.allowEarlyAnswer {
             let now = Date()
-            if now < e.scheduledAt { return true }
-            if now > e.expiresAt { return true }
+            if now < e.scheduledAt || now > e.expiresAt { return true }
         }
-
-        // içerik kontrolü: en azından mood veya metin olsun
+        
         let hasText = !vm.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        let hasMood = vm.selectedMood != nil
-        if !hasText && !hasMood { return true }
-
+        // GÜNCELLEME 2: Kaydetme koşulu `selectedEmojiVariant`'a göre düzeltildi.
+        let hasEmoji = vm.selectedEmojiVariant != nil
+        
+        if !hasText && !hasEmoji { return true }
+        
         if vm.text.count > 500 { return true }
         return false
     }
-
+    
     private func progressRatio() -> CGFloat {
         guard let e = vm.entry else { return 0 }
         let total = max(1, e.expiresAt.timeIntervalSince(e.scheduledAt))
         let left  = max(0, vm.remaining)
         return CGFloat(1 - (left / total))
-        }
-
+    }
+    
     private func subtitleText() -> String {
         guard let e = vm.entry else { return "Bugün plan yok" }
         switch e.status {
@@ -305,7 +315,7 @@ struct TodayView: View {
         case .late:     return "Geç cevap"
         }
     }
-
+    
     private func format(seconds: Int) -> String {
         String(format: "%02d:%02d", seconds / 60, seconds % 60)
     }
@@ -346,7 +356,7 @@ private struct EarlyBadge: View {
 private struct CircleProgress: View {
     let progress: CGFloat
     let size: CGFloat
-
+    
     var body: some View {
         ZStack {
             Circle()
@@ -367,7 +377,7 @@ private struct CircleProgress: View {
 private struct PlaceholderTextEditor: View {
     @Binding var text: String
     let placeholder: String
-
+    
     var body: some View {
         ZStack(alignment: .topLeading) {
             if text.isEmpty {
@@ -396,4 +406,83 @@ private struct SaveToast: View {
         .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 8)
         .accessibilityAddTraits(.isStaticText)
     }
+}
+
+/// Geniş emoji + isim kataloğu
+enum MoodEmojiCatalog {
+    struct Item: Identifiable, Hashable {
+        let id = UUID()
+        let emoji: String
+        let title: String
+    }
+
+    // Farklı hisleri temsil eden geniş bir emoji yelpazesi (her biri kendi ismiyle)
+    static let all: [Item] = [
+        // Mutlu tonlar
+        .init(emoji: "😀", title: "Neşeli"),
+        .init(emoji: "😄", title: "Keyifli"),
+        .init(emoji: "😁", title: "Güleryüzlü"),
+        .init(emoji: "😊", title: "Memnun"),
+        .init(emoji: "🙂", title: "Tatlı Gülümseme"),
+        .init(emoji: "😎", title: "Kendinden Emin"),
+        .init(emoji: "🥳", title: "Kutlama Modu"),
+        .init(emoji: "🤗", title: "Sıcak Kalpli"),
+
+        // Sakin / rahat tonlar
+        .init(emoji: "😌", title: "Sakin"),
+        .init(emoji: "🧘‍♀️", title: "Rahatlamış"),
+        .init(emoji: "🌿", title: "Doğayla İç İçe"),
+        .init(emoji: "🫶", title: "Şükreden"),
+        .init(emoji: "💫", title: "Huzurlu"),
+
+        // Üzgün tonlar
+        .init(emoji: "😔", title: "Üzgün"),
+        .init(emoji: "😢", title: "Kırılmış"),
+        .init(emoji: "😭", title: "Gözyaşı Döküyor"),
+        .init(emoji: "🥺", title: "Kırılgan"),
+        .init(emoji: "😞", title: "Hayal Kırıklığı"),
+
+        // Stresli / yorgun tonlar
+        .init(emoji: "🥱", title: "Uykulu"),
+        .init(emoji: "😪", title: "Yorgun"),
+        .init(emoji: "😵‍💫", title: "Kafa Karışık"),
+        .init(emoji: "😫", title: "Bitkin"),
+        .init(emoji: "🤯", title: "Patlamak Üzere"),
+
+        // Öfkeli tonlar
+        .init(emoji: "😠", title: "Kızgın"),
+        .init(emoji: "😡", title: "Çok Sinirli"),
+        .init(emoji: "🤬", title: "Öfke Patlaması"),
+        .init(emoji: "💢", title: "Gerilmiş"),
+
+        // Kaygılı tonlar
+        .init(emoji: "😬", title: "Tedirgin"),
+        .init(emoji: "😰", title: "Kaygılı"),
+        .init(emoji: "😨", title: "Korkmuş"),
+        .init(emoji: "🫨", title: "Endişeli"),
+        .init(emoji: "😟", title: "İç Çekiyor"),
+
+        // Hasta / rahatsız tonlar
+        .init(emoji: "🤒", title: "Ateşli"),
+        .init(emoji: "🤕", title: "Ağrılı"),
+        .init(emoji: "🤧", title: "Üşütmüş"),
+        .init(emoji: "🥴", title: "Sersemlemiş"),
+        .init(emoji: "😷", title: "Maskeli Hasta"),
+
+        // Eğlenceli / deli dolu tonlar
+        .init(emoji: "🤪", title: "Deli Doluyum"),
+        .init(emoji: "😜", title: "Yaramaz"),
+        .init(emoji: "😋", title: "Lezzetli Anlar"),
+        .init(emoji: "🤩", title: "Aşırı Heyecanlı"),
+        .init(emoji: "✨", title: "Parlıyorum"),
+        .init(emoji: "🙃", title: "Tersine Gülen"),
+        .init(emoji: "😏", title: "Kendine Güvenen"),
+
+        // Nötr / kararsız
+        .init(emoji: "😐", title: "Nötr"),
+        .init(emoji: "😶", title: "Sessiz"),
+        .init(emoji: "🤔", title: "Düşünceli"),
+        .init(emoji: "🫤", title: "Kararsız"),
+        .init(emoji: "😑", title: "İlgisiz")
+    ]
 }

@@ -3,105 +3,110 @@ import SwiftUI
 struct HistoryDetailView: View {
     let entry: DayEntry
 
-    private var titleTR: String {
+    private var fullDateTitle: String {
         let df = DateFormatter()
         df.locale = Locale(identifier: "tr_TR")
-        df.dateStyle = .full // Daha detaylı bir tarih formatı
+        df.dateStyle = .full
         return df.string(from: entry.day)
     }
-
-    private var moodEmoji: String? {
-        entry.emojiVariant ?? entry.mood?.emoji
-    }
-
-    private var moodTitle: String? {
-        entry.emojiTitle ?? entry.mood?.title
-    }
+    
+    private var moodEmoji: String? { entry.emojiVariant }
+    private var moodTitle: String? { entry.emojiTitle }
 
     var body: some View {
         ZStack {
-            AnimatedAuroraBackground()
-                .ignoresSafeArea()
+            // Arka plan aynı kalıyor
+            AnimatedAuroraBackground().ignoresSafeArea()
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Tarih ve Durum Kartı
-                    Card {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(titleTR)
-                                .font(.title2.bold())
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(spacing: 24) {
+                    
+                    // 1. ANA BİLGİ BÖLÜMÜ (Başlık ve Emoji)
+                    // Bu bölümü kart dışına alarak daha ferah ve odaklı hale getirdik.
+                    VStack(spacing: 12) {
+                        Text(fullDateTitle)
+                            .font(.title2.weight(.bold))
+                            .foregroundStyle(.primary)
+                        
+                        if let emo = moodEmoji, let title = moodTitle {
+                            Text(emo)
+                                .font(.system(size: 90))
                             
-                            Divider()
+                            Text(title)
+                                .font(.title.weight(.semibold))
+                                .foregroundStyle(Theme.accent)
+                        }
+                        
+                        StatusBadge(status: entry.status)
+                    }
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 20)
+                    
+
+                    // 2. DETAYLAR KARTI (Puan ve Zaman Aralığı)
+                    // İkonlar ve daha düzenli bir yerleşimle bilgileri grupladık.
+                    Card {
+                        VStack(alignment: .leading, spacing: 16) {
+                            if let score = entry.score {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "star.circle.fill")
+                                        .font(.title2)
+                                        .foregroundStyle(Theme.warn)
+                                    
+                                    Text("Günün Puanı")
+                                        .font(.headline)
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(score)/10")
+                                        .font(.headline.weight(.bold))
+                                }
+                            }
+
+                            // Puan ve zaman arasında görsel bir ayırıcı
+                            if entry.score != nil {
+                                Divider()
+                            }
                             
                             HStack(spacing: 12) {
-                                Label(entry.scheduledAt.formatted(date: .omitted, time: .shortened), systemImage: "bell")
-                                Text("→")
-                                Text(entry.expiresAt.formatted(date: .omitted, time: .shortened))
-                                    .foregroundStyle(Theme.textSec)
+                                Image(systemName: "hourglass.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(Theme.secondary)
+                                
+                                Text("Cevap Aralığı")
+                                    .font(.headline)
+                                
                                 Spacer()
-                                StatusBadge(status: entry.status)
+                                
+                                Text("\(entry.scheduledAt.formatted(date: .omitted, time: .shortened)) - \(entry.expiresAt.formatted(date: .omitted, time: .shortened))")
+                                    .font(.subheadline.weight(.semibold))
                             }
-                            .font(.subheadline)
                         }
                     }
 
-                    // Mod ve Puan Kartı
-                    if moodEmoji != nil || entry.score != nil {
+                    // 3. NOT KARTI
+                    // Notu daha belirgin hale getirdik.
+                    if let text = entry.text, !text.isEmpty {
                         Card {
-                            VStack(alignment: .leading, spacing: 16) {
-                                if let emo = moodEmoji, let lbl = moodTitle {
-                                    HStack(spacing: 15) {
-                                        Text(emo)
-                                            .font(.system(size: 48))
-                                        VStack(alignment: .leading) {
-                                            Text("Modun")
-                                                .font(.caption)
-                                                .foregroundStyle(Theme.textSec)
-                                            Text(lbl)
-                                                .font(.title3.weight(.semibold))
-                                        }
-                                    }
-                                }
-
-                                if let s = entry.score {
-                                    if moodEmoji != nil { Divider() }
-                                    HStack(spacing: 15) {
-                                        Image(systemName: "star.fill")
-                                            .font(.system(size: 28))
-                                            .foregroundStyle(Theme.warn)
-                                        VStack(alignment: .leading) {
-                                            Text("Günün Puanı")
-                                                .font(.caption)
-                                                .foregroundStyle(Theme.textSec)
-                                            Text("\(s)/10")
-                                                .font(.title3.weight(.semibold))
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Not Kartı
-                    Card {
-                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Notun")
-                                .font(.headline)
-                                .foregroundStyle(Theme.textSec)
-                                .padding(.bottom, 4)
-                            
-                            if let t = entry.text, !t.isEmpty {
-                                Text(t)
-                                    .font(.body)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            } else {
-                                Text("Bu gün için metin eklenmemiş.")
+                             VStack(alignment: .leading, spacing: 12) {
+                                Label("Notun", systemImage: "text.quote")
+                                    .font(.headline)
                                     .foregroundStyle(Theme.textSec)
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                                    .padding(.vertical, 20)
-                            }
-                         }
+                                
+                                Text(text)
+                                    .font(.body)
+                                    .lineSpacing(5) // Satır aralığını artırarak okunabilirliği iyileştirdik.
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                             }
+                        }
+                    } else {
+                        // Not yoksa boş durumu gösteren bir kart
+                        Card {
+                            Label("Bu gün için not eklenmemiş.", systemImage: "text.slash")
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .foregroundStyle(Theme.textSec)
+                                .padding(.vertical)
+                        }
                     }
                 }
                 .padding()
