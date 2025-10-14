@@ -19,26 +19,26 @@ struct Theme {
     static var primary: Color   { Color(hex: "#7C3AED") }  // Electric Purple
     static var secondary: Color { Color(hex: "#06B6D4") }  // Cyan
     static var tertiary: Color  { Color(hex: "#F59E0B") }  // Amber (accent spot)
-
+    
     // Durum renkleri
     static var good: Color { Color(hex: "#10B981") }   // Mint/Green
     static var warn: Color { Color(hex: "#F59E0B") }   // Amber
     static var bad:  Color { Color(hex: "#EF4444") }   // Red
-
+    
     // Metin
     static var text: Color    { Color.primary }
     static var textSec: Color { Color.primary.opacity(0.65) }
-
+    
     // Arkaplan (sistemle uyumlu)
     static var bg: Color {
         Color(uiColor: UIColor { tc in
             tc.userInterfaceStyle == .dark ? .black : .systemGroupedBackground
         })
     }
-
+    
     // Kart rengi (asıl görünümü glassCard verir; bu fallback)
     static var card: Color { Color.white.opacity(0.12) }
-
+    
     // Gradyanlar
     static var heroGradient: LinearGradient {
         LinearGradient(colors: [primary, secondary], startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -49,7 +49,7 @@ struct Theme {
     static var successGradient: LinearGradient {
         LinearGradient(colors: [good, secondary], startPoint: .top, endPoint: .bottom)
     }
-
+    
     static var softShadow: Color { .black.opacity(0.15) }
 }
 
@@ -75,20 +75,27 @@ extension View {
 
 // MARK: - Buton Stilleri
 struct PrimaryButtonStyle: ButtonStyle {
+    // Butonun aktif olup olmadığını anlamak için Environment'ı kullanıyoruz.
+    @Environment(\.isEnabled) private var isEnabled
+    
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.callout.bold())
             .padding(.vertical, 12).padding(.horizontal, 16)
             .frame(maxWidth: .infinity)
             .background(
+                // Buton aktifse normal, devre dışıysa soluk bir gradient göster.
                 Theme.accentGradient
-                    .opacity(configuration.isPressed ? 0.85 : 1)
+                    .opacity(isEnabled ? (configuration.isPressed ? 0.85 : 1) : 0.5)
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             )
             .foregroundStyle(.white)
-            .shadow(color: Theme.secondary.opacity(0.35), radius: 14, x: 0, y: 8)
+        // Devre dışıysa gölgeyi de azalt.
+            .shadow(color: isEnabled ? Theme.secondary.opacity(0.35) : .clear, radius: 14, x: 0, y: 8)
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+        // isEnabled durumuna göre animasyon ekleyerek geçişi yumuşat.
+            .animation(.easeOut(duration: 0.2), value: isEnabled)
     }
 }
 
@@ -134,7 +141,7 @@ extension Theme {
     /// Kullanım: `ZStack { Theme.AnimatedBackground(); content }`
     struct AnimatedBackground: View {
         @State private var t: CGFloat = 0
-
+        
         var body: some View {
             TimelineView(.animation) { _ in
                 ZStack {

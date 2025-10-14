@@ -7,44 +7,119 @@
 
 
 import SwiftUI
-import Charts // Apple'ın grafik kütüphanesini import ediyoruz
+import Charts
 
 struct StatsView: View {
     @StateObject private var vm = StatsVM()
-
+    
     var body: some View {
         NavigationView {
             ZStack {
                 AnimatedAuroraBackground()
-
+                
                 ScrollView {
                     VStack(spacing: 24) {
                         
-                        // Genel Bakış Kartı
                         OverviewCard(totalAnswered: vm.totalAnswered, averageScore: vm.averageScore)
-
-                        // Ruh Hali Dağılımı Kartı
+                        
+                        // YENİ: Haftanın Ritmi Kartı
+                        if !vm.dayOfWeekStats.isEmpty {
+                            DayOfWeekChartCard(stats: vm.dayOfWeekStats)
+                        }
+                        
+                        // YENİ: En İyi Anlar Kartı
+                        if !vm.highlightEntries.isEmpty {
+                            HighlightsCard(entries: vm.highlightEntries)
+                        }
+                        
                         if !vm.moodStats.isEmpty {
                             MoodDistributionCard(moodStats: vm.moodStats)
                         }
                         
-                        // Puan Zaman Çizelgesi Kartı
                         if !vm.scoreStats.isEmpty {
                             ScoreTimelineCard(scoreStats: vm.scoreStats)
                         }
                         
-                        // Boş Durum
                         if vm.moodStats.isEmpty && vm.scoreStats.isEmpty {
-                           EmptyState()
+                            EmptyState()
                         }
                     }
                     .padding()
                 }
                 .background(Color.clear)
                 .navigationTitle("İstatistikler")
-                .toolbar {
-                    Button("Yenile") {
-                        vm.loadStats()
+                .toolbar { Button("Yenile") { vm.loadStats() } }
+            }
+        }
+    }
+}
+
+// MARK: - Alt Bileşenler
+
+// --- YENİ KART: Haftanın Ritmi ---
+private struct DayOfWeekChartCard: View {
+    let stats: [DayOfWeekStat]
+    
+    var body: some View {
+        Card {
+            VStack(alignment: .leading) {
+                Label("Haftanın Ritmi", systemImage: "calendar.day.timeline.leading")
+                    .font(.headline)
+                    .foregroundStyle(Theme.textSec)
+                
+                Text("Haftanın günlerine göre ortalama puanların")
+                    .font(.caption)
+                    .foregroundStyle(Theme.textSec)
+                    .padding(.bottom, 8)
+                
+                Chart(stats) { stat in
+                    BarMark(
+                        x: .value("Gün", stat.dayName),
+                        y: .value("Ortalama Puan", stat.averageScore)
+                    )
+                    .foregroundStyle(Theme.accentGradient)
+                    .cornerRadius(6)
+                }
+                .chartYScale(domain: 0...10)
+                .frame(height: 150)
+            }
+        }
+    }
+}
+
+// --- YENİ KART: En İyi Anlar ---
+private struct HighlightsCard: View {
+    let entries: [DayEntry]
+    
+    var body: some View {
+        Card {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("En İyi Anlar", systemImage: "sparkles")
+                    .font(.headline)
+                    .foregroundStyle(Theme.textSec)
+                
+                ForEach(entries) { entry in
+                    NavigationLink(destination: HistoryDetailView(entry: entry)) {
+                        HStack {
+                            Text(entry.emojiVariant ?? "✨")
+                                .font(.title)
+                            VStack(alignment: .leading) {
+                                Text(entry.emojiTitle ?? "Harika Bir Gün")
+                                    .font(.subheadline.bold())
+                                Text(entry.day.formatted(date: .abbreviated, time: .omitted))
+                                    .font(.caption)
+                                    .foregroundStyle(Theme.textSec)
+                            }
+                            Spacer()
+                            Text("\(entry.score ?? 10)/10")
+                                .font(.headline.weight(.bold))
+                                .foregroundStyle(Theme.good)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    .foregroundStyle(.primary)
+                    if entry.id != entries.last?.id {
+                        Divider()
                     }
                 }
             }
@@ -90,7 +165,7 @@ private struct OverviewCard: View {
 
 private struct MoodDistributionCard: View {
     let moodStats: [MoodStat]
-
+    
     var body: some View {
         Card {
             VStack(alignment: .leading, spacing: 16) {
@@ -120,8 +195,17 @@ private struct MoodDistributionCard: View {
     }
 }
 
+// --- GÜNCELLEME BURADA ---
 private struct ScoreTimelineCard: View {
     let scoreStats: [ScoreStat]
+    
+    // YENİ: Türkçe tarih formatını burada tanımlıyoruz.
+    private var turkishDateFormat: Date.FormatStyle {
+        return .dateTime
+            .month(.abbreviated)
+            .day()
+            .locale(Locale(identifier: "tr_TR"))
+    }
     
     var body: some View {
         Card {
@@ -129,13 +213,13 @@ private struct ScoreTimelineCard: View {
                 Label("Puan Zaman Çizelgesi (Son 30 Gün)", systemImage: "chart.line.uptrend.xyaxis")
                     .font(.headline)
                     .foregroundStyle(Theme.textSec)
-
+                
                 Chart(scoreStats) { stat in
                     LineMark(
                         x: .value("Tarih", stat.day, unit: .day),
                         y: .value("Puan", stat.score)
                     )
-                    .interpolationMethod(.catmullRom) // Çizgiyi yumuşatır
+                    .interpolationMethod(.catmullRom)
                     
                     AreaMark(
                         x: .value("Tarih", stat.day, unit: .day),
@@ -144,7 +228,15 @@ private struct ScoreTimelineCard: View {
                     .interpolationMethod(.catmullRom)
                     .foregroundStyle(LinearGradient(colors: [Theme.accent.opacity(0.5), .clear], startPoint: .top, endPoint: .bottom))
                 }
-                .chartYScale(domain: 0...10) // Y eksenini 0-10 arası sabitler
+                .chartYScale(domain: 0...10)
+                // GÜNCELLEME: X ekseni formatlaması yeni yönteme göre düzeltildi.
+                .chartXAxis {
+                    AxisMarks(values: .automatic(desiredCount: 5)) { value in
+                        AxisGridLine()
+                        // Önceden hazırladığımız Türkçe formatı burada kullanıyoruz.
+                        AxisValueLabel(format: turkishDateFormat)
+                    }
+                }
                 .frame(height: 200)
             }
         }

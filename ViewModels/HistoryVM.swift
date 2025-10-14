@@ -13,10 +13,18 @@ final class HistoryVM: ObservableObject {
     @Published var entries: [DayEntry] = []
 
     private let repo: DayEntryRepository
+    
+    private var cancellable: AnyCancellable?
 
     init(repo: DayEntryRepository? = nil) {
         self.repo = repo ?? RepositoryProvider.shared.dayRepo
         refresh()
+       
+        cancellable = RepositoryProvider.shared.entriesChanged
+            .sink { [weak self] in
+                print("HistoryVM: Veri değişikliği sinyali alındı, yenileniyor...")
+                self?.refresh()
+            }
     }
 
     func refresh() {

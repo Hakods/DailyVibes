@@ -1,10 +1,13 @@
 import Foundation
 import CoreData
+import Combine
 
 @MainActor
 final class RepositoryProvider {
     // Tekil erişim
     static let shared = RepositoryProvider()
+    
+    let entriesChanged = PassthroughSubject<Void, Never>()
 
     // Servisler
     let dayRepo: DayEntryRepository

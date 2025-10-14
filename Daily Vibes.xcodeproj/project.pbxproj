@@ -38,6 +38,7 @@
 		3CEDF50C2E9E416600595983 /* DailyVibes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF50A2E9E416600595983 /* DailyVibes.xcdatamodeld */; };
 		3CEDF50E2E9E42F500595983 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF50D2E9E42F500595983 /* PersistenceController.swift */; };
 		3CEDF5102E9E430800595983 /* CoreDataDayEntryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF50F2E9E430800595983 /* CoreDataDayEntryRepository.swift */; };
+		3CEDF5122E9E6A3100595983 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF5112E9E6A3100595983 /* ThemeManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,6 +74,7 @@
 		3CEDF50B2E9E416600595983 /* DailyVibes.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DailyVibes.xcdatamodel; sourceTree = "<group>"; };
 		3CEDF50D2E9E42F500595983 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		3CEDF50F2E9E430800595983 /* CoreDataDayEntryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataDayEntryRepository.swift; sourceTree = "<group>"; };
+		3CEDF5112E9E6A3100595983 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +163,7 @@
 		3C96F0532E85567300BB73A9 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				3CEDF5112E9E6A3100595983 /* ThemeManager.swift */,
 				3CC8D0DD2E9525A800C5A259 /* AnimatedAuroraBackground.swift */,
 				3CC8D0D82E9414FC00C5A259 /* Formatters.swift */,
 				3CC8D0D52E9414E500C5A259 /* RepositoryProvider.swift */,
@@ -273,6 +276,7 @@
 				3C96F07E2E8559AF00BB73A9 /* StoreService.swift in Sources */,
 				3CC8D0DC2E9516C100C5A259 /* DailyVibesApp.swift in Sources */,
 				3C96F08A2E855C6700BB73A9 /* TodayVM.swift in Sources */,
+				3CEDF5122E9E6A3100595983 /* ThemeManager.swift in Sources */,
 				3C96F07F2E8559AF00BB73A9 /* ScheduleService.swift in Sources */,
 				3CC8D0DE2E9525AF00C5A259 /* AnimatedAuroraBackground.swift in Sources */,
 				3C96F0802E8559AF00BB73A9 /* NotificationService.swift in Sources */,

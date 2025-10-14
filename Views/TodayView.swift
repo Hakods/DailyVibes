@@ -7,16 +7,18 @@
 
 import SwiftUI
 
+import SwiftUI
+
 struct TodayView: View {
     @StateObject private var vm = TodayVM()
+    @EnvironmentObject var themeManager: ThemeManager
     @FocusState private var isEditing: Bool
     @State private var showSavedToast = false
-    @State private var showAlert = false
-    @State private var alertText = ""
     @Namespace private var anim
     private let editorAnchorID = "EDITOR_ANCHOR"
     
-    struct Msg: Identifiable { let id: UUID; let text: String }
+    // GÜNCELLEME: Butonun neden devre dışı olduğunu kullanıcıya göstermek için state
+    @State private var unmetConditions: [String] = []
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -29,28 +31,27 @@ struct TodayView: View {
                         
                         if let e = vm.entry {
                             Card {
-                                // YENİ GÖRÜNÜM: Duruma göre farklı bir üst kısım gösteriyoruz.
                                 if e.status == .pending {
-                                    PendingStateView() // Saat yerine gizemli bir kart
+                                    if vm.isAnswerWindowActive {
+                                        topRow(for: e)
+                                        Divider().padding(.vertical, 6)
+                                        moodPicker
+                                        ratingRow
+                                        promptArea
+                                        Group { composer }.id(editorAnchorID)
+                                        saveRow(for: e)
+                                    } else {
+                                        PendingStateView()
+                                    }
                                 } else {
-                                    answeredBlock(for: e) // Cevaplandıysa direkt sonucu göster
-                                }
-                                
-                                // Sadece cevaplama zamanı geldiğinde diğer kontrolleri göster
-                                if e.status == .pending && Date() >= e.scheduledAt {
-                                    Divider().padding(.vertical, 6)
-                                    moodPicker
-                                    ratingRow
-                                    promptArea
-                                    Group { composer }.id(editorAnchorID)
-                                    saveRow(for: e)
+                                    answeredBlock(for: e)
                                 }
                             }
+                            .animation(.default, value: vm.isAnswerWindowActive)
                             .transition(.opacity.combined(with: .move(edge: .bottom)))
                         } else {
                             Card {
-                                Text("Bugün için planlanmış ping yok.")
-                                    .foregroundStyle(Theme.textSec)
+                                Text("Bugün için planlanmış ping yok.").foregroundStyle(Theme.textSec)
                             }
                         }
                     }
@@ -80,6 +81,9 @@ struct TodayView: View {
             }
         }
         .navigationTitle("Bugün")
+        .onChange(of: vm.entry, initial: true) { _, newEntry in
+            themeManager.update(for: newEntry)
+        }
     }
     
     // MARK: - Header
@@ -93,6 +97,25 @@ struct TodayView: View {
             Spacer()
             if let allow = vm.entry?.allowEarlyAnswer, allow {
                 EarlyBadge()
+            }
+        }
+    }
+    
+    private func topRow(for e: DayEntry) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "timer")
+                .font(.title2)
+                .foregroundStyle(Theme.accent)
+            
+            VStack(alignment: .leading) {
+                Text("Vibe'ını kaydetme zamanı!")
+                    .font(.headline)
+                Text("Kalan süre")
+                    .font(.subheadline).foregroundStyle(Theme.textSec)
+            }
+            Spacer()
+            if e.status == .pending {
+                CountdownPill(remaining: Int(vm.remaining))
             }
         }
     }
@@ -224,32 +247,40 @@ struct TodayView: View {
         }
     }
     private func saveRow(for e: DayEntry) -> some View {
-        HStack {
-            if !e.allowEarlyAnswer {
+        VStack(alignment: .trailing, spacing: 8) {
+            // Eksik şartları listeleyen metin
+            if !unmetConditions.isEmpty {
+                Text(unmetConditions.joined(separator: "\n"))
+                    .font(.caption)
+                    .foregroundStyle(Theme.warn)
+                    .multilineTextAlignment(.trailing)
+                    .transition(.opacity)
+            }
+            
+            HStack {
                 Text("Cevap penceresi **\(format(seconds: Int(vm.remaining)))** içinde kapanır.")
                     .font(.caption)
                     .foregroundStyle(Theme.textSec)
-            } else {
-                Text("Erken cevap modundasın.")
-                    .font(.caption)
-                    .foregroundStyle(Theme.accent)
-            }
-            Spacer()
-            Button {
-                vm.saveNow()
-                if vm.lastSaveMessage == "Kaydedildi ✅" {
-                    withAnimation { showSavedToast = true }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        withAnimation { showSavedToast = false }
+                Spacer()
+                Button {
+                    vm.saveNow()
+                    if vm.lastSaveMessage == "Kaydedildi ✅" {
+                        withAnimation { showSavedToast = true }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            withAnimation { showSavedToast = false }
+                        }
                     }
+                } label: {
+                    Label("Kaydet", systemImage: "checkmark.circle.fill")
+                        .font(.body.weight(.semibold))
                 }
-            } label: {
-                Label("Kaydet", systemImage: "checkmark.circle.fill")
-                    .font(.body.weight(.semibold))
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(saveDisabled())
             }
-            .buttonStyle(PrimaryButtonStyle())
-            .disabled(saveDisabled())
         }
+        .onChange(of: vm.selectedEmojiVariant) { _, _ in updateSaveButtonState() }
+        .onChange(of: vm.text) { _, _ in updateSaveButtonState() }
+        .onAppear { updateSaveButtonState() }
     }
     
     // MARK: - Answered Block
@@ -291,20 +322,34 @@ struct TodayView: View {
     
     // MARK: - Helpers
     private func saveDisabled() -> Bool {
-        guard let e = vm.entry else { return true }
-        if !e.allowEarlyAnswer {
-            let now = Date()
-            if now < e.scheduledAt || now > e.expiresAt { return true }
-        }
-        
-        let hasText = !vm.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        // GÜNCELLEME 2: Kaydetme koşulu `selectedEmojiVariant`'a göre düzeltildi.
-        let hasEmoji = vm.selectedEmojiVariant != nil
-        
-        if !hasText && !hasEmoji { return true }
-        
-        if vm.text.count > 500 { return true }
-        return false
+        // Eğer eksik şart listesi boş değilse, buton devre dışıdır.
+        !unmetConditions.isEmpty
+    }
+    
+    private func updateSaveButtonState() {
+            var conditions: [String] = []
+            
+            // 1. Emoji seçilmiş mi?
+            if vm.selectedEmojiVariant == nil {
+                conditions.append("• Bir mod seçmelisin.")
+            }
+            
+            // 2. Metin 10 karakterden uzun mu?
+            if vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count < 10 {
+                conditions.append("• En az 10 karakter girmelisin.")
+            }
+
+            // 3. Metin 500 karakterden kısa mı?
+            if vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count > 500 {
+                conditions.append("• Notun 500 karakteri geçmemeli.")
+            }
+            
+            // Puan zaten slider ile her zaman seçili olduğu için kontrol etmeye gerek yok.
+
+            // `unmetConditions` listesini güncelle, bu `saveDisabled` fonksiyonunu tetikleyecek.
+            withAnimation(.easeInOut) {
+                self.unmetConditions = conditions
+            }
     }
     
     private func progressRatio() -> CGFloat {
@@ -328,9 +373,6 @@ struct TodayView: View {
         String(format: "%02d:%02d", seconds / 60, seconds % 60)
     }
 }
-
-// MARK: - Küçük Bileşenler (CountdownPill, EarlyBadge, CircleProgress, PlaceholderTextEditor, SaveToast)
-// (Sende zaten var; aynı şekilde bırakabilirsin)
 
 
 // MARK: - Küçük Bileşenler

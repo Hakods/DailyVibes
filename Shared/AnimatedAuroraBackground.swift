@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct AnimatedAuroraBackground: View {
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var move = false
-
+    
     var body: some View {
         ZStack {
             // Base soft gradient
@@ -24,15 +25,14 @@ struct AnimatedAuroraBackground: View {
             )
             .opacity(0.9)
             .ignoresSafeArea()
-
-            // Subtle moving color waves
+            
             Rectangle()
                 .fill(
                     LinearGradient(
                         colors: [
-                            Theme.primary.opacity(0.25),
-                            Theme.secondary.opacity(0.25),
-                            Theme.tertiary.opacity(0.25)
+                            themeManager.currentColors.primary.opacity(0.45),
+                            themeManager.currentColors.secondary.opacity(0.45),
+                            themeManager.currentColors.tertiary.opacity(0.45)
                         ],
                         startPoint: move ? .bottomLeading : .topTrailing,
                         endPoint: move ? .topTrailing : .bottomLeading
@@ -40,13 +40,14 @@ struct AnimatedAuroraBackground: View {
                 )
                 .rotationEffect(.degrees(20))
                 .blur(radius: 100)
-                .opacity(0.6)
+                .opacity(0.8) // Biraz daha belirgin hale getirelim
                 .scaleEffect(1.4)
                 .ignoresSafeArea()
                 .animation(.easeInOut(duration: 8).repeatForever(autoreverses: true), value: move)
                 .onAppear { move.toggle() }
-
-            // Grain overlay for texture (isteğe bağlı)
+            // YENİ: Renkler değiştiğinde yumuşak bir geçiş animasyonu
+                .animation(.easeInOut(duration: 2.0), value: themeManager.currentColors.primary)
+            
             Rectangle()
                 .fill(Color.black.opacity(0.02))
                 .blendMode(.overlay)

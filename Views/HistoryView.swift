@@ -11,16 +11,16 @@ struct HistoryView: View {
     @State private var filter: Filter = .all
     @Namespace private var anim
     @FocusState private var searchFocused: Bool
-
+    
     var body: some View {
         NavigationView {
             ZStack {
                 AnimatedAuroraBackground()
-
+                
                 VStack(spacing: 0) {
                     SummaryHeader(entries: vm.entries)
                         .background(Color.clear)
-
+                    
                     VStack(spacing: 12) {
                         Segmented(filter: $filter, anim: anim)
                         SearchBar(text: $query, isFocused: $searchFocused)
@@ -28,14 +28,16 @@ struct HistoryView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
                     .padding(.bottom, 4)
-
+                    
                     let listData = makeListData()
-                    if listData.isEmpty {
-                        EmptyState()
-                            .padding(.top, 40)
-                            .onTapGesture { searchFocused = false }
-                    } else {
-                        List {
+                    
+                    List {
+                        if listData.isEmpty {
+                            EmptyState()
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .padding(.top, 40)
+                        } else {
                             ForEach(listData, id: \.monthKey) { section in
                                 Section {
                                     ForEach(section.items) { e in
@@ -54,14 +56,14 @@ struct HistoryView: View {
                                 }
                             }
                         }
-                        .listStyle(.insetGrouped)
-                        .scrollContentBackground(.hidden)
-                        .background(Color.clear)
-                        .animation(.easeInOut(duration: 0.18), value: listData.map(\.monthKey))
-                        .refreshable { vm.refresh() }
-                        .scrollDismissesKeyboard(.interactively)
-                        .onTapGesture { searchFocused = false }
                     }
+                    .listStyle(.insetGrouped)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
+                    .animation(.easeInOut(duration: 0.18), value: listData.map(\.monthKey))
+                    .refreshable { vm.refresh() }
+                    .scrollDismissesKeyboard(.interactively)
+                    .onTapGesture { searchFocused = false }
                 }
                 .contentShape(Rectangle())
                 .onTapGesture { searchFocused = false }
@@ -72,21 +74,15 @@ struct HistoryView: View {
             .toolbar { Button("Yenile") { vm.refresh() } }
         }
     }
-
-    // MARK: - Filtreleme & Gruplama
-    // --- BU KISIM GÜNCELLENDİ ---
+  
     private func makeListData() -> [MonthSection] {
         let now = Date()
         
-        // 1) filtrele
         let filtered = vm.entries
-            // Sadece zamanı geçmiş veya cevaplanmış kayıtları alıyoruz.
             .filter { entry in
-                // Eğer girişin durumu "beklemede" ise, sadece süresi dolmuş olanları göster.
                 if entry.status == .pending {
                     return now > entry.expiresAt
                 }
-                // Diğer durumlardaki (cevaplandı, kaçırıldı) tüm girişleri göster.
                 return true
             }
             .filter {
@@ -94,7 +90,7 @@ struct HistoryView: View {
                 case .all:        return true
                 case .answered:   return $0.status == .answered
                 case .missed:     return $0.status == .missed
-                case .pending:    return $0.status == .pending // Bu artık sadece kaçırılmış pending'leri gösterecek
+                case .pending:    return $0.status == .pending
                 case .todayOnly:  return Calendar.current.isDateInToday($0.day)
                 }
             }
@@ -128,7 +124,7 @@ struct HistoryView: View {
             return MonthSection(monthKey: key, monthTitle: title, items: items)
         }
     }
-
+    
     // MARK: - Types
     enum Filter: Hashable { case all, todayOnly, answered, missed, pending }
     struct MonthKey: Hashable { let year: Int; let month: Int }

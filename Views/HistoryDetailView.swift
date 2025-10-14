@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HistoryDetailView: View {
     let entry: DayEntry
+    @EnvironmentObject var themeManager: ThemeManager
 
     private var fullDateTitle: String {
         let df = DateFormatter()
@@ -114,5 +115,11 @@ struct HistoryDetailView: View {
         }
         .navigationTitle("Kayıt Detayı")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            themeManager.update(for: entry)
+        }
+        .onDisappear {
+            themeManager.update(for: nil)
+        }
     }
 }

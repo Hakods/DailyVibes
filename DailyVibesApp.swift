@@ -6,23 +6,23 @@
 //
 
 import SwiftUI
-import CoreData // HATA GİDERİCİ: Bu satırı ekliyoruz.
+import CoreData
 
 @main
 struct DailyVibesApp: App {
-    // Core Data yöneticisini oluştur
     let persistenceController = PersistenceController.shared
     
     @StateObject private var store = StoreService()
     @StateObject private var schedule = ScheduleService()
+    @StateObject private var themeManager = ThemeManager()
 
     var body: some Scene {
         WindowGroup {
             RootView()
-                // Core Data context'ini environment'a ekle
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .environmentObject(store)
                 .environmentObject(schedule)
+                .environmentObject(themeManager)
                 .tint(Theme.accent)
                 .background(Theme.bg)
                 .preferredColorScheme(.light)
