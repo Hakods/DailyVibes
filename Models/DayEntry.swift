@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import CoreData
 
 enum EntryStatus: String, Codable {
     case pending, answered, missed, late
@@ -21,7 +22,6 @@ struct DayEntry: Identifiable, Codable, Equatable {
     var mood: Mood?
     var score: Int?
     var emojiVariant: String?
-    // --- BU ALANIN DOĞRU EKLENDİĞİNDEN EMİN OLALIM ---
     var emojiTitle: String?
 
     init(
@@ -35,7 +35,7 @@ struct DayEntry: Identifiable, Codable, Equatable {
         mood: Mood? = nil,
         score: Int? = nil,
         emojiVariant: String? = nil,
-        emojiTitle: String? = nil // Bu satırın burada olduğundan emin ol
+        emojiTitle: String? = nil
     ) {
         self.id = id
         self.day = day
@@ -47,57 +47,49 @@ struct DayEntry: Identifiable, Codable, Equatable {
         self.mood = mood
         self.score = score
         self.emojiVariant = emojiVariant
-        self.emojiTitle = emojiTitle // Bu satırın burada olduğundan emin ol
-    }
-    
-    // --- KODLAMA VE OKUMA İŞLEMLERİNİ GÜNCELLEYELİM ---
-    private enum CodingKeys: String, CodingKey {
-        case id, day, scheduledAt, expiresAt, text, status, allowEarlyAnswer, mood, score, emojiVariant, emojiTitle
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
-        self.day = try container.decode(Date.self, forKey: .day)
-        self.scheduledAt = try container.decode(Date.self, forKey: .scheduledAt)
-        self.expiresAt = try container.decode(Date.self, forKey: .expiresAt)
-        self.text = try container.decodeIfPresent(String.self, forKey: .text)
-        self.status = try container.decodeIfPresent(EntryStatus.self, forKey: .status) ?? .pending
-        self.allowEarlyAnswer = try container.decodeIfPresent(Bool.self, forKey: .allowEarlyAnswer) ?? false
-        self.mood = try container.decodeIfPresent(Mood.self, forKey: .mood)
-        self.score = try container.decodeIfPresent(Int.self, forKey: .score)
-        self.emojiVariant = try container.decodeIfPresent(String.self, forKey: .emojiVariant)
-        // Bu satırın eklendiğinden emin ol
-        self.emojiTitle = try container.decodeIfPresent(String.self, forKey: .emojiTitle)
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id, forKey: .id)
-        try container.encode(day, forKey: .day)
-        try container.encode(scheduledAt, forKey: .scheduledAt)
-        try container.encode(expiresAt, forKey: .expiresAt)
-        try container.encodeIfPresent(text, forKey: .text)
-        try container.encode(status, forKey: .status)
-        try container.encode(allowEarlyAnswer, forKey: .allowEarlyAnswer)
-        try container.encodeIfPresent(mood, forKey: .mood)
-        try container.encodeIfPresent(score, forKey: .score)
-        try container.encodeIfPresent(emojiVariant, forKey: .emojiVariant)
-        // Bu satırın eklendiğinden emin ol
-        try container.encodeIfPresent(emojiTitle, forKey: .emojiTitle)
+        self.emojiTitle = emojiTitle
     }
 }
 
+// Core Data dönüşüm extension'ı aynı kalabilir
+extension DayEntry {
+    init(from coreDataObject: DayEntryCD) {
+        self.id = coreDataObject.id ?? UUID()
+        self.day = coreDataObject.day ?? Date()
+        self.scheduledAt = coreDataObject.scheduledAt ?? Date()
+        self.expiresAt = coreDataObject.expiresAt ?? Date()
+        self.text = coreDataObject.text
+        self.status = EntryStatus(rawValue: coreDataObject.status ?? "pending") ?? .pending
+        self.allowEarlyAnswer = coreDataObject.allowEarlyAnswer
+        self.score = coreDataObject.score == 0 ? nil : Int(coreDataObject.score)
+        self.emojiVariant = coreDataObject.emojiVariant
+        self.emojiTitle = coreDataObject.emojiTitle
+        self.mood = nil
+    }
+
+    func update(coreDataObject: DayEntryCD) {
+        coreDataObject.id = self.id
+        coreDataObject.day = self.day
+        coreDataObject.scheduledAt = self.scheduledAt
+        coreDataObject.expiresAt = self.expiresAt
+        coreDataObject.text = self.text
+        coreDataObject.status = self.status.rawValue
+        coreDataObject.allowEarlyAnswer = self.allowEarlyAnswer
+        coreDataObject.score = Int64(self.score ?? 0)
+        coreDataObject.emojiVariant = self.emojiVariant
+        coreDataObject.emojiTitle = self.emojiTitle
+    }
+}
 
 // MARK: - Mood
 
+// GÜNCELLEME: Mood enum'una da Codable'ı ekliyoruz.
 enum Mood: String, Codable, CaseIterable, Identifiable {
     case happy, calm, excited, tired, sick, sad, stressed
-    case angry, anxious, bored    // 🔥 yeni çeşitler
+    case angry, anxious, bored
 
     var id: String { rawValue }
 
-    // Varsayılan tek emoji (UI’da varyant seçilirse DayEntry.emojiVariant kullanılır)
     var emoji: String {
         switch self {
         case .happy:    return "😊"

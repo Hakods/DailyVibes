@@ -29,18 +29,21 @@ struct TodayView: View {
                         
                         if let e = vm.entry {
                             Card {
-                                topRow(for: e)
-                                Divider().padding(.vertical, 6)
-                                
+                                // YENİ GÖRÜNÜM: Duruma göre farklı bir üst kısım gösteriyoruz.
                                 if e.status == .pending {
+                                    PendingStateView() // Saat yerine gizemli bir kart
+                                } else {
+                                    answeredBlock(for: e) // Cevaplandıysa direkt sonucu göster
+                                }
+                                
+                                // Sadece cevaplama zamanı geldiğinde diğer kontrolleri göster
+                                if e.status == .pending && Date() >= e.scheduledAt {
+                                    Divider().padding(.vertical, 6)
                                     moodPicker
                                     ratingRow
                                     promptArea
                                     Group { composer }.id(editorAnchorID)
                                     saveRow(for: e)
-                                } else {
-                                    // GÜNCELLEME 3: Kayıt sonrası gösterim düzeltildi.
-                                    answeredBlock(for: e)
                                 }
                             }
                             .transition(.opacity.combined(with: .move(edge: .bottom)))
@@ -94,23 +97,28 @@ struct TodayView: View {
         }
     }
     
-    // MARK: - Top Row
-    private func topRow(for e: DayEntry) -> some View {
-        HStack(spacing: 10) {
-            Text("⏰")
-            VStack(alignment: .leading) {
-                Text("Planlanan saat").font(.subheadline).foregroundStyle(Theme.textSec)
-                Text(e.scheduledAt.formatted(date: .omitted, time: .shortened)).font(.title3.bold())
+    // YENİ: Bekleme durumunu gösteren yenilikçi kart
+    private struct PendingStateView: View {
+        var body: some View {
+            VStack(spacing: 12) {
+                Image(systemName: "wand.and.stars")
+                    .font(.system(size: 40))
+                    .foregroundStyle(Theme.accentGradient)
+                
+                Text("Günün Vibe'ı Yolda...")
+                    .font(.title3.weight(.bold))
+                
+                Text("Bildirim geldiğinde gününü kaydetmek için 10 dakikan olacak.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.textSec)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
             }
-            Spacer()
-            if e.status == .pending {
-                CountdownPill(remaining: Int(vm.remaining))
-            } else {
-                StatusBadge(status: e.status)
-            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
         }
     }
-
+    
     // MARK: - Mood Picker
     private var moodPicker: some View {
         let items = MoodEmojiCatalog.all
@@ -119,7 +127,7 @@ struct TodayView: View {
         let visibleRows: CGFloat = 3
         let spacing: CGFloat = 10
         let gridHeight = visibleRows * cellHeight + (visibleRows - 1) * spacing
-
+        
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("Bugünkü modun?").font(.headline)
@@ -128,7 +136,7 @@ struct TodayView: View {
                     Text(selected).font(.title2).padding(.horizontal, 8).background(Theme.accent.opacity(0.1)).clipShape(Capsule())
                 }
             }
-
+            
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid(columns: columns, spacing: spacing) {
                     ForEach(items) { item in
@@ -415,7 +423,7 @@ enum MoodEmojiCatalog {
         let emoji: String
         let title: String
     }
-
+    
     // Farklı hisleri temsil eden geniş bir emoji yelpazesi (her biri kendi ismiyle)
     static let all: [Item] = [
         // Mutlu tonlar
@@ -427,48 +435,48 @@ enum MoodEmojiCatalog {
         .init(emoji: "😎", title: "Kendinden Emin"),
         .init(emoji: "🥳", title: "Kutlama Modu"),
         .init(emoji: "🤗", title: "Sıcak Kalpli"),
-
+        
         // Sakin / rahat tonlar
         .init(emoji: "😌", title: "Sakin"),
         .init(emoji: "🧘‍♀️", title: "Rahatlamış"),
         .init(emoji: "🌿", title: "Doğayla İç İçe"),
         .init(emoji: "🫶", title: "Şükreden"),
         .init(emoji: "💫", title: "Huzurlu"),
-
+        
         // Üzgün tonlar
         .init(emoji: "😔", title: "Üzgün"),
         .init(emoji: "😢", title: "Kırılmış"),
         .init(emoji: "😭", title: "Gözyaşı Döküyor"),
         .init(emoji: "🥺", title: "Kırılgan"),
         .init(emoji: "😞", title: "Hayal Kırıklığı"),
-
+        
         // Stresli / yorgun tonlar
         .init(emoji: "🥱", title: "Uykulu"),
         .init(emoji: "😪", title: "Yorgun"),
         .init(emoji: "😵‍💫", title: "Kafa Karışık"),
         .init(emoji: "😫", title: "Bitkin"),
         .init(emoji: "🤯", title: "Patlamak Üzere"),
-
+        
         // Öfkeli tonlar
         .init(emoji: "😠", title: "Kızgın"),
         .init(emoji: "😡", title: "Çok Sinirli"),
         .init(emoji: "🤬", title: "Öfke Patlaması"),
         .init(emoji: "💢", title: "Gerilmiş"),
-
+        
         // Kaygılı tonlar
         .init(emoji: "😬", title: "Tedirgin"),
         .init(emoji: "😰", title: "Kaygılı"),
         .init(emoji: "😨", title: "Korkmuş"),
         .init(emoji: "🫨", title: "Endişeli"),
         .init(emoji: "😟", title: "İç Çekiyor"),
-
+        
         // Hasta / rahatsız tonlar
         .init(emoji: "🤒", title: "Ateşli"),
         .init(emoji: "🤕", title: "Ağrılı"),
         .init(emoji: "🤧", title: "Üşütmüş"),
         .init(emoji: "🥴", title: "Sersemlemiş"),
         .init(emoji: "😷", title: "Maskeli Hasta"),
-
+        
         // Eğlenceli / deli dolu tonlar
         .init(emoji: "🤪", title: "Deli Doluyum"),
         .init(emoji: "😜", title: "Yaramaz"),
@@ -477,7 +485,7 @@ enum MoodEmojiCatalog {
         .init(emoji: "✨", title: "Parlıyorum"),
         .init(emoji: "🙃", title: "Tersine Gülen"),
         .init(emoji: "😏", title: "Kendine Güvenen"),
-
+        
         // Nötr / kararsız
         .init(emoji: "😐", title: "Nötr"),
         .init(emoji: "😶", title: "Sessiz"),

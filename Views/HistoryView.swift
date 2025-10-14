@@ -11,17 +11,16 @@ struct HistoryView: View {
     @State private var filter: Filter = .all
     @Namespace private var anim
     @FocusState private var searchFocused: Bool
-    
+
     var body: some View {
-        // YENİ: NavigationView eklendi
         NavigationView {
             ZStack {
                 AnimatedAuroraBackground()
-                
+
                 VStack(spacing: 0) {
                     SummaryHeader(entries: vm.entries)
                         .background(Color.clear)
-                    
+
                     VStack(spacing: 12) {
                         Segmented(filter: $filter, anim: anim)
                         SearchBar(text: $query, isFocused: $searchFocused)
@@ -29,7 +28,7 @@ struct HistoryView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
                     .padding(.bottom, 4)
-                    
+
                     let listData = makeListData()
                     if listData.isEmpty {
                         EmptyState()
@@ -40,12 +39,9 @@ struct HistoryView: View {
                             ForEach(listData, id: \.monthKey) { section in
                                 Section {
                                     ForEach(section.items) { e in
-                                        // GÜNCELLEME: NavigationLink'in en doğru kullanımı
                                         NavigationLink {
-                                            // Hedef Sayfa
                                             HistoryDetailView(entry: e)
                                         } label: {
-                                            // Tıklanacak Görünüm (Kartın kendisi)
                                             HistoryRow(entry: e)
                                         }
                                         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
@@ -58,8 +54,6 @@ struct HistoryView: View {
                                 }
                             }
                         }
-                        
-                        
                         .listStyle(.insetGrouped)
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)
@@ -78,21 +72,29 @@ struct HistoryView: View {
             .toolbar { Button("Yenile") { vm.refresh() } }
         }
     }
-    
+
     // MARK: - Filtreleme & Gruplama
-    
+    // --- BU KISIM GÜNCELLENDİ ---
     private func makeListData() -> [MonthSection] {
-        let today = Calendar.current.startOfDay(for: Date())
+        let now = Date()
         
-        // 1) filtrele (sadece bugün ve geçmiş)
+        // 1) filtrele
         let filtered = vm.entries
-            .filter { $0.day <= today }
+            // Sadece zamanı geçmiş veya cevaplanmış kayıtları alıyoruz.
+            .filter { entry in
+                // Eğer girişin durumu "beklemede" ise, sadece süresi dolmuş olanları göster.
+                if entry.status == .pending {
+                    return now > entry.expiresAt
+                }
+                // Diğer durumlardaki (cevaplandı, kaçırıldı) tüm girişleri göster.
+                return true
+            }
             .filter {
                 switch filter {
                 case .all:        return true
                 case .answered:   return $0.status == .answered
                 case .missed:     return $0.status == .missed
-                case .pending:    return $0.status == .pending
+                case .pending:    return $0.status == .pending // Bu artık sadece kaçırılmış pending'leri gösterecek
                 case .todayOnly:  return Calendar.current.isDateInToday($0.day)
                 }
             }
@@ -126,13 +128,10 @@ struct HistoryView: View {
             return MonthSection(monthKey: key, monthTitle: title, items: items)
         }
     }
-    
+
     // MARK: - Types
-    
     enum Filter: Hashable { case all, todayOnly, answered, missed, pending }
-    
     struct MonthKey: Hashable { let year: Int; let month: Int }
-    
     struct MonthSection {
         let monthKey: MonthKey
         let monthTitle: String

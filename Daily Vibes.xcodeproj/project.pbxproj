@@ -33,6 +33,11 @@
 		3CC8D0DC2E9516C100C5A259 /* DailyVibesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC8D0DB2E95168D00C5A259 /* DailyVibesApp.swift */; };
 		3CC8D0DE2E9525AF00C5A259 /* AnimatedAuroraBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC8D0DD2E9525A800C5A259 /* AnimatedAuroraBackground.swift */; };
 		3CEDF5052E9D193400595983 /* HistoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF5042E9D193400595983 /* HistoryDetailView.swift */; };
+		3CEDF5072E9E3F4900595983 /* StatsVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF5062E9E3F4900595983 /* StatsVM.swift */; };
+		3CEDF5092E9E3F7400595983 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF5082E9E3F7400595983 /* StatsView.swift */; };
+		3CEDF50C2E9E416600595983 /* DailyVibes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF50A2E9E416600595983 /* DailyVibes.xcdatamodeld */; };
+		3CEDF50E2E9E42F500595983 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF50D2E9E42F500595983 /* PersistenceController.swift */; };
+		3CEDF5102E9E430800595983 /* CoreDataDayEntryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF50F2E9E430800595983 /* CoreDataDayEntryRepository.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +68,11 @@
 		3CC8D0DB2E95168D00C5A259 /* DailyVibesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyVibesApp.swift; sourceTree = "<group>"; };
 		3CC8D0DD2E9525A800C5A259 /* AnimatedAuroraBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedAuroraBackground.swift; sourceTree = "<group>"; };
 		3CEDF5042E9D193400595983 /* HistoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDetailView.swift; sourceTree = "<group>"; };
+		3CEDF5062E9E3F4900595983 /* StatsVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsVM.swift; sourceTree = "<group>"; };
+		3CEDF5082E9E3F7400595983 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+		3CEDF50B2E9E416600595983 /* DailyVibes.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DailyVibes.xcdatamodel; sourceTree = "<group>"; };
+		3CEDF50D2E9E42F500595983 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		3CEDF50F2E9E430800595983 /* CoreDataDayEntryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataDayEntryRepository.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +89,8 @@
 		3C96F0342E85555700BB73A9 = {
 			isa = PBXGroup;
 			children = (
+				3CEDF50D2E9E42F500595983 /* PersistenceController.swift */,
+				3CEDF50A2E9E416600595983 /* DailyVibes.xcdatamodeld */,
 				3CC8D0DB2E95168D00C5A259 /* DailyVibesApp.swift */,
 				3C96F0542E85567800BB73A9 /* Resources */,
 				3C96F0532E85567300BB73A9 /* Shared */,
@@ -102,6 +114,7 @@
 		3C96F04F2E85564D00BB73A9 /* Repository */ = {
 			isa = PBXGroup;
 			children = (
+				3CEDF50F2E9E430800595983 /* CoreDataDayEntryRepository.swift */,
 				3C96F05D2E85576C00BB73A9 /* FileDayEntryRepository.swift */,
 				3C96F05C2E85576000BB73A9 /* DayEntryRepository.swift */,
 			);
@@ -122,6 +135,7 @@
 		3C96F0512E85566400BB73A9 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				3CEDF5062E9E3F4900595983 /* StatsVM.swift */,
 				3C96F0682E8557D700BB73A9 /* PaywallVM.swift */,
 				3C96F0672E8557D100BB73A9 /* SettingsVM.swift */,
 				3C96F0662E8557C300BB73A9 /* HistoryVM.swift */,
@@ -133,6 +147,7 @@
 		3C96F0522E85566C00BB73A9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				3CEDF5082E9E3F7400595983 /* StatsView.swift */,
 				3CEDF5042E9D193400595983 /* HistoryDetailView.swift */,
 				3C96F06D2E85580800BB73A9 /* PaywallView.swift */,
 				3C96F06C2E85580300BB73A9 /* SettingsView.swift */,
@@ -239,12 +254,16 @@
 			files = (
 				3CC8D0DA2E9416E800C5A259 /* Formatters.swift in Sources */,
 				3C96F0732E8559AF00BB73A9 /* HapticsService.swift in Sources */,
+				3CEDF5102E9E430800595983 /* CoreDataDayEntryRepository.swift in Sources */,
 				3C96F0752E8559AF00BB73A9 /* PaywallView.swift in Sources */,
 				3C96F08E2E856C6000BB73A9 /* Theme.swift in Sources */,
 				3C96F0762E8559AF00BB73A9 /* SettingsView.swift in Sources */,
 				3C96F0772E8559AF00BB73A9 /* HistoryView.swift in Sources */,
+				3CEDF50E2E9E42F500595983 /* PersistenceController.swift in Sources */,
 				3CC8D0D62E9414EC00C5A259 /* RepositoryProvider.swift in Sources */,
+				3CEDF50C2E9E416600595983 /* DailyVibes.xcdatamodeld in Sources */,
 				3C96F0782E8559AF00BB73A9 /* TodayView.swift in Sources */,
+				3CEDF5092E9E3F7400595983 /* StatsView.swift in Sources */,
 				3C96F0792E8559AF00BB73A9 /* RootView.swift in Sources */,
 				3C96F08C2E855F1800BB73A9 /* StatusBadge.swift in Sources */,
 				3C96F07A2E8559AF00BB73A9 /* PaywallVM.swift in Sources */,
@@ -257,6 +276,7 @@
 				3C96F07F2E8559AF00BB73A9 /* ScheduleService.swift in Sources */,
 				3CC8D0DE2E9525AF00C5A259 /* AnimatedAuroraBackground.swift in Sources */,
 				3C96F0802E8559AF00BB73A9 /* NotificationService.swift in Sources */,
+				3CEDF5072E9E3F4900595983 /* StatsVM.swift in Sources */,
 				3CC8D0D22E94136B00C5A259 /* Card.swift in Sources */,
 				3C96F0812E8559AF00BB73A9 /* TimeWindow.swift in Sources */,
 				3C96F0822E8559AF00BB73A9 /* FileDayEntryRepository.swift in Sources */,
@@ -475,6 +495,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		3CEDF50A2E9E416600595983 /* DailyVibes.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				3CEDF50B2E9E416600595983 /* DailyVibes.xcdatamodel */,
+			);
+			currentVersion = 3CEDF50B2E9E416600595983 /* DailyVibes.xcdatamodel */;
+			path = DailyVibes.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 3C96F0352E85555700BB73A9 /* Project object */;
 }

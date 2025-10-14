@@ -21,6 +21,12 @@ struct RootView: View {
                     .tabItem {
                         Label("Geçmiş", systemImage: "clock.fill")
                     }
+                
+                StatsView()
+                    .tabItem {
+                        Label("İstatistikler", systemImage: "chart.pie.fill")
+                    }
+                
                 SettingsView()
                     .tabItem {
                         Label("Ayarlar", systemImage: "gearshape.fill")
