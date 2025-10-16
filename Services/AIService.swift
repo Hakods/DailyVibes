@@ -19,17 +19,16 @@ final class AIService {
     init() {
         let ai = FirebaseAI.firebaseAI(backend: .googleAI())
         self.model = ai.generativeModel(modelName: "gemini-2.5-flash")
+        print("✅ AIService, 'gemini-2.5-flash' ile başarıyla başlatıldı.")
     }
 
-    /// Stream: kısalık ve geçmiş etkisini kontrol eden sürüm
     func askAIStream(
         question: String,
         entries: [DayEntry],
-        mode: Mode = .creative,                // geçmişe daha az bağlılık için default'u creative yaptım
-        style: ResponseStyle = .concise,       // kısa cevap için concise
-        useLastDays: Int? = 7,                 // sadece son 7 gün
-        useLastCount: Int = 2,                 // en fazla 2 kayıt
-        maxChars: Int = 600                    // ~ 4-6 paragrafı geçmesin, istersen 400 yap
+        mode: Mode = .creative,
+        style: ResponseStyle = .concise,
+        useLastDays: Int? = 7,
+        useLastCount: Int = 3
     ) -> AsyncThrowingStream<String, Error> {
 
         let scoped = scopeEntries(entries, lastDays: useLastDays, lastCount: useLastCount)
@@ -39,28 +38,11 @@ final class AIService {
             Task {
                 do {
                     let stream = try model.generateContentStream(prompt)
-                    var total = 0
                     for try await chunk in stream {
                         if let text = chunk.text, !text.isEmpty {
-                            let remaining = max(0, maxChars - total)
-                            if remaining <= 0 {
-                                // Sert kes: limit aşılınca akışı bitiriyoruz
-                                continuation.finish()
-                                break
-                            }
-                            // Parçayı kısaltıp ver
-                            let piece = String(text.prefix(remaining))
-                            total += piece.count
-                            continuation.yield(piece)
-
-                            // Limit tam dolduysa kapat
-                            if total >= maxChars {
-                                continuation.finish()
-                                break
-                            }
+                            continuation.yield(text)
                         }
                     }
-                    // normal bitiş (limit erken kapatmadıysa)
                     continuation.finish()
                 } catch {
                     continuation.finish(throwing: error)
@@ -69,7 +51,6 @@ final class AIService {
         }
     }
 
-    // Günlükleri süreye / sayıya göre daralt
     private func scopeEntries(_ entries: [DayEntry], lastDays: Int?, lastCount: Int) -> [DayEntry] {
         var list = entries
         if let d = lastDays {
@@ -80,7 +61,7 @@ final class AIService {
         return Array(list.prefix(lastCount))
     }
 
-    // Promptu mod + style'a göre kurgula
+    // --- EN BÜYÜK DEĞİŞİKLİK BURADA: BEYNİ YENİDEN PROGRAMLIYORUZ ---
     private func buildPrompt(
         question: String,
         entries: [DayEntry],
@@ -88,54 +69,51 @@ final class AIService {
         style: ResponseStyle
     ) -> String {
         let entriesText = formatEntriesForAI(entries)
+        
+        // GÜNCELLEME 1: Genel sohbeti algılayan bir kontrol
+        let generalGreetings = ["selam", "merhaba", "naber", "nasılsın", "kimsin", "hey"]
+        let isGeneralQuestion = generalGreetings.contains { question.lowercased().contains($0) }
 
-        // Geçmişe ağırlık
         let guidance: String
-        switch mode {
-        case .strict:
-            guidance = "Verilen günlük verilerine %80 ağırlık ver; veri dışına nadiren çık."
-        case .balanced:
-            guidance = "Günlük verilerine %50, genel danışmanlık içgörülerine %50 ağırlık ver."
-        case .creative:
-            guidance = """
-            Günlük verilerini yalnızca hafif bir referans (%30) olarak kullan.
-            Gerektiğinde genel psikolojik danışmanlık ilkeleri ve iyi pratiklere dayalı, bağımsız içgörüler sun.
-            """
+        if isGeneralQuestion {
+            // Eğer soru genel bir selamlama ise, analiz modunu tamamen kapat.
+            guidance = "Kullanıcı genel bir sohbet başlatıyor. 'KULLANICI VERİLERİ'ni tamamen görmezden gel. Sadece 'Vibe Koçu' rolünle, samimi, kısa ve arkadaşça bir cevap ver. Ona nasıl yardımcı olabileceğini sor."
+        } else {
+            // Eğer soru analiz gerektiriyorsa, normal modda devam et.
+            switch mode {
+            case .strict:
+                guidance = "Görevin SADECE verilen 'KULLANICI VERİLERİ'ni analiz etmektir. Bu verilerin dışına asla çıkma."
+            case .balanced:
+                guidance = "Görevin günlük verilerindeki desenleri analiz etmek. Cevabını bu verilere dayandır ama bunları desteklemek için genel tavsiyeler de verebilirsin."
+            case .creative:
+                guidance = "Görevin, genel psikolojik prensiplere dayalı, bilge bir yol arkadaşı gibi konuşmak. 'KULLANICI VERİLERİ'ni sadece bir ilham kaynağı olarak kullan, onlara takılıp kalma."
+            }
         }
-
-        // Kısalık/derinlik stili
+        
         let brevity: String
         switch style {
         case .concise:
-            brevity = "Cevabın en fazla 6–8 cümle olsun; başlık + 3 madde öneri ver; gereksiz tekrar yapma."
+            brevity = "Cevabın ÇOK KISA ve öz olmalı. Maksimum 4-5 cümle."
         case .normal:
-            brevity = "Cevabın orta uzunlukta olsun; başlık + 4–6 madde öneri ver."
+            brevity = "Cevabın orta uzunlukta, birkaç kısa paragraf şeklinde olsun."
         case .deep:
-            brevity = "Cevabın ayrıntılı olabilir; fakat yine de net başlıklar ve maddelerle yapılandır."
+            brevity = "Cevabın ayrıntılı olabilir."
         }
 
-        // Geçmişi gereksiz referanslamayı azalt
-        let referencing = """
-        Geçmiş günlüklerden **yalnızca doğrudan alakalı** bir örnek gerekiyorsa 1 kez kısaca bahset; her paragrafta tekrar etme.
-        Eğer doğrudan alaka yoksa geçmişi anma.
-        """
-
         return """
-        Sen 'Vibe Koçu'sun. Tıbbi tavsiye verme.
-        \(guidance)
-        \(brevity)
-        \(referencing)
+        Sen 'Vibe Koçu'sun. Davranış kuralların şunlardır:
+        - KESİNLİKLE Markdown kullanma (yani *, **, # gibi işaretler kullanma). Cevabın tamamen düz metin (plain text) olsun.
+        - Tıbbi tavsiye ASLA verme.
+        - Cevapların her zaman pozitif, cesaret verici ve samimi bir dilde olmalı.
+        - \(guidance)
+        - \(brevity)
 
         ----
-        KULLANICI VERİLERİ (kısıtlı/özet):
-        \(entriesText.isEmpty ? "Kayıt yok veya kısıtlı gösterim." : entriesText)
+        KULLANICI VERİLERİ (Referans için):
+        \(entriesText.isEmpty ? "Kullanıcının henüz analiz edilecek kaydı yok." : entriesText)
         ----
+        
         KULLANICININ SORUSU: "\(question)"
-
-        Cevabı şu formatta ver:
-        1) Kısa başlık
-        2) 3 maddelik net, uygulanabilir öneri listesi
-        3) 1 cümlelik kapanış
         """
     }
 
