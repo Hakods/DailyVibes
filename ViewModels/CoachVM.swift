@@ -50,7 +50,8 @@ final class CoachVM: ObservableObject {
             let twoWeeksAgo = calendar.date(byAdding: .day, value: -14, to: Date())!
             let recentEntries = (try? repo.load().filter { $0.day >= twoWeeksAgo }) ?? []
             
-            let responseStream = aiService.askAIStream(question: question, with: recentEntries)
+            let responseStream = aiService.askAIStream(question: question, entries: recentEntries)
+            //                              doğru etiketi kullan:       ^^^^^^^
             
             var aiMessageID: UUID? = nil
             
