@@ -15,7 +15,7 @@ struct SettingsView: View {
 
     var body: some View {
         ZStack {
-            // 🌈 Modern arka plan
+
             AnimatedAuroraBackground()
 
             ScrollView {
@@ -106,13 +106,12 @@ struct SettingsView: View {
                                 }
                                 Spacer()
                             }
-                            
+
                             Button {
                                 Task { await RepositoryProvider.shared.notification.dumpPendingDetailed() }
                             } label: {
                                 Label("Bekleyen bildirimleri yazdır", systemImage: "list.bullet.rectangle")
                             }
-
 
                             Button {
                                 Task { await schedule.planForNext(days: 14) }
@@ -122,15 +121,19 @@ struct SettingsView: View {
                                     .frame(maxWidth: .infinity)
                             }
                             .buttonStyle(PrimaryButtonStyle())
-                            .disabled(!vm.authGranted)
-                            .overlay(alignment: .bottomLeading) {
-                                if !vm.authGranted {
+                            .allowsHitTesting(vm.authGranted)
+                            .overlay(
+                                VStack(alignment: .leading, spacing: 0) {
                                     Text("Önce bildirim izni ver.")
                                         .font(.caption2)
                                         .foregroundStyle(Theme.bad)
-                                        .padding(.top, 4)
-                                }
-                            }
+                                        .opacity(vm.authGranted ? 0 : 1)
+                                        .frame(height: 14, alignment: .top)
+                                },
+                                alignment: .bottomLeading
+                            )
+
+                            .transaction { t in t.animation = nil }
                         }
                     }
 
