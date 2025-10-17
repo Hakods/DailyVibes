@@ -8,40 +8,42 @@
 import SwiftUI
 
 struct CoachView: View {
-    @StateObject private var vm = CoachVM()
+    @StateObject private var vm: CoachVM
+    @EnvironmentObject var store: StoreService
+    
     @FocusState private var isTextFieldFocused: Bool
     @State private var showSettings = false
-
+    
+    init() {
+        _vm = StateObject(wrappedValue: CoachVM(store: RepositoryProvider.shared.store))
+    }
+    
     var body: some View {
         NavigationView {
             ZStack {
                 AnimatedAuroraBackground()
                 
                 VStack(spacing: 0) {
-                    // Sohbet Balonları
                     ScrollViewReader { proxy in
                         ScrollView {
                             VStack(spacing: 12) {
-                                // YENİ: Başlangıçta kullanıcıyı yönlendiren bir kart
-                                if vm.chatMessages.count <= 1 {
-                                    WelcomeCardView()
-                                }
+                                if vm.chatMessages.count <= 1 { WelcomeCardView() }
                                 
                                 ForEach(vm.chatMessages) { message in
                                     MessageView(message: message)
                                 }
                                 
-                                if vm.isLoading {
+                                if vm.isLoading && vm.chatMessages.last?.isFromUser == true {
                                     HStack {
                                         LoadingDotsView()
                                             .padding(12)
                                             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
                                         Spacer()
                                     }
+                                    .transition(.opacity) // Daha yumuşak bir geçiş için
                                 }
                             }
                             .padding()
-                            // GÜNCELLEME: Input bar'ın altında daha fazla boşluk bırakmak için padding artırıldı
                             .padding(.bottom, 100)
                             .onTapGesture { isTextFieldFocused = false }
                             .onChange(of: vm.chatMessages.count) { _, _ in scrollToBottom(proxy: proxy) }
@@ -50,32 +52,33 @@ struct CoachView: View {
                         .scrollDismissesKeyboard(.interactively)
                     }
                     
-                    // YENİ: Daha şık bir soru yazma alanı
-                    ChatInputBar(
-                        userQuestion: $vm.userQuestion,
-                        isLoading: $vm.isLoading,
-                        isTextFieldFocused: $isTextFieldFocused,
-                        onSend: {
-                            vm.askQuestion()
-                            isTextFieldFocused = false
-                        },
-                        onCancel: {
-                            vm.cancel()
-                        }
-                    )
+                    // GÜNCELLEME: Admin modunu da kontrol ediyoruz
+                    if !store.isProUnlocked && vm.freeMessagesRemaining <= 0 && !vm.isAdminOverrideEnabled {
+                        PaywallPromptView(onTap: { vm.showPaywall = true })
+                    } else {
+                        ChatInputBar(
+                            userQuestion: $vm.userQuestion,
+                            isLoading: $vm.isLoading,
+                            isTextFieldFocused: $isTextFieldFocused,
+                            onSend: {
+                                vm.askQuestion()
+                                isTextFieldFocused = false
+                            },
+                            onCancel: {
+                                vm.cancel()
+                            }
+                        )
+                    }
                 }
             }
             .navigationTitle("AI Koçun")
             .toolbar {
-                // YENİ: Ayarlar butonu
-                Button {
-                    showSettings = true
-                } label: {
-                    Image(systemName: "gearshape.fill")
-                }
+                Button { showSettings = true } label: { Image(systemName: "gearshape.fill") }
+            }
+            .sheet(isPresented: $vm.showPaywall) { // ViewModel'deki showPaywall'u dinle
+                PaywallView(vm: .init(store: store))
             }
             .sheet(isPresented: $showSettings) {
-                // YENİ: Ayarlar ekranı
                 CoachSettingsView(vm: vm)
             }
         }
@@ -86,6 +89,29 @@ struct CoachView: View {
         withAnimation(.spring()) {
             proxy.scrollTo(lastMessageID, anchor: .bottom)
         }
+    }
+}
+
+// MARK: - Alt Bileşenler (Değişiklik yok)
+
+private struct PaywallPromptView: View {
+    var onTap: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Divider()
+            VStack(spacing: 12) {
+                Text("Günlük ücretsiz limitine ulaştın.")
+                    .font(.headline)
+                
+                Button("Sınırsız Sohbet İçin Pro'ya Geç") {
+                    onTap()
+                }
+                .buttonStyle(PrimaryButtonStyle())
+            }
+            .padding()
+        }
+        .background(.regularMaterial)
     }
 }
 
@@ -140,7 +166,7 @@ private struct ChatInputBar: View {
                     .disabled(isLoading)
                     .padding(8)
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-                    .lineLimit(1...5)
+                    .lineLimit(1...5) // Metin uzadıkça kutu da büyüsün
                 
                 // Sağ taraftaki buton alanı (Dinamik olarak değişecek)
                 ZStack {
@@ -204,6 +230,15 @@ private struct CoachSettingsView: View {
                         Text("Yavaş").font(.caption)
                     }
                 }
+                
+#if DEBUG
+                Section("Admin Araçları") {
+                    Toggle("Sınırsız Mesaj Hakkı (Admin)", isOn: $vm.isAdminOverrideEnabled)
+                        .onChange(of: vm.isAdminOverrideEnabled) { _, _ in
+                            vm.updateInitialMessage()
+                        }
+                }
+#endif
             }
             .navigationTitle("Koç Ayarları")
             .navigationBarTitleDisplayMode(.inline)
