@@ -26,17 +26,17 @@ final class CoachVM: ObservableObject {
     @Published var chatMessages: [ChatMessage] = []
     @Published var userQuestion: String = ""
     @Published var isLoading = false
-
+    
     // UI kontrolleri:
     @Published var isCreative: Bool = true
     @Published var shortnessLevel: Double = 0.7
     @Published var isTyping: Bool = false
     @Published var typingSpeed: Double = 0.025
-
+    
     private let repo: DayEntryRepository
     private let aiService = AIService()
     private var streamTask: Task<Void, Never>?
-
+    
     init(repo: DayEntryRepository? = nil) {
         self.repo = repo ?? RepositoryProvider.shared.dayRepo
         chatMessages.append(ChatMessage(
@@ -48,31 +48,27 @@ final class CoachVM: ObservableObject {
     func askQuestion() {
         let trimmed = userQuestion.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-
+        
         let question = trimmed
         chatMessages.append(ChatMessage(text: question, isFromUser: true))
         userQuestion = ""
         isLoading = true
-        isTyping = true
-
+        isTyping = true // Bu satırı senin kodundan ekledim, doğru.
+        
         streamTask?.cancel()
         streamTask = Task { [weak self] in
             guard let self else { return }
-
-            let recentDays = self.isCreative ? 7 : 14
-            let maxCount   = self.isCreative ? 3 : 5
             
-            let entries: [DayEntry] = {
-                let all = (try? self.repo.load()) ?? []
-                let cutoff = Calendar.current.date(byAdding: .day, value: -recentDays, to: Date()) ?? .distantPast
-                return all.filter { $0.day >= cutoff }
-            }()
+            // GÜNCELLEME: AI'a daha fazla veri vererek daha akıllı olmasını sağlıyoruz.
+            let recentDays = 14 // Her zaman son 2 haftayı analiz etsin.
+            let maxCount   = 20 // Bu 2 hafta içindeki en son 20 kaydı dikkate alsın.
             
-            // GÜNCELLEME: Slider'dan gelen değeri daha basit bir 'style'a çeviriyoruz.
+            let entries = (try? self.repo.load()) ?? []
+            
             let style: AIService.ResponseStyle = self.shortnessLevel > 0.6 ? .concise : .normal
             let mode: AIService.Mode = self.isCreative ? .creative : .balanced
-
-            // GÜNCELLEME: `maxChars` argümanını buradan kaldırıyoruz.
+            
+            // Artık karakter limitini göndermiyoruz.
             let responseStream = self.aiService.askAIStream(
                 question: question,
                 entries: entries,
@@ -81,9 +77,9 @@ final class CoachVM: ObservableObject {
                 useLastDays: recentDays,
                 useLastCount: maxCount
             )
-
+            
             var aiMessageID: UUID?
-
+            
             do {
                 for try await chunk in responseStream {
                     for char in chunk {
@@ -98,7 +94,7 @@ final class CoachVM: ObservableObject {
                                 self.chatMessages.append(newMessage)
                             }
                         }
-
+                        
                         let nanos = UInt64(max(0.0, self.typingSpeed) * 1_000_000_000)
                         try await Task.sleep(nanoseconds: nanos)
                     }
@@ -111,14 +107,14 @@ final class CoachVM: ObservableObject {
                     ))
                 }
             }
-
+            
             await MainActor.run {
                 self.isLoading = false
                 self.isTyping = false
             }
         }
     }
-
+    
     func cancel() {
         streamTask?.cancel()
         isLoading = false
