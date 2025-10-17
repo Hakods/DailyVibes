@@ -8,9 +8,16 @@ import SwiftUI
 struct HistoryView: View {
     @StateObject private var vm = HistoryVM()
     @State private var query: String = ""
+    // GÜNCELLEME: Filtre enum'u daha basit ve en başta tanımlı
     @State private var filter: Filter = .all
     @Namespace private var anim
     @FocusState private var searchFocused: Bool
+    
+    enum Filter: String, CaseIterable {
+        case all = "Tümü"
+        case answered = "Cevaplanan"
+        case missed = "Kaçırılan"
+    }
     
     var body: some View {
         NavigationView {
@@ -19,7 +26,6 @@ struct HistoryView: View {
                 
                 VStack(spacing: 0) {
                     SummaryHeader(entries: vm.entries)
-                        .background(Color.clear)
                     
                     VStack(spacing: 12) {
                         Segmented(filter: $filter, anim: anim)
@@ -33,7 +39,7 @@ struct HistoryView: View {
                     
                     List {
                         if listData.isEmpty {
-                            EmptyState()
+                            EmptyState(filter: filter, query: query)
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .padding(.top, 40)
@@ -60,21 +66,16 @@ struct HistoryView: View {
                     .listStyle(.insetGrouped)
                     .scrollContentBackground(.hidden)
                     .background(Color.clear)
-                    .animation(.easeInOut(duration: 0.18), value: listData.map(\.monthKey))
                     .refreshable { vm.refresh() }
                     .scrollDismissesKeyboard(.interactively)
-                    .onTapGesture { searchFocused = false }
                 }
-                .contentShape(Rectangle())
-                .onTapGesture { searchFocused = false }
-                .padding(.bottom, 4)
                 .appBackground()
             }
             .navigationTitle("Geçmiş")
             .toolbar { Button("Yenile") { vm.refresh() } }
         }
     }
-  
+    
     private func makeListData() -> [MonthSection] {
         let now = Date()
         
@@ -87,32 +88,28 @@ struct HistoryView: View {
             }
             .filter {
                 switch filter {
-                case .all:        return true
-                case .answered:   return $0.status == .answered
-                case .missed:     return $0.status == .missed
-                case .pending:    return $0.status == .pending
-                case .todayOnly:  return Calendar.current.isDateInToday($0.day)
+                case .all: return true
+                case .answered: return $0.status == .answered
+                case .missed: return $0.status == .missed
                 }
             }
             .filter {
                 let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !q.isEmpty else { return true }
                 let inText  = ($0.text ?? "").localizedCaseInsensitiveContains(q)
-                let inMood  = $0.mood?.title.localizedCaseInsensitiveContains(q) ?? false
+                let inMood  = ($0.emojiTitle ?? $0.mood?.title ?? "").localizedCaseInsensitiveContains(q)
                 return inText || inMood
             }
         
-        // 2) ay bazlı grupla
         let grouped = Dictionary(grouping: filtered) { (entry: DayEntry) -> MonthKey in
             let comps = Calendar.current.dateComponents([.year, .month], from: entry.day)
             return MonthKey(year: comps.year ?? 0, month: comps.month ?? 0)
         }
         
-        // 3) başlıkları hazırla (TR locale)
         let tr = Locale(identifier: "tr_TR")
         let df = DateFormatter()
         df.locale = tr
-        df.dateFormat = "LLLL yyyy" // "Ekim 2025"
+        df.dateFormat = "LLLL yyyy"
         
         let sortedKeys = grouped.keys.sorted { (a, b) in (a.year, a.month) > (b.year, b.month) }
         
@@ -125,8 +122,7 @@ struct HistoryView: View {
         }
     }
     
-    // MARK: - Types
-    enum Filter: Hashable { case all, todayOnly, answered, missed, pending }
+    // Types
     struct MonthKey: Hashable { let year: Int; let month: Int }
     struct MonthSection {
         let monthKey: MonthKey
@@ -208,16 +204,14 @@ private struct Segmented: View {
     var anim: Namespace.ID
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                pill(.all, "Tümü")
-                pill(.todayOnly, "Bugün")
-                pill(.answered, "Cevaplanan")
-                pill(.missed, "Kaçırılan")
-                pill(.pending, "Beklemede")
+        // ScrollView'ı kaldırıp, sona bir Spacer ekleyerek sola yaslıyoruz.
+        HStack(spacing: 8) {
+            ForEach(HistoryView.Filter.allCases, id: \.self) { f in
+                pill(f, f.rawValue)
             }
-            .padding(6)
+            Spacer() // Bu, tüm butonları sola iter.
         }
+        .padding(6)
         .background(Theme.card)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 3)
@@ -391,15 +385,22 @@ private struct HistoryRow: View {
 // MARK: - Boş Durum
 
 private struct EmptyState: View {
+    let filter: HistoryView.Filter
+    let query: String
+    
     var body: some View {
         VStack(spacing: 12) {
-            Text("Henüz geçmiş yok")
-                .font(.title3.bold())
-            Text("‘Bugün’ bölümünden ilk notunu yazdığında burada göreceksin.")
-                .multilineTextAlignment(.center)
-                .foregroundStyle(Theme.textSec)
-                .font(.callout)
+            if !query.isEmpty {
+                Text("'\(query)' için sonuç bulunamadı.")
+            } else if filter != .all {
+                Text("Bu filtreye uygun kayıt yok.")
+            } else {
+                Text("Henüz geçmiş bir kaydın yok.")
+            }
         }
+        .font(.title3.bold())
+        .multilineTextAlignment(.center)
+        .foregroundStyle(Theme.textSec)
         .padding(24)
         .frame(maxWidth: .infinity)
         .background(Theme.card)
