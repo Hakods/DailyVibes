@@ -12,30 +12,38 @@ final class ScheduleService: ObservableObject {
     @Published var startHour: Int = 10
     @Published var endHour: Int = 22
     @Published var pingsPerDay: Int = 1   // ileride Pro için 1..3'e çıkarılabilir
+    @Published private(set) var lastManualPlanAt: Date?
 
     private let repo: DayEntryRepository
     private let notifier: NotificationService
+    private let defaults: UserDefaults
 
     /// "Bugün toplu plan yaptık mı?" throttling için basit bir bayrak
     private let lastPlanKey = "lastPlanDayKey"
+    private let lastPlanTimestampKey = "lastPlanTimestampKey"
 
     init(repo: DayEntryRepository? = nil,
          notifier: NotificationService? = nil) {
         self.repo = repo ?? RepositoryProvider.shared.dayRepo
         self.notifier = notifier ?? RepositoryProvider.shared.notification
+        self.defaults = UserDefaults.standard
+        self.lastManualPlanAt = defaults.object(forKey: lastPlanTimestampKey) as? Date
     }
 
     // MARK: - Throttle helpers
 
     private func canPlanToday() -> Bool {
         let key = DateFormatter.dayKey.string(from: Date())
-        let last = UserDefaults.standard.string(forKey: lastPlanKey)
+        let last = defaults.string(forKey: lastPlanKey)
         return last != key
     }
 
     private func markPlannedToday() {
-        let key = DateFormatter.dayKey.string(from: Date())
-        UserDefaults.standard.set(key, forKey: lastPlanKey)
+        let now = Date()
+        let key = DateFormatter.dayKey.string(from: now)
+        defaults.set(key, forKey: lastPlanKey)
+        defaults.set(now, forKey: lastPlanTimestampKey)
+        lastManualPlanAt = now
     }
 
     // MARK: - Public APIs

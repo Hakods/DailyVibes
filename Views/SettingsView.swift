@@ -100,7 +100,7 @@ struct SettingsView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Planlama")
                                         .font(.headline)
-                                    Text("Bildirimler yerel olarak planlanır. Günde tek bildirim bırakılır.")
+                                    Text("Bildirimler günde bir kez rastgele saatlerde planlanır. Zaman penceresi senin kontrolünde.")
                                         .font(.caption)
                                         .foregroundStyle(Theme.textSec)
                                 }
@@ -108,15 +108,9 @@ struct SettingsView: View {
                             }
 
                             Button {
-                                Task { await RepositoryProvider.shared.notification.dumpPendingDetailed() }
-                            } label: {
-                                Label("Bekleyen bildirimleri yazdır", systemImage: "list.bullet.rectangle")
-                            }
-
-                            Button {
                                 Task { await schedule.planForNext(days: 14) }
                             } label: {
-                                Label("Önümüzdeki 14 Günü Planla", systemImage: "calendar.badge.plus")
+                                Label("14 Günlük Planı Yenile", systemImage: "calendar.badge.plus")
                                     .font(.body.weight(.semibold))
                                     .frame(maxWidth: .infinity)
                             }
@@ -132,8 +126,23 @@ struct SettingsView: View {
                                 },
                                 alignment: .bottomLeading
                             )
-
                             .transaction { t in t.animation = nil }
+
+                            if let lastPlan = schedule.lastManualPlanAt {
+                                Divider().padding(.vertical, 4)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("Son manuel planlama")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(Theme.text)
+                                    Text(vm.planTimestampDescription(for: lastPlan))
+                                        .font(.caption)
+                                        .foregroundStyle(Theme.textSec)
+                                }
+                            }
+
+                            Text("Manuel planlama günde bir kez yenilenir; gerekmedikçe butona dokunmana gerek yok.")
+                                .font(.caption2)
+                                .foregroundStyle(Theme.textSec)
                         }
                     }
 

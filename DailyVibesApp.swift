@@ -26,9 +26,13 @@ struct DailyVibesApp: App {
     
     
     let persistenceController = PersistenceController.shared
-    @StateObject private var store = StoreService()
+    @StateObject private var store: StoreService
     @StateObject private var schedule = ScheduleService()
     @StateObject private var themeManager = ThemeManager() // Bu da eksikti, ekledim.
+
+    init() {
+        _store = StateObject(wrappedValue: RepositoryProvider.shared.store)
+    }
 
     var body: some Scene {
         WindowGroup {
