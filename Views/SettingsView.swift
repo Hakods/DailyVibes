@@ -12,15 +12,15 @@ struct SettingsView: View {
     @StateObject private var vm = SettingsVM()
     @State private var showPaywall = false
     @State private var showAdminTools = false   // DEBUG araçlarını aç/kapat
-
+    
     var body: some View {
         ZStack {
-
+            
             AnimatedAuroraBackground()
-
+            
             ScrollView {
                 VStack(spacing: 16) {
-
+                    
                     // MARK: - ÖZET
                     Card {
                         VStack(alignment: .leading, spacing: 12) {
@@ -45,14 +45,14 @@ struct SettingsView: View {
                                 }
                                 Spacer()
                             }
-
+                            
                             if !vm.authGranted {
                                 Button("İzin iste") { vm.requestNotifications() }
                                     .buttonStyle(PrimaryButtonStyle())
                             }
                         }
                     }
-
+                    
                     // MARK: - ZAMAN PENCERESİ
                     Card {
                         VStack(alignment: .leading, spacing: 12) {
@@ -67,13 +67,13 @@ struct SettingsView: View {
                                 }
                                 Spacer()
                             }
-
+                            
                             Stepper("Başlangıç: \(schedule.startHour):00",
                                     value: $schedule.startHour, in: 5...22)
-
+                            
                             Stepper("Bitiş: \(schedule.endHour):00",
                                     value: $schedule.endHour, in: 6...23)
-
+                            
                             if store.isProUnlocked {
                                 Divider().padding(.vertical, 6)
                                 HStack {
@@ -91,7 +91,7 @@ struct SettingsView: View {
                             }
                         }
                     }
-
+                    
                     // MARK: - PLANLAMA
                     Card {
                         VStack(alignment: .leading, spacing: 12) {
@@ -100,23 +100,18 @@ struct SettingsView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Planlama")
                                         .font(.headline)
-                                    Text("Bildirimler yerel olarak planlanır. Günde tek bildirim bırakılır.")
+                                    Text("Bildirimler günde bir kez rastgele saatlerde planlanır. Zaman penceresi senin kontrolünde.")
                                         .font(.caption)
                                         .foregroundStyle(Theme.textSec)
                                 }
                                 Spacer()
                             }
-
-                            Button {
-                                Task { await RepositoryProvider.shared.notification.dumpPendingDetailed() }
-                            } label: {
-                                Label("Bekleyen bildirimleri yazdır", systemImage: "list.bullet.rectangle")
-                            }
-
+                            
+                            
                             Button {
                                 Task { await schedule.planForNext(days: 14) }
                             } label: {
-                                Label("Önümüzdeki 14 Günü Planla", systemImage: "calendar.badge.plus")
+                                Label("14 Günlük Planı Yenile", systemImage: "calendar.badge.plus")
                                     .font(.body.weight(.semibold))
                                     .frame(maxWidth: .infinity)
                             }
@@ -132,11 +127,26 @@ struct SettingsView: View {
                                 },
                                 alignment: .bottomLeading
                             )
-
                             .transaction { t in t.animation = nil }
+                            
+                            if let lastPlan = schedule.lastManualPlanAt {
+                                Divider().padding(.vertical, 4)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("Son manuel planlama")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(Theme.text)
+                                    Text(vm.planTimestampDescription(for: lastPlan))
+                                        .font(.caption)
+                                        .foregroundStyle(Theme.textSec)
+                                }
+                            }
+                            
+                            Text("Manuel planlama günde bir kez yenilenir; gerekmedikçe butona dokunmana gerek yok.")
+                                .font(.caption2)
+                                .foregroundStyle(Theme.textSec)
                         }
                     }
-
+                    
                     // MARK: - PRO
                     Card {
                         VStack(alignment: .leading, spacing: 12) {
@@ -148,7 +158,7 @@ struct SettingsView: View {
                                     Text("Daha çok ping, daha esnek zaman penceresi ve yakında gelecek özel analizler.")
                                         .font(.caption)
                                         .foregroundStyle(Theme.textSec)
-
+                                    
                                     if store.isProUnlocked {
                                         Badge(text: "Pro aktif", color: Theme.good)
                                     } else {
@@ -159,7 +169,7 @@ struct SettingsView: View {
                                             Button("Pro'yu Satın Al") { showPaywall = true }
                                                 .buttonStyle(PrimaryButtonStyle())
                                         }
-
+                                        
                                         Button("Satın alımı geri yükle") {
                                             Task { await store.restore() }
                                         }
@@ -171,7 +181,7 @@ struct SettingsView: View {
                             }
                         }
                     }
-
+                    
                     // MARK: - İPUÇLARI
                     Card {
                         VStack(alignment: .leading, spacing: 10) {
@@ -192,9 +202,9 @@ struct SettingsView: View {
                             }
                         }
                     }
-
+                    
                     // MARK: - ADMIN (DEBUG)
-                    #if DEBUG
+#if DEBUG
                     Card {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
@@ -209,7 +219,7 @@ struct SettingsView: View {
                                 }
                                 .buttonStyle(.plain)
                             }
-
+                            
                             if showAdminTools {
                                 VStack(alignment: .leading, spacing: 10) {
                                     Button {
@@ -224,7 +234,7 @@ struct SettingsView: View {
                                         Label("1 dk sonra ping planla", systemImage: "bolt.fill")
                                     }
                                     .buttonStyle(PrimaryButtonStyle())
-
+                                    
                                     Button {
                                         Task {
                                             if !vm.authGranted {
@@ -236,9 +246,9 @@ struct SettingsView: View {
                                     } label: {
                                         Label("5 sn sonra test bildirimi", systemImage: "paperplane.fill")
                                     }
-
+                                    
                                     Divider().padding(.vertical, 4)
-
+                                    
                                     Button(role: .destructive) {
                                         Task { await RepositoryProvider.shared.notification.purgeAllAppPending() }
                                     } label: {
@@ -249,7 +259,7 @@ struct SettingsView: View {
                             }
                         }
                     }
-                    #endif
+#endif
                 }
                 .padding(16)
             }
