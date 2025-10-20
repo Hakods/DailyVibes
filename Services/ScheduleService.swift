@@ -9,8 +9,8 @@ import UserNotifications
 
 @MainActor
 final class ScheduleService: ObservableObject {
-    @Published var startHour: Int = 10
-    @Published var endHour: Int = 22
+    private let fixedStartHour = 10
+    private let fixedEndHour = 22
     @Published var pingsPerDay: Int = 1   // ileride Pro için 1..3'e çıkarılabilir
     @Published private(set) var lastManualPlanAt: Date?
 
@@ -18,7 +18,6 @@ final class ScheduleService: ObservableObject {
     private let notifier: NotificationService
     private let defaults: UserDefaults
 
-    /// "Bugün toplu plan yaptık mı?" throttling için basit bir bayrak
     private let lastPlanKey = "lastPlanDayKey"
     private let lastPlanTimestampKey = "lastPlanTimestampKey"
 
@@ -45,11 +44,7 @@ final class ScheduleService: ObservableObject {
         defaults.set(now, forKey: lastPlanTimestampKey)
         lastManualPlanAt = now
     }
-
-    // MARK: - Public APIs
-
-    /// Önümüzdeki N günü planla; her gün için **tek** mood- bildirim bırak.
-    /// - Gün içinde bu fonksiyon birden fazla çağrılsa bile throttle eder.
+    
     func planForNext(days: Int = 14) async {
         guard canPlanToday() else {
             #if DEBUG
@@ -63,7 +58,6 @@ final class ScheduleService: ObservableObject {
         let now = Date()
         let today = cal.startOfDay(for: now)
 
-        // 1) Geçmiş pending'leri "missed" yap
         for i in -30..<0 {
             if let d = cal.date(byAdding: .day, value: i, to: today),
                let idx = entries.firstIndex(where: { cal.isDate($0.day, inSameDayAs: d) }),
@@ -74,13 +68,13 @@ final class ScheduleService: ObservableObject {
         }
 
         #if DEBUG
-        print("🔄 Planlama başlıyor… \(days) gün için (window: \(startHour):00–\(endHour):00)")
+        print("🔄 Planlama başlıyor… \(days) gün için (window: \(fixedStartHour):00–\(fixedEndHour):00)")
         #endif
 
         // 2) Bugün dâhil ileri günleri planla (her gün tek bildirim)
         for i in 0..<days {
             guard let day = cal.date(byAdding: .day, value: i, to: today),
-                  let fire = randomTime(on: day, startHour: startHour, endHour: endHour)
+                  let fire = randomTime(on: day, startHour: fixedStartHour, endHour: fixedEndHour)
             else { continue }
 
             // BUGÜN ve rastgele saat geçmişse: o günü atla (spam’i önler)
@@ -98,7 +92,6 @@ final class ScheduleService: ObservableObject {
                 entries.append(DayEntry(day: day, scheduledAt: fire, expiresAt: exp))
             }
 
-            // Aynı güne ait önceki pending’i iptal edip tek bir bildirim bırak
             try? await notifier.scheduleUniqueDaily(for: day, at: fire)
 
             #if DEBUG
@@ -110,13 +103,11 @@ final class ScheduleService: ObservableObject {
         try? repo.save(entries)
         markPlannedToday()
 
-        // Bekleyen bildirimleri özetle
         #if DEBUG
         await logPendingSummary()
         #endif
     }
 
-    /// Admin: 1 dk sonra **tekil** bildirim planla (bugün için). Erken cevap modunu açar.
     func planAdminOneMinute() async {
         var entries = (try? repo.load()) ?? []
         let now = Date()

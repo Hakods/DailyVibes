@@ -212,3 +212,10 @@ final class NotificationService: NSObject, ObservableObject {
     }
 #endif
 }
+
+extension NotificationService {
+    func checkAuthStatus() async -> Bool {
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        return settings.authorizationStatus == .authorized
+    }
+}
