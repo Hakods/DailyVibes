@@ -120,3 +120,56 @@ enum Mood: String, Codable, CaseIterable, Identifiable {
         }
     }
 }
+
+extension Array where Element == DayEntry {
+
+    /// DayEntry dizisini CSV formatında bir String'e dönüştürür.
+    func toCSV() -> String {
+        // Tarih formatlayıcıyı Türkçe ayarlarla oluşturalım
+        let dateFormatter: DateFormatter = {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss" // ISO benzeri, sıralama için uygun
+            formatter.locale = Locale(identifier: "tr_TR")
+            formatter.timeZone = TimeZone.current // Kullanıcının saat dilimi
+            return formatter
+        }()
+
+        // Başlık satırı
+        let header = "ID,Gün,Planlanan Zaman,Bitiş Zamanı,Durum,Erken Cevap İzni,Puan,Emoji Kodu,Emoji Başlığı,Not\n"
+
+        // Her bir DayEntry için veri satırlarını oluştur
+        let dataRows = self.map { entry -> String in
+            // Not alanındaki virgül ve tırnak işaretlerinden kaçınma (CSV standardı)
+            let safeText = escapeCSVField(entry.text ?? "")
+
+            // Verileri birleştir, opsiyonel değerler için boş string kullan
+            return [
+                entry.id.uuidString,
+                dateFormatter.string(from: entry.day),
+                dateFormatter.string(from: entry.scheduledAt),
+                dateFormatter.string(from: entry.expiresAt),
+                entry.status.rawValue,
+                entry.allowEarlyAnswer ? "Evet" : "Hayır",
+                entry.score.map { String($0) } ?? "", // Puanı string'e çevir veya boş bırak
+                entry.emojiVariant ?? "",
+                entry.emojiTitle ?? "",
+                safeText // Kaçınılmış not metni
+            ].joined(separator: ",") // Virgülle ayır
+        }.joined(separator: "\n") // Satırları yeni satır karakteriyle birleştir
+
+        return header + dataRows
+    }
+
+    /// CSV alanlarındaki özel karakterlerden kaçınır (tırnak içine alır ve çift tırnakları iki katına çıkarır).
+    private func escapeCSVField(_ field: String) -> String {
+        // Alan virgül, çift tırnak veya yeni satır içeriyorsa
+        if field.contains(",") || field.contains("\"") || field.contains("\n") {
+            // Çift tırnakları iki katına çıkar ve tüm alanı çift tırnak içine al
+            let escapedField = field.replacingOccurrences(of: "\"", with: "\"\"")
+            return "\"\(escapedField)\""
+        } else {
+            // Özel karakter yoksa olduğu gibi döndür
+            return field
+        }
+    }
+}

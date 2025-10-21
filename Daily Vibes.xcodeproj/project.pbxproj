@@ -70,6 +70,7 @@
 		3C96F0892E855C6700BB73A9 /* TodayVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayVM.swift; sourceTree = "<group>"; };
 		3C96F08B2E855F1800BB73A9 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		3C96F08D2E856C6000BB73A9 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		3CB610CA2EA790A700508731 /* Daily-Vibes-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Daily-Vibes-Info.plist"; sourceTree = "<group>"; };
 		3CC8D0C52E93C7C700C5A259 /* Daily Vibes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Daily Vibes.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CC8D0D12E94136900C5A259 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
 		3CC8D0D52E9414E500C5A259 /* RepositoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryProvider.swift; sourceTree = "<group>"; };
@@ -105,6 +106,7 @@
 		3C96F0342E85555700BB73A9 = {
 			isa = PBXGroup;
 			children = (
+				3CB610CA2EA790A700508731 /* Daily-Vibes-Info.plist */,
 				3C2B39DE2EA65AE000D8E5AB /* TestStore.storekit */,
 				3CEDF50D2E9E42F500595983 /* PersistenceController.swift */,
 				3CEDF50A2E9E416600595983 /* DailyVibes.xcdatamodeld */,
@@ -452,6 +454,7 @@
 				DEVELOPMENT_TEAM = 75R4MMW9Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Daily-Vibes-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -485,6 +488,7 @@
 				DEVELOPMENT_TEAM = 75R4MMW9Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Daily-Vibes-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

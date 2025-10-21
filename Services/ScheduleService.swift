@@ -11,7 +11,6 @@ import UserNotifications
 final class ScheduleService: ObservableObject {
     private let fixedStartHour = 10
     private let fixedEndHour = 22
-    @Published var pingsPerDay: Int = 1   // ileride Pro için 1..3'e çıkarılabilir
     @Published private(set) var lastManualPlanAt: Date?
 
     private let repo: DayEntryRepository
