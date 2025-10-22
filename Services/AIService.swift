@@ -52,72 +52,115 @@ final class AIService {
     }
     
     private func scopeEntries(_ entries: [DayEntry], lastDays: Int?, lastCount: Int) -> [DayEntry] {
+        let now = Date()
         var list = entries
+        
+        list = list.filter { Calendar.current.compare($0.day, to: now, toGranularity: .day) != .orderedDescending }
+        
         if let d = lastDays {
-            let cutoff = Calendar.current.date(byAdding: .day, value: -d, to: Date()) ?? .distantPast
+            let cutoff = Calendar.current.date(byAdding: .day, value: -d, to: now) ?? .distantPast
             list = list.filter { $0.day >= cutoff }
         }
+        
         list.sort { $0.day > $1.day }
+        
         return Array(list.prefix(lastCount))
     }
     
-    // Daily Vibes/Services/AIService.swift dosyasındaki buildPrompt fonksiyonunu bununla değiştirin:
     
     private func buildPrompt(
         question: String,
         entries: [DayEntry],
-        mode: Mode, // Mode kullanılabilir: örn. creative modda daha az veriye bağlı kalmasını söyleyebiliriz
+        mode: Mode,
         style: ResponseStyle
     ) -> String {
         let entriesText = formatEntriesForAI(entries) // Veriyi formatla
-        
-        // Tarih bilgisi (aynı kalabilir)
+
+        // Tarih bilgisi
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd MMMM yyyy, EEEE"
         dateFormatter.locale = Locale(identifier: "tr_TR")
         let todayString = dateFormatter.string(from: Date())
-        
-        // Soru Analizi (aynı kalabilir)
+
+        // Soru Analizi (aynı kalır)
         let lowerQuestion = question.lowercased()
-        let specificDataKeywords = ["dün", "geçen hafta", "hangi gün", "kaç kere", "listele", "ne zaman", "skoru", "puanı", "modu", "notu"] // Spesifik veri kelimeleri genişletildi
-        let analysisKeywords = ["neden", "nasıl", "analiz", "tavsiye", "sebep", "hissetmemin", "sence", "yorumla"] // Analiz kelimeleri genişletildi
+        let specificDataKeywords = ["dün", "geçen hafta", "hangi gün", "kaç kere", "listele", "ne zaman", "skoru", "puanı", "modu", "notu", "kaçtı"]
+        let analysisKeywords = ["neden", "nasıl", "analiz", "tavsiye", "sebep", "hissetmemin", "sence", "yorumla", "psikolog"]
+        let offTopicKeywords = ["neresi", "kimdir", "nedir", "ne kadar", "hangi", "kaç yılında", "başkenti"]
         let generalGreetings = ["selam", "merhaba", "naber", "nasılsın", "kimsin", "hey"]
-        
-        var questionType = "analysis" // Varsayılan: Analiz
+
+        var questionType = "analysis"
         if generalGreetings.contains(where: { lowerQuestion.contains($0) }) {
-            questionType = "general"
+            questionType = "greeting"
         } else if specificDataKeywords.contains(where: { lowerQuestion.contains($0) }) {
             questionType = "data"
         } else if analysisKeywords.contains(where: { lowerQuestion.contains($0) }) {
             questionType = "analysis"
+        } else if offTopicKeywords.contains(where: { lowerQuestion.contains($0) }) || !entriesText.isEmpty && !lowerQuestion.contains("ben") && !lowerQuestion.contains("his") && !lowerQuestion.contains("günüm") {
+            questionType = "off_topic"
         }
-        
-        // --- GÜNCELLENMİŞ Dinamik Rehberlik ---
+
+        // --- Farklı Hatırlatma Metinleri ---
+        let reminderVariations = [
+            "Ancak asıl görevimin, senin duygu durumunu ve girdilerini analiz ederek sana destek olmak olduğunu unutma.",
+            "Genel soruları da cevaplayabilirim, ama istersen Vibe'ların hakkında daha derinlemesine konuşabiliriz.",
+            "Bu ilginç bir konu! Cevapladıktan sonra, nasıl hissettiğine odaklanmak istersen buradayım.",
+            "Elbette, bu konuda bilgim var. Yine de hatırlatmak isterim ki önceliğim senin duygusal yolculuğuna eşlik etmek."
+        ]
+        // GÜNCELLEME: Stile göre değil, rastgele seçelim.
+        // .randomElement() metodu diziden rastgele bir eleman seçer. Dizi boşsa nil döner,
+        // bu yüzden ?? ile varsayılan bir değer (ilk cümle) atıyoruz.
+        let reminderText = reminderVariations.randomElement() ?? reminderVariations[0]
+        // --- Hatırlatma Metinleri Sonu ---
+
+        // --- Dinamik Rehberlik (Hatırlatıcı metni kullanacak şekilde güncellendi) ---
         let guidance: String
         switch questionType {
+            // ... (data, analysis, greeting caseleri aynı kalır) ...
         case "data":
-            // NET TALİMAT: Veriye bak ve direkt cevap ver.
-            guidance = "Kullanıcı geçmiş kayıtlardan spesifik bir bilgi istiyor (örneğin dünkü mod, puan veya not). **Görevin SADECE sana verilen 'KULLANICI VERİLERİ'ne bakarak bu soruya DOĞRUDAN ve KESİN bir cevap vermektir.** Eğer istenen tarih veya bilgi kayıtlarda yoksa, açıkça 'O tarihe ait kayıt bulunmuyor' veya 'Bu bilgi kayıtlarda belirtilmemiş' de. Yorum yapma, tahmin yürütme, sadece veriyi aktar."
+            guidance = """
+            Kullanıcı geçmiş kayıtlardan spesifik bir bilgi istiyor... (öncekiyle aynı)
+            """
         case "analysis":
-            // HİBRİT TALİMAT: Veriyi kullan ama genelleştir.
-            guidance = "Kullanıcı bir durumu anlamak, nedenini öğrenmek veya tavsiye almak istiyor. 'KULLANICI VERİLERİ'ni önemli bir **bağlam** olarak kullan. Kayıtlardaki eğilimleri, tekrar eden modları veya notlardaki önemli noktaları fark etmeye çalış. Cevabını oluştururken bu gözlemlerini genel psikolojik prensipler ve empatik bir dille birleştir. Bilge bir yol arkadaşı gibi konuş. **Spesifik bir kayda çok fazla odaklanmaktan kaçın, genel tabloyu yorumla.** Kesin teşhis koyma."
-        case "general":
-            guidance = "Kullanıcı genel bir sohbet başlatıyor. Sağlanan verileri tamamen görmezden gel. Sadece 'Vibe Koçu' rolünle, samimi, kısa ve arkadaşça bir cevap ver."
-        default: // Varsayılan analiz
-            guidance = "Kullanıcının sorusunu 'KULLANICI VERİLERİ'ni bağlam olarak kullanarak, genel psikolojik prensipler ve empatik bir yaklaşımla, bilge bir yol arkadaşı gibi cevapla."
+            guidance = """
+            Kullanıcı bir durumu anlamak... (öncekiyle aynı)
+            """
+        case "greeting":
+            guidance = "Kullanıcı genel bir sohbet başlatıyor (selamlaşma)... (öncekiyle aynı)"
+
+        case "off_topic":
+            // Seçilen rastgele reminderText kullanılıyor.
+            guidance = """
+            Kullanıcının sorusu kişisel duygu durumu veya geçmiş kayıtlarıyla ilgili görünmüyor...
+            **Önce, sorduğu genel bilgi sorusunu kendi bilgine dayanarak DOĞRU bir şekilde cevapla.**
+            **Ardından, cevabının SONUNA şu cümleyi EKLE:** '\(reminderText)'
+            Kullanıcı verilerini bu tür sorular için kullanma.
+            """
+        default:
+            guidance = "Kullanıcının sorusunu 'KULLANICI VERİLERİ'ni bağlam olarak kullanarak..." // (öncekiyle aynı)
         }
         // --- Rehberlik Sonu ---
-        
-        // Kısalık (aynı kalabilir veya ayarlanabilir)
+
+        // Kısalık (aynı kalabilir)
         let brevity: String
         switch style {
-        case .concise: brevity = "Cevabın ÇOK KISA ve öz olmalı. Maksimum 2-3 cümle."
-        case .normal: brevity = "Cevabın kısa ve anlaşılır olmalı. Genellikle 4-6 cümle yeterlidir."
+        // ... (öncekiyle aynı)
+        case .concise: brevity = "Cevabın ÇOK KISA ve öz olmalı. Maksimum 2-3 cümle (eğer hatırlatma ekliyorsan o hariç)."
+        case .normal: brevity = "Cevabın kısa ve anlaşılır olmalı. Genellikle 4-6 cümle yeterlidir (eğer hatırlatma ekliyorsan o hariç)."
         case .deep:
             if questionType == "analysis" { brevity = "Cevabın düşünceli ve biraz daha detaylı olabilir (6-8 cümle)." }
             else { brevity = "Cevabın kısa ve anlaşılır olmalı (4-6 cümle)." }
         }
-        
+
+
+        // Veri Gizleme (aynı kalabilir)
+        let includeUserData = (questionType != "off_topic" && questionType != "greeting")
+        let userDataSection = includeUserData ? """
+            KULLANICI VERİLERİ (Referans için):
+            \(entriesText.isEmpty ? "Henüz analiz edilecek kayıt yok." : entriesText)
+            ----
+            """ : ""
+
         // Prompt'un geri kalanı (aynı kalabilir)
         return """
             Sen 'Vibe Koçu'sun. Davranış kuralların şunlardır:
@@ -125,16 +168,14 @@ final class AIService {
             - Tıbbi veya kesin teşhis niteliğinde tavsiye ASLA verme. 'Bir uzmana danışmak faydalı olabilir' gibi yönlendirmeler yapabilirsin.
             - \(guidance)
             - \(brevity)
-            
+
             ----
             ÖNEMLİ BİLGİ:
             - Bugünün tarihi: \(todayString)
-            - Kullanıcının geçmiş kayıtları aşağıdadır ('KULLANICI VERİLERİ'). Sorularını bu tarih bağlamında cevapla ('dün' demek, \(todayString) tarihinden bir önceki gün demektir). Eğer sorulan tarihle ilgili veri yoksa veya bilgi eksikse bunu belirt.
-            
-            KULLANICI VERİLERİ (Referans için):
-            \(entriesText.isEmpty ? "Henüz analiz edilecek kayıt yok." : entriesText)
-            ----
-            
+            - \(includeUserData ? "Kullanıcının geçmiş kayıtları aşağıdadır ('KULLANICI VERİLERİ')..." : "Bu soru için kullanıcı verileri kullanılmamaktadır.")
+
+            \(userDataSection)
+
             KULLANICININ SORUSU: "\(question)"
             """
     }

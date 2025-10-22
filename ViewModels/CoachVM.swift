@@ -105,7 +105,7 @@ final class CoachVM: ObservableObject {
             guard let self else { return }
             
             let recentDays = self.isCreative ? 7 : 14
-            let maxCount   = self.isCreative ? 3 : 5
+            let maxCount   = 30
             let entries = (try? self.repo.load()) ?? []
             
             let style: AIService.ResponseStyle = self.shortnessLevel > 0.6 ? .concise : .normal
@@ -117,7 +117,7 @@ final class CoachVM: ObservableObject {
                 mode: mode,
                 style: style,
                 useLastDays: recentDays,
-                useLastCount: maxCount
+                useLastCount: maxCount 
             )
             
             var aiMessageID: UUID?
