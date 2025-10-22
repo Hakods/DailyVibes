@@ -45,7 +45,7 @@ final class PaywallVM: ObservableObject {
                     case SKError.clientInvalid.rawValue:
                         errorMessage = "Satın alma işlemi başlatılamadı."
                     case SKError.paymentCancelled.rawValue:
-                        errorMessage = nil // Kullanıcı iptal etti
+                        errorMessage = nil
                     case SKError.paymentInvalid.rawValue:
                         errorMessage = "Ödeme bilgileri geçersiz."
                     case SKError.paymentNotAllowed.rawValue:
@@ -73,7 +73,7 @@ final class PaywallVM: ObservableObject {
                      }
                 // 3. ÖNCELİK: Diğer tüm hatalar
                 } else {
-                     errorMessage = "Satın alma başarısız oldu. Lütfen tekrar deneyin. (\(error.localizedDescription))"
+                     errorMessage = "Satın alma başarısız oldu. Lütfen tekrar deneyin."
                 }
             }
         }
