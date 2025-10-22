@@ -17,6 +17,9 @@ struct RootView: View {
                     .tabItem {
                         Label("Bugün", systemImage: "sun.max.fill")
                     }
+                SummaryView() // Yeni oluşturduğumuz View'ı buraya ekle
+                    .tabItem { Label("Özetler", systemImage: "sparkles.rectangle.stack.fill")
+                    }
                 CoachView()
                     .tabItem { Label("AI Koçun", systemImage: "brain.head.profile") }
                 HistoryView()

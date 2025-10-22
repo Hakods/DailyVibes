@@ -197,4 +197,76 @@ final class AIService {
             """
         }.joined(separator: "\n---\n")
     }
+    
+    enum SummaryPeriod: String {
+        case week = "Haftalık"
+        case month = "Aylık"
+    }
+
+    // Yeni Özet Akış Fonksiyonu
+    func generateSummaryStream(
+        entries: [DayEntry],
+        period: SummaryPeriod
+    ) -> AsyncThrowingStream<String, Error> {
+
+        // Özet için özel olarak hazırlanmış prompt'u çağır
+        let prompt = buildSummaryPrompt(entries: entries, period: period)
+
+        return AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    let stream = try model.generateContentStream(prompt)
+                    for try await chunk in stream {
+                        if let text = chunk.text, !text.isEmpty {
+                            continuation.yield(text)
+                        }
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+
+    // Yeni Özet Prompt Fonksiyonu
+    private func buildSummaryPrompt(entries: [DayEntry], period: SummaryPeriod) -> String {
+        let entriesText = formatEntriesForAI(entries) // Kayıtları AI formatına çevir
+
+        // Tarih aralığını belirle (varsa)
+        let startDate = entries.first?.day
+        let endDate = entries.last?.day
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd MMMM yyyy"
+        dateFormatter.locale = Locale(identifier: "tr_TR")
+
+        var dateRangeString = ""
+        if let start = startDate, let end = endDate {
+            dateRangeString = "\(dateFormatter.string(from: start)) - \(dateFormatter.string(from: end)) tarihleri arasını kapsayan"
+        }
+
+        let periodName = period == .week ? "haftalık" : "aylık"
+
+        return """
+        Sen 'Vibe Koçu'sun ve kullanıcının \(periodName) duygu durumu özetini hazırlıyorsun.
+        Davranış kuralların şunlardır:
+        - KESİNLİKLE Markdown kullanma (*, **, # vb.). Cevabın tamamen düz metin olsun.
+        - Tıbbi veya kesin teşhis niteliğinde tavsiye ASLA verme.
+        - Sana verilen 'KULLANICI VERİLERİ'ni analiz et. Bu veriler \(dateRangeString) \(periodName) dönemi temsil ediyor.
+        - Özeti, kullanıcıyla doğrudan konuşuyormuş gibi, samimi ve destekleyici bir dille yaz.
+        - Özetin şunları içermeli (veriler yeterliyse):
+            - Genel duygu durumu: Bu dönemde en sık hangi modlar hakimdi? Genel olarak nasıl hissettin? (Örn: "Geçen hafta genel olarak enerjin yüksek görünüyordu...")
+            - Öne çıkan temalar: Notlarda sıkça geçen veya önemli görünen konular nelerdi? (Örn: "Notlarında sık sık 'proje' ve 'yorgunluk' kelimeleri geçmiş.")
+            - Puanlardaki eğilim: Puanların genel olarak nasıl bir seyir izledi? Yüksek veya düşük olduğu günler/zamanlar var mıydı? (Örn: "Hafta sonuna doğru puanlarında bir düşüş gözlemledim.")
+            - (İsteğe bağlı) Küçük bir teşvik veya farkındalık önerisi: Gelecek döneme yönelik nazik bir öneri veya gözlem. (Örn: "Belki önümüzdeki hafta kendine biraz daha dinlenme zamanı ayırabilirsin?")
+        - Cevabın DÜŞÜNCELİ ve DETAYLI (ama çok uzun olmayan, 8-10 cümle civarı) olmalı. Veri yoksa veya yetersizse bunu belirt.
+
+        ----
+        KULLANICI VERİLERİ (\(periodName.capitalized) Özet İçin):
+        \(entriesText.isEmpty ? "Bu dönem için analiz edilecek kayıt yok." : entriesText)
+        ----
+
+        Şimdi, bu verilere dayanarak \(periodName) özeti oluştur:
+        """
+    }
 }
