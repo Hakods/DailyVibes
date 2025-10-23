@@ -15,15 +15,21 @@ struct DayEntry: Identifiable, Codable, Equatable {
     var day: Date
     var scheduledAt: Date
     var expiresAt: Date
-    var text: String?
+    var text: String? // Ana not alanı
     var status: EntryStatus
     var allowEarlyAnswer: Bool
-
+    
     var mood: Mood?
     var score: Int?
     var emojiVariant: String?
     var emojiTitle: String?
-
+    
+    // --- YENİ ALANLAR ---
+    var guidedQuestion: String? // O gün sorulan yönlendirme sorusu
+    var guidedAnswer: String? // Kullanıcının bu soruya verdiği cevap
+    // İleride farklı egzersizler için başka alanlar eklenebilir
+    // --- YENİ ALANLAR SONU ---
+    
     init(
         id: UUID = UUID(),
         day: Date,
@@ -35,7 +41,10 @@ struct DayEntry: Identifiable, Codable, Equatable {
         mood: Mood? = nil,
         score: Int? = nil,
         emojiVariant: String? = nil,
-        emojiTitle: String? = nil
+        emojiTitle: String? = nil,
+        // --- YENİ PARAMETRELER ---
+        guidedQuestion: String? = nil,
+        guidedAnswer: String? = nil
     ) {
         self.id = id
         self.day = day
@@ -48,11 +57,14 @@ struct DayEntry: Identifiable, Codable, Equatable {
         self.score = score
         self.emojiVariant = emojiVariant
         self.emojiTitle = emojiTitle
+        // --- YENİ ATAMALAR ---
+        self.guidedQuestion = guidedQuestion
+        self.guidedAnswer = guidedAnswer
     }
-}
-
-// Core Data dönüşüm extension'ı aynı kalabilir
-extension DayEntry {
+    
+    // --- YENİ: Core Data Entegrasyonu Güncellemesi ---
+    // Core Data varlığına da yeni alanları eklememiz gerekecek
+    // (Bunu bir sonraki adımda DailyVibes.xcdatamodeld içinde yapacağız)
     init(from coreDataObject: DayEntryCD) {
         self.id = coreDataObject.id ?? UUID()
         self.day = coreDataObject.day ?? Date()
@@ -64,9 +76,13 @@ extension DayEntry {
         self.score = coreDataObject.score == 0 ? nil : Int(coreDataObject.score)
         self.emojiVariant = coreDataObject.emojiVariant
         self.emojiTitle = coreDataObject.emojiTitle
-        self.mood = nil
+        self.mood = nil // Mood hala Core Data'da saklanmıyor varsayımıyla
+        
+        // Yeni alanları Core Data'dan oku (Core Data modeli güncellendikten sonra)
+        self.guidedQuestion = coreDataObject.guidedQuestion
+        self.guidedAnswer = coreDataObject.guidedAnswer
     }
-
+    
     func update(coreDataObject: DayEntryCD) {
         coreDataObject.id = self.id
         coreDataObject.day = self.day
@@ -78,7 +94,12 @@ extension DayEntry {
         coreDataObject.score = Int64(self.score ?? 0)
         coreDataObject.emojiVariant = self.emojiVariant
         coreDataObject.emojiTitle = self.emojiTitle
+        
+        // Yeni alanları Core Data'ya yaz (Core Data modeli güncellendikten sonra)
+        coreDataObject.guidedQuestion = self.guidedQuestion
+        coreDataObject.guidedAnswer = self.guidedAnswer
     }
+    // --- Core Data Güncellemesi Sonu ---
 }
 
 // MARK: - Mood
@@ -87,9 +108,9 @@ extension DayEntry {
 enum Mood: String, Codable, CaseIterable, Identifiable {
     case happy, calm, excited, tired, sick, sad, stressed
     case angry, anxious, bored
-
+    
     var id: String { rawValue }
-
+    
     var emoji: String {
         switch self {
         case .happy:    return "😊"
@@ -104,7 +125,7 @@ enum Mood: String, Codable, CaseIterable, Identifiable {
         case .bored:    return "😐"
         }
     }
-
+    
     var title: String {
         switch self {
         case .happy:    return "Mutlu"
@@ -122,7 +143,7 @@ enum Mood: String, Codable, CaseIterable, Identifiable {
 }
 
 extension Array where Element == DayEntry {
-
+    
     /// DayEntry dizisini CSV formatında bir String'e dönüştürür.
     func toCSV() -> String {
         // Tarih formatlayıcıyı Türkçe ayarlarla oluşturalım
@@ -133,15 +154,15 @@ extension Array where Element == DayEntry {
             formatter.timeZone = TimeZone.current // Kullanıcının saat dilimi
             return formatter
         }()
-
+        
         // Başlık satırı
         let header = "ID,Gün,Planlanan Zaman,Bitiş Zamanı,Durum,Erken Cevap İzni,Puan,Emoji Kodu,Emoji Başlığı,Not\n"
-
+        
         // Her bir DayEntry için veri satırlarını oluştur
         let dataRows = self.map { entry -> String in
             // Not alanındaki virgül ve tırnak işaretlerinden kaçınma (CSV standardı)
             let safeText = escapeCSVField(entry.text ?? "")
-
+            
             // Verileri birleştir, opsiyonel değerler için boş string kullan
             return [
                 entry.id.uuidString,
@@ -156,10 +177,10 @@ extension Array where Element == DayEntry {
                 safeText // Kaçınılmış not metni
             ].joined(separator: ",") // Virgülle ayır
         }.joined(separator: "\n") // Satırları yeni satır karakteriyle birleştir
-
+        
         return header + dataRows
     }
-
+    
     /// CSV alanlarındaki özel karakterlerden kaçınır (tırnak içine alır ve çift tırnakları iki katına çıkarır).
     private func escapeCSVField(_ field: String) -> String {
         // Alan virgül, çift tırnak veya yeni satır içeriyorsa

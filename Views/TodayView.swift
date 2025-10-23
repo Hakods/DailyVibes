@@ -7,22 +7,26 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct TodayView: View {
     @StateObject private var vm = TodayVM()
     @EnvironmentObject var themeManager: ThemeManager
-    @FocusState private var isEditing: Bool
+    @FocusState private var isEditingTextEditor: Bool
+    @FocusState private var isEditingGuidedAnswer: Bool
     @State private var showSavedToast = false
     @Namespace private var anim
     private let editorAnchorID = "EDITOR_ANCHOR"
+    private let guidedAnswerAnchorID = "GUIDED_ANSWER_ANCHOR"
     
-    // GÜNCELLEME: Butonun neden devre dışı olduğunu kullanıcıya göstermek için state
     @State private var unmetConditions: [String] = []
     
     var body: some View {
         ZStack(alignment: .bottom) {
             AnimatedAuroraBackground()
+            
+                .sheet(isPresented: $vm.showBreathingExercise) {
+                    BreathingExerciseView()
+                }
+            
             
             ScrollViewReader { proxy in
                 ScrollView {
@@ -30,47 +34,29 @@ struct TodayView: View {
                         header
                         
                         if let e = vm.entry {
-                            Card {
-                                if e.status == .pending {
-                                    if vm.isAnswerWindowActive {
-                                        topRow(for: e)
-                                        Divider().padding(.vertical, 6)
-                                        moodPicker
-                                        ratingRow
-                                        promptArea
-                                        Group { composer }.id(editorAnchorID)
-                                        saveRow(for: e)
-                                    } else {
-                                        PendingStateView()
-                                    }
-                                } else {
-                                    answeredBlock(for: e)
-                                }
-                            }
-                            .animation(.default, value: vm.isAnswerWindowActive)
-                            .transition(.opacity.combined(with: .move(edge: .bottom)))
-                        } else {
+                            entryCardContent(for: e, proxy: proxy)
+                        }  else {
                             Card {
                                 Text("Bugün için planlanmış ping yok.").foregroundStyle(Theme.textSec)
                             }
                         }
+                        mindfulnessSection
                     }
                     .padding(20)
-                    .padding(.bottom, isEditing ? 300 : 0)
+                    .padding(.bottom, (isEditingTextEditor || isEditingGuidedAnswer) ? 300 : 0)
                     .transaction { $0.animation = nil }
                 }
                 .appBackground()
                 .scrollDismissesKeyboard(.interactively)
                 .contentShape(Rectangle())
-                .onTapGesture { isEditing = false }
-                .onChange(of: isEditing) { _, editing in
-                    if editing {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                proxy.scrollTo(editorAnchorID, anchor: .bottom)
-                            }
-                        }
-                    }
+                .onTapGesture {
+                    isEditingTextEditor = false
+                    isEditingGuidedAnswer = false
+                }
+                // Fokus değişikliklerini takip et
+                .onChange(of: isEditingTextEditor) { _, editing in handleFocusChange(editing: editing, proxy: proxy, anchor: editorAnchorID)
+                }
+                .onChange(of: isEditingGuidedAnswer) { _, editing in handleFocusChange(editing: editing, proxy: proxy, anchor: guidedAnswerAnchorID)
                 }
             }
             
@@ -81,8 +67,87 @@ struct TodayView: View {
             }
         }
         .navigationTitle("Bugün")
+        .onChange(of: vm.selectedEmojiVariant) { _, _ in
+            vm.emojiSelectionChanged()
+        }
         .onChange(of: vm.entry, initial: true) { _, newEntry in
             themeManager.update(for: newEntry)
+        }
+    }
+    
+    @ViewBuilder
+        private func entryCardContent(for e: DayEntry, proxy: ScrollViewProxy) -> some View {
+            Card {
+                if e.status == .pending {
+                    if vm.isAnswerWindowActive {
+                        // Aktif pencere içeriği
+                        topRow(for: e)
+                        Divider().padding(.vertical, 6)
+                        moodPicker
+                        ratingRow
+                        if let question = vm.currentGuidedQuestion {
+                            guidedJournalingSection(question: question, proxy: proxy)
+                                .padding(.top, 10)
+                        }
+                        promptArea
+                        Group { composer }.id(editorAnchorID) // 'composer' artık proxy almayacak
+                        saveRow(for: e)
+                    } else {
+                        // Bekleme durumu
+                        PendingStateView()
+                    }
+                } else {
+                    // Cevaplanmış durumu
+                    answeredBlock(for: e)
+                }
+            }
+            .animation(.default, value: vm.isAnswerWindowActive)
+            .transition(.opacity.combined(with: .move(edge: .bottom)))
+        }
+    
+    @ViewBuilder
+    private func guidedJournalingSection(question: String, proxy: ScrollViewProxy) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Divider().padding(.vertical, 4) // Görsel ayırıcı
+            Text("Günün Sorusu")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Theme.textSec)
+            Text(question)
+                .font(.headline)
+            
+            PlaceholderTextEditor(text: $vm.guidedAnswer,
+                                  placeholder: "Bu soru üzerine düşün...")
+            .focused($isEditingGuidedAnswer) // Yeni focus state
+            .frame(minHeight: 80, maxHeight: 150) // Daha kompakt bir alan
+            .padding(10)
+            .background(Theme.bg)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .disableAutocorrection(true)
+            .textInputAutocapitalization(.sentences)
+            .id(guidedAnswerAnchorID) // Scroll için ID
+            
+            // Karakter sayacı veya temizle butonu buraya da eklenebilir (isteğe bağlı)
+        }
+    }
+    // --- YENİ SONU ---
+    
+    // YENİ: Farkındalık Bölümü
+    private var mindfulnessSection: some View {
+        Card {
+            VStack(alignment: .leading, spacing: 10) {
+                Label("Bir Mola Ver", systemImage: "figure.mind.and.body")
+                    .font(.headline)
+                Text("Kısa bir nefes egzersizi ile an'a odaklan.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.textSec)
+                Button {
+                    vm.toggleBreathingExercise() // Sheet'i aç/kapat
+                } label: {
+                    Label("Nefes Egzersizini Başlat", systemImage: "wind")
+                }
+                .buttonStyle(SubtleButtonStyle()) // Farklı bir stil kullanalım
+                .padding(.top, 5)
+            }
         }
     }
     
@@ -220,14 +285,13 @@ struct TodayView: View {
         VStack(alignment: .leading, spacing: 8) {
             PlaceholderTextEditor(text: $vm.text,
                                   placeholder: "Bugün nasılsın? Birkaç cümle yeter…")
-            .focused($isEditing)
-            .frame(minHeight: 160)
+            .focused($isEditingTextEditor)
+            .frame(minHeight: 100)
             .padding(10)
             .background(Theme.bg)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .disableAutocorrection(true)
             .textInputAutocapitalization(.sentences)
-            .id(editorAnchorID)
             
             HStack {
                 let count = vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count
@@ -286,7 +350,7 @@ struct TodayView: View {
     // MARK: - Answered Block
     // GÜNCELLEME 3: Bu fonksiyonu tamamen değiştiriyoruz.
     private func answeredBlock(for e: DayEntry) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
                 StatusBadge(status: e.status)
                 Spacer()
@@ -310,12 +374,40 @@ struct TodayView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             
+            if let question = e.guidedQuestion, let answer = e.guidedAnswer, !answer.isEmpty {
+                Divider()
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Günün Sorusu: \(question)").font(.caption.weight(.semibold)).foregroundStyle(Theme.textSec)
+                    Text(answer)
+                        .padding(10)
+                        .background(Theme.bg.opacity(0.8))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            }
+            
             if let t = e.text, !t.isEmpty {
-                Text(t)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(12)
-                    .background(Theme.bg)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                Divider() // Yönlendirme cevabından sonra ayırıcı
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Ana Notun").font(.caption.weight(.semibold)).foregroundStyle(Theme.textSec)
+                    Text(t)
+                        .padding(10)
+                        .background(Theme.bg)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            } else if e.guidedAnswer == nil || e.guidedAnswer!.isEmpty {
+                // Eğer ana not da yoksa, genel bir mesaj
+                Text("Bu gün için not veya yönlendirme cevabı eklenmemiş.")
+                    .foregroundStyle(Theme.textSec)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+        }
+    }
+    
+    private func handleFocusChange(editing: Bool, proxy: ScrollViewProxy, anchor: String) {
+        guard editing else { return } // Sadece fokus aldığında çalışsın
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { // Klavye çıktıktan sonra
+            withAnimation(.easeInOut(duration: 0.2)) {
+                proxy.scrollTo(anchor, anchor: .bottom)
             }
         }
     }
@@ -327,29 +419,29 @@ struct TodayView: View {
     }
     
     private func updateSaveButtonState() {
-            var conditions: [String] = []
-            
-            // 1. Emoji seçilmiş mi?
-            if vm.selectedEmojiVariant == nil {
-                conditions.append("• Bir mod seçmelisin.")
-            }
-            
-            // 2. Metin 10 karakterden uzun mu?
-            if vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count < 10 {
-                conditions.append("• En az 10 karakter girmelisin.")
-            }
-
-            // 3. Metin 500 karakterden kısa mı?
-            if vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count > 500 {
-                conditions.append("• Notun 500 karakteri geçmemeli.")
-            }
-            
-            // Puan zaten slider ile her zaman seçili olduğu için kontrol etmeye gerek yok.
-
-            // `unmetConditions` listesini güncelle, bu `saveDisabled` fonksiyonunu tetikleyecek.
-            withAnimation(.easeInOut) {
-                self.unmetConditions = conditions
-            }
+        var conditions: [String] = []
+        
+        // 1. Emoji seçilmiş mi?
+        if vm.selectedEmojiVariant == nil {
+            conditions.append("• Bir mod seçmelisin.")
+        }
+        
+        // 2. Metin 10 karakterden uzun mu?
+        if vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count < 10 {
+            conditions.append("• En az 10 karakter girmelisin.")
+        }
+        
+        // 3. Metin 500 karakterden kısa mı?
+        if vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count > 500 {
+            conditions.append("• Notun 500 karakteri geçmemeli.")
+        }
+        
+        // Puan zaten slider ile her zaman seçili olduğu için kontrol etmeye gerek yok.
+        
+        // `unmetConditions` listesini güncelle, bu `saveDisabled` fonksiyonunu tetikleyecek.
+        withAnimation(.easeInOut) {
+            self.unmetConditions = conditions
+        }
     }
     
     private func progressRatio() -> CGFloat {
@@ -439,6 +531,77 @@ private struct PlaceholderTextEditor: View {
             TextEditor(text: $text)
                 .opacity(0.98)
                 .background(Color.clear)
+        }
+    }
+}
+
+struct BreathingExerciseView: View {
+    @State private var scale: CGFloat = 0.5
+    @State private var text = "Nefes Al..."
+    @Environment(\.dismiss) var dismiss // Kapatmak için
+    
+    let animationDuration = 4.0 // Her aşamanın süresi
+    
+    var body: some View {
+        ZStack {
+            Theme.AnimatedBackground().opacity(0.7) // Hafif arka plan
+            
+            VStack(spacing: 40) {
+                Text("Sadece Nefesine Odaklan")
+                    .font(.title2.bold())
+                
+                ZStack {
+                    Circle()
+                        .fill(Theme.accentGradient)
+                        .opacity(0.3)
+                    
+                    Circle()
+                        .fill(Theme.accentGradient)
+                        .scaleEffect(scale)
+                }
+                .frame(width: 200, height: 200)
+                
+                Text(text)
+                    .font(.headline)
+                    .animation(nil, value: text) // Metin aniden değişsin
+                
+                Button("Bitir") {
+                    dismiss() // Sheet'i kapat
+                }
+                .buttonStyle(SubtleButtonStyle())
+                .padding(.top, 20)
+            }
+            .padding()
+        }
+        .onAppear(perform: startAnimation)
+    }
+    
+    func startAnimation() {
+        // Başlangıç durumu
+        scale = 0.5
+        text = "Nefes Al..."
+        
+        // Nefes Alma (Büyüme)
+        withAnimation(.easeInOut(duration: animationDuration)) {
+            scale = 1.0
+        }
+        
+        // Tutma
+        DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
+            text = "Tut..."
+        }
+        
+        // Nefes Verme (Küçülme)
+        DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration * 2) {
+            text = "Nefes Ver..."
+            withAnimation(.easeInOut(duration: animationDuration)) {
+                scale = 0.5
+            }
+        }
+        
+        // Döngü
+        DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration * 3) {
+            startAnimation() // Tekrar başlat
         }
     }
 }
