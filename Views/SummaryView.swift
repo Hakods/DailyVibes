@@ -11,7 +11,6 @@ import SwiftUI
 struct SummaryView: View {
     @StateObject private var vm: SummaryVM
 
-    // ViewModel'i init içinde oluştur
     init() {
         _vm = StateObject(wrappedValue: SummaryVM())
     }
@@ -23,28 +22,26 @@ struct SummaryView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
-                        // Haftalık Özet Kartı
                         SummaryCard(
+                            period: .week,
                             title: "Haftalık Özetin",
                             summaryText: vm.weeklySummary,
                             isLoading: vm.isLoadingWeekly,
                             errorMessage: vm.errorMessage,
-                            // DÜZELTME: self.vm deneyelim
-                            isGenerateEnabled: self.vm.canGenerateWeeklySummary,
-                            generateAction: { self.vm.generateSummary(for: .week) }, // self ekleyelim
-                            cancelAction: { self.vm.cancel() } // self ekleyelim
+                            isGenerateEnabled: vm.canGenerateWeeklySummary,
+                            generateAction: { vm.generateSummary(for: .week) },
+                            cancelAction: { vm.cancel() }
                         )
 
-                        // Aylık Özet Kartı
                         SummaryCard(
+                            period: .month,
                             title: "Aylık Özetin",
                             summaryText: vm.monthlySummary,
                             isLoading: vm.isLoadingMonthly,
                             errorMessage: vm.errorMessage,
-                            // DÜZELTME: self.vm deneyelim
-                            isGenerateEnabled: self.vm.canGenerateMonthlySummary,
-                            generateAction: { self.vm.generateSummary(for: .month) }, // self ekleyelim
-                            cancelAction: { self.vm.cancel() } // self ekleyelim
+                            isGenerateEnabled: vm.canGenerateMonthlySummary,
+                            generateAction: { vm.generateSummary(for: .month) },
+                            cancelAction: { vm.cancel() }
                         )
                     }
                     .padding()
@@ -57,6 +54,7 @@ struct SummaryView: View {
 }
 
 struct SummaryCard: View {
+    let period: SummaryPeriod
     let title: String
     let summaryText: String
     let isLoading: Bool
@@ -71,19 +69,11 @@ struct SummaryCard: View {
                 .font(.title2.bold())
 
             if isLoading {
-                HStack {
-                    ProgressView()
-                        .padding(.trailing, 5)
-                    Text("Özet oluşturuluyor...")
-                        .foregroundStyle(Theme.textSec)
-                    Spacer()
-                    Button("İptal", role: .destructive, action: cancelAction)
-                }
             } else if let error = errorMessage {
-                Text("Hata: \(error)")
+                 Text("Hata: \(error)")
                     .foregroundStyle(Theme.bad)
             } else if summaryText.isEmpty {
-                Text(isGenerateEnabled ? "Henüz bir özet oluşturulmadı. Oluşturmak için butona dokun." : "Bu dönem için özet zaten oluşturulmuş veya veri yok.")
+                 Text(isGenerateEnabled ? "Henüz bir özet oluşturulmadı. Oluşturmak için butona dokun." : "Bu dönem için özet zaten oluşturulmuş veya veri yok.")
                     .foregroundStyle(Theme.textSec)
             } else {
                 Text(summaryText)
@@ -100,6 +90,16 @@ struct SummaryCard: View {
             .disabled(isLoading || !isGenerateEnabled)
             .padding(.top, 5)
 
+            if !isGenerateEnabled && !isLoading && errorMessage == nil {
+                HStack(spacing: 5) {
+                    Image(systemName: "info.circle")
+                    Text(period == .week ? "Yeni özet her Pazartesi aktif olur." : "Yeni özet her ayın 1'inde aktif olur.")
+                }
+                .font(.caption)
+                .foregroundStyle(Theme.textSec)
+                .padding(.top, 4)
+                .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .top)))
+            }
         }
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
@@ -107,5 +107,6 @@ struct SummaryCard: View {
         .animation(.default, value: isLoading)
         .animation(.default, value: summaryText)
         .animation(.default, value: isGenerateEnabled)
+        .animation(.easeInOut(duration: 0.2), value: !isGenerateEnabled && !isLoading && errorMessage == nil)
     }
 }
