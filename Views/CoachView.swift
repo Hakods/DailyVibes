@@ -75,8 +75,9 @@ struct CoachView: View {
             .toolbar {
                 Button { showSettings = true } label: { Image(systemName: "gearshape.fill") }
             }
-            .sheet(isPresented: $vm.showPaywall) { // ViewModel'deki showPaywall'u dinle
-                PaywallView(vm: .init(store: store))
+            .sheet(isPresented: $vm.showPaywall) {
+                PaywallView(vm: PaywallVM(store: self.store))
+                    .environmentObject(self.store)
             }
             .sheet(isPresented: $showSettings) {
                 CoachSettingsView(vm: vm)

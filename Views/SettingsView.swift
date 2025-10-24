@@ -12,23 +12,15 @@ struct SettingsView: View {
     @StateObject private var vm = SettingsVM()
     @Environment(\.openURL) var openURL
     
-    @StateObject private var paywallVM: PaywallVM
-    
+    @State private var showPaywallSheet = false
     @State private var exportURL: URL?
     @State private var tempURLToDelete: URL?
     @State private var isExportPreparing = false
-    
     @State private var showExportToast = false
-    
     @State private var showingExportErrorAlert = false
     @State private var exportErrorMessage = ""
-    
-    
     @State private var showAdminTools = false
     
-    init() {
-        _paywallVM = StateObject(wrappedValue: PaywallVM(store: RepositoryProvider.shared.store))
-    }
     
     var body: some View {
         NavigationView {
@@ -50,7 +42,7 @@ struct SettingsView: View {
                     }
                     .animation(.easeInOut, value: showExportToast)
                 }
-
+                
                 
                 Form {
                     // MARK: - Bildirim Ayarları
@@ -66,19 +58,9 @@ struct SettingsView: View {
                     }
                     
                     // MARK: - Daily Vibes Pro
-                    if !store.isProUnlocked {
-                        Section {
-                            PaywallContent(vm: paywallVM) // Güncellenmiş Pro özellik listesiyle
-                        } header: {
-                            Text("✨ Daily Vibes Pro'ya Geçin")
-                        } footer: {
-                            Text("Satın alma Apple Kimliğinize bağlıdır. Aile Paylaşımı ve iade hakları Apple politikalarına tabidir.")
-                                .font(.caption2)
-                        }
-                    } else {
-                        Section {
+                    Section {
+                        if store.isProUnlocked {
                             ProActiveStatusView()
-                            
                             Button {
                                 prepareAndExportToFile()
                             } label: {
@@ -95,7 +77,7 @@ struct SettingsView: View {
                             }
                             .buttonStyle(PrimaryButtonStyle())
                             .disabled(isExportPreparing)
-
+                            
                             Label {
                                 Text("Kayıtların yalnızca cihazında saklanır, dışa aktarma manuel dosya kaydı yapar.")
                                     .font(.caption2)
@@ -106,10 +88,27 @@ struct SettingsView: View {
                                     .foregroundStyle(.secondary)
                             }
                             .padding(.top, 4)
+                            
+                        } else {
+                            VStack(spacing: 15) {
+                                Text("✨ Daily Vibes Pro'ya Geçin")
+                                    .font(.headline)
+                                Text("Sınırsız AI Koçu erişimi, derinlemesine özetler, veri dışa aktarma ve daha fazlası için Pro'ya yükseltin.")
+                                    .font(.caption)
+                                    .foregroundStyle(Theme.textSec)
+                                    .multilineTextAlignment(.center)
+                                Button("Pro Özellikleri Gör ve Abone Ol") {
+                                    showPaywallSheet = true
+                                }
+                                .buttonStyle(PrimaryButtonStyle())
+                            }
+                            .padding(.vertical)
                         }
-                        header: {
-                            Text("✨ Daily Vibes Pro")
-                        }
+                    } header: {
+                        Text("✨ Daily Vibes Pro")
+                    } footer: {
+                        Text("Satın alma Apple Kimliğinize bağlıdır. Aile Paylaşımı ve iade hakları Apple politikalarına tabidir.")
+                            .font(.caption2)
                     }
                     
                     // MARK: - Planlama Bilgisi
@@ -152,14 +151,10 @@ struct SettingsView: View {
             .onAppear {
                 Task { @MainActor in
                     vm.authGranted = await RepositoryProvider.shared.notification.checkAuthStatus()
-                    // Ürünleri ve durumu yükle (StoreService init içinde zaten yapılıyor olabilir,
-                    // ama burada tekrar çağırmak genellikle zararsızdır)
-                    if store.products.isEmpty { // Sadece ürünler boşsa yükle
+                    if store.products.isEmpty {
                         await store.loadProducts()
                     }
-                    // Durumu her seferinde güncellemek yerine belirli aksiyonlardan sonra güncellemek daha iyi olabilir,
-                    // ama onAppear'da da kalabilir.
-#if !DEBUG // Sadece Release modunda başlangıç durumunu kontrol et (StoreService'deki mantıkla uyumlu)
+#if !DEBUG
                     await store.updateSubscriptionStatus()
 #endif
                 }
@@ -177,6 +172,10 @@ struct SettingsView: View {
             .alert("Dışa Aktarma Hatası", isPresented: $showingExportErrorAlert) {
                 Button("Tamam") { }
             } message: { Text(exportErrorMessage) }
+                .sheet(isPresented: $showPaywallSheet) {
+                    PaywallView(vm: PaywallVM(store: self.store))
+                        .environmentObject(self.store)
+                }
         }
         .navigationViewStyle(.stack)
     }
@@ -190,9 +189,6 @@ struct SettingsView: View {
             do {
                 let all = try RepositoryProvider.shared.dayRepo.load()
                 
-                // 🔎 İSTENEN FİLTRE:
-                // - Gelecek günler dahil olmasın
-                // - Bugün ise ve ping saati HENÜZ gelmemişse dahil olmasın
                 let now = Date()
                 let cal = Calendar.current
                 let startOfToday = cal.startOfDay(for: now)
@@ -227,10 +223,10 @@ struct SettingsView: View {
                 HapticsService.notification(.success)
                 showExportToast = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { showExportToast = false }
-
+                
                 self.tempURLToDelete = tempURL
                 self.exportURL = tempURL
-
+                
             } catch {
                 cleanupTemporaryFile(url: tempURL)
                 exportErrorMessage = "Dışa aktarma sırasında hata: \(error.localizedDescription)"
@@ -288,84 +284,6 @@ private struct NotificationStatusView: View {
             }
         }
         .padding(.vertical, 4)
-    }
-}
-
-// Paywall İçeriği (Güncellenmiş özellik listesiyle)
-private struct PaywallContent: View {
-    @ObservedObject var vm: PaywallVM
-    @EnvironmentObject var store: StoreService
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            // --- DAHA DA GELİŞMİŞ ÖZELLİK LİSTESİ ---
-            VStack(alignment: .leading, spacing: 10) {
-                FeatureItem(icon: "brain.head.profile.fill", text: "**Sınırsız AI Koçu Erişimi:** Günlük limit olmadan içgörüler alın.")
-                FeatureItem(icon: "arrow.down.doc.fill", text: "**Veri Dışa Aktarma:** Tüm kayıtlarınızı CSV formatında yedekleyin.")
-                FeatureItem(icon: "lock.fill", text: "**Uygulama Kilidi:** Face ID/Touch ID ile gizliliğinizi koruyun.") // (Yakında eklenebilir)
-                FeatureItem(icon: "paintbrush.pointed.fill", text: "**Özel Temalar & İkonlar:** Uygulama görünümünü kişiselleştirin.") // (Yakında eklenebilir)
-            }
-            .padding(.bottom, 8)
-            // --- ÖZELLİK LİSTESİ SONU ---
-            
-            Divider()
-            
-            // Ürün fiyatı ve satın alma butonu (Aynı)
-            if let pro = store.products.first(where: { $0.id == "pro_monthly" }) { // Product ID kontrolü
-                VStack(spacing: 12) {
-                    Text("Aylık abonelik ile tüm bu Pro özelliklere ve gelecek yeniliklere erişin:")
-                        .font(.caption)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.secondary)
-                    
-                    Button {
-                        vm.buy()
-                    } label: {
-                        HStack {
-                            if vm.isPurchasing { ProgressView().tint(.white) }
-                            Text("Abone Ol – \(pro.displayPrice)")
-                                .fontWeight(.semibold).foregroundColor(.white)
-                        }
-                        .frame(maxWidth: .infinity).padding(.vertical, 8)
-                    }
-                    .buttonStyle(PrimaryButtonStyle()).disabled(vm.isPurchasing)
-                    
-                    Button("Satın alımı geri yükle") { vm.restore() }
-                        .font(.caption).foregroundStyle(Theme.accent)
-                }
-                .padding(.top, 8)
-            } else {
-                HStack {
-                    ProgressView()
-                    Text("Ödeme bilgisi yükleniyor...")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .center).padding(.vertical)
-            }
-            
-            // Hata mesajı (Aynı)
-            if let err = vm.errorMessage {
-                Text(err).foregroundStyle(.red).font(.caption).multilineTextAlignment(.center)
-            }
-        }
-    }
-}
-
-// Paywall içindeki özellik maddesi (Aynı)
-private struct FeatureItem: View {
-    let icon: String
-    let text: String
-    
-    var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: icon)
-                .foregroundStyle(Theme.accent)
-                .frame(width: 20, alignment: .center)
-                .padding(.top, 1)
-            Text(.init(text)) // Markdown
-                .font(.caption)
-                .fixedSize(horizontal: false, vertical: true)
-        }
     }
 }
 
