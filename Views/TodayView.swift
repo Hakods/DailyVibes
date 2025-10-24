@@ -11,11 +11,9 @@ struct TodayView: View {
     @StateObject private var vm = TodayVM()
     @EnvironmentObject var themeManager: ThemeManager
     @FocusState private var isEditingTextEditor: Bool
-    @FocusState private var isEditingGuidedAnswer: Bool
     @State private var showSavedToast = false
     @Namespace private var anim
     private let editorAnchorID = "EDITOR_ANCHOR"
-    private let guidedAnswerAnchorID = "GUIDED_ANSWER_ANCHOR"
     
     @State private var unmetConditions: [String] = []
     
@@ -34,16 +32,35 @@ struct TodayView: View {
                         header
                         
                         if let e = vm.entry {
-                            entryCardContent(for: e, proxy: proxy)
-                        }  else {
+                            Card {
+                                if e.status == .pending {
+                                    if vm.isAnswerWindowActive {
+                                        topRow(for: e)
+                                        Divider().padding(.vertical, 6)
+                                        moodPicker
+                                        ratingRow
+                                        promptArea
+                                        Group { composer }.id(editorAnchorID)
+                                        saveRow(for: e)
+                                    } else {
+                                        PendingStateView()
+                                    }
+                                } else {
+                                    answeredBlock(for: e)
+                                }
+                            }
+                            .animation(.default, value: vm.isAnswerWindowActive)
+                            .transition(.opacity.combined(with: .move(edge: .bottom)))
+                        } else {
                             Card {
                                 Text("Bugün için planlanmış ping yok.").foregroundStyle(Theme.textSec)
                             }
                         }
-                        mindfulnessSection
+                        mindfulnessSection // Bu kalsın
                     }
                     .padding(20)
-                    .padding(.bottom, (isEditingTextEditor || isEditingGuidedAnswer) ? 300 : 0)
+                    // Padding'i basitleştir
+                    .padding(.bottom, isEditingTextEditor ? 300 : 0)
                     .transaction { $0.animation = nil }
                 }
                 .appBackground()
@@ -51,15 +68,12 @@ struct TodayView: View {
                 .contentShape(Rectangle())
                 .onTapGesture {
                     isEditingTextEditor = false
-                    isEditingGuidedAnswer = false
+                    // --- KALDIRILDI: isEditingGuidedAnswer = false ---
                 }
-                // Fokus değişikliklerini takip et
-                .onChange(of: isEditingTextEditor) { _, editing in handleFocusChange(editing: editing, proxy: proxy, anchor: editorAnchorID)
-                }
-                .onChange(of: isEditingGuidedAnswer) { _, editing in handleFocusChange(editing: editing, proxy: proxy, anchor: guidedAnswerAnchorID)
-                }
+                // Sadece isEditingTextEditor'ı takip et
+                .onChange(of: isEditingTextEditor) { _, editing in handleFocusChange(editing: editing, proxy: proxy, anchor: editorAnchorID) }
+                // --- KALDIRILDI: isEditingGuidedAnswer için onChange ---
             }
-            
             if showSavedToast {
                 SaveToast(text: "Kaydedildi")
                     .padding(.bottom, 16)
@@ -67,69 +81,38 @@ struct TodayView: View {
             }
         }
         .navigationTitle("Bugün")
-        .onChange(of: vm.selectedEmojiVariant) { _, _ in
-            vm.emojiSelectionChanged()
-        }
         .onChange(of: vm.entry, initial: true) { _, newEntry in
             themeManager.update(for: newEntry)
         }
     }
     
     @ViewBuilder
-        private func entryCardContent(for e: DayEntry, proxy: ScrollViewProxy) -> some View {
-            Card {
-                if e.status == .pending {
-                    if vm.isAnswerWindowActive {
-                        // Aktif pencere içeriği
-                        topRow(for: e)
-                        Divider().padding(.vertical, 6)
-                        moodPicker
-                        ratingRow
-                        if let question = vm.currentGuidedQuestion {
-                            guidedJournalingSection(question: question, proxy: proxy)
-                                .padding(.top, 10)
-                        }
-                        promptArea
-                        Group { composer }.id(editorAnchorID) // 'composer' artık proxy almayacak
-                        saveRow(for: e)
-                    } else {
-                        // Bekleme durumu
-                        PendingStateView()
-                    }
+    private func entryCardContent(for e: DayEntry, proxy: ScrollViewProxy) -> some View {
+        Card {
+            if e.status == .pending {
+                if vm.isAnswerWindowActive {
+                    // Aktif pencere içeriği
+                    topRow(for: e)
+                    Divider().padding(.vertical, 6)
+                    moodPicker
+                    ratingRow
+                    promptArea
+                    Group { composer }.id(editorAnchorID)
+                    saveRow(for: e)
                 } else {
-                    // Cevaplanmış durumu
-                    answeredBlock(for: e)
+                    // Bekleme durumu
+                    PendingStateView()
                 }
+            } else {
+                // Cevaplanmış durumu
+                answeredBlock(for: e)
             }
-            .animation(.default, value: vm.isAnswerWindowActive)
-            .transition(.opacity.combined(with: .move(edge: .bottom)))
         }
-    
-    @ViewBuilder
-    private func guidedJournalingSection(question: String, proxy: ScrollViewProxy) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Divider().padding(.vertical, 4) // Görsel ayırıcı
-            Text("Günün Sorusu")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(Theme.textSec)
-            Text(question)
-                .font(.headline)
-            
-            PlaceholderTextEditor(text: $vm.guidedAnswer,
-                                  placeholder: "Bu soru üzerine düşün...")
-            .focused($isEditingGuidedAnswer) // Yeni focus state
-            .frame(minHeight: 80, maxHeight: 150) // Daha kompakt bir alan
-            .padding(10)
-            .background(Theme.bg)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .disableAutocorrection(true)
-            .textInputAutocapitalization(.sentences)
-            .id(guidedAnswerAnchorID) // Scroll için ID
-            
-            // Karakter sayacı veya temizle butonu buraya da eklenebilir (isteğe bağlı)
-        }
+        .animation(.default, value: vm.isAnswerWindowActive)
+        .transition(.opacity.combined(with: .move(edge: .bottom)))
     }
-    // --- YENİ SONU ---
+    
+    
     
     // YENİ: Farkındalık Bölümü
     private var mindfulnessSection: some View {
@@ -350,7 +333,8 @@ struct TodayView: View {
     // MARK: - Answered Block
     // GÜNCELLEME 3: Bu fonksiyonu tamamen değiştiriyoruz.
     private func answeredBlock(for e: DayEntry) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) { // Spacing'i 12 yapabiliriz
+            // Durum, Puan, Emoji (aynı)
             HStack {
                 StatusBadge(status: e.status)
                 Spacer()
@@ -362,8 +346,6 @@ struct TodayView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
-            
-            // Tıpkı HistoryView gibi, özel emoji ve başlığı göster
             if let emoji = e.emojiVariant, let title = e.emojiTitle {
                 HStack(spacing: 8) {
                     Text(emoji).font(.title)
@@ -374,31 +356,22 @@ struct TodayView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             
-            if let question = e.guidedQuestion, let answer = e.guidedAnswer, !answer.isEmpty {
-                Divider()
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Günün Sorusu: \(question)").font(.caption.weight(.semibold)).foregroundStyle(Theme.textSec)
-                    Text(answer)
-                        .padding(10)
-                        .background(Theme.bg.opacity(0.8))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-            }
+            // --- KALDIRILDI: Yönlendirme sorusu ve cevabı gösterme ---
             
+            // Ana Not
             if let t = e.text, !t.isEmpty {
-                Divider() // Yönlendirme cevabından sonra ayırıcı
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Ana Notun").font(.caption.weight(.semibold)).foregroundStyle(Theme.textSec)
-                    Text(t)
-                        .padding(10)
-                        .background(Theme.bg)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-            } else if e.guidedAnswer == nil || e.guidedAnswer!.isEmpty {
-                // Eğer ana not da yoksa, genel bir mesaj
-                Text("Bu gün için not veya yönlendirme cevabı eklenmemiş.")
+                // --- KALDIRILDI: Divider ve "Ana Notun" başlığı ---
+                Text(t)
+                    .frame(maxWidth: .infinity, alignment: .leading) // Bu satır eklendi
+                    .padding(12)
+                    .background(Theme.bg)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            } else {
+                // --- Güncellenmiş mesaj ---
+                Text("Bu gün için not eklenmemiş.")
                     .foregroundStyle(Theme.textSec)
                     .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical) // Biraz dikey boşluk
             }
         }
     }

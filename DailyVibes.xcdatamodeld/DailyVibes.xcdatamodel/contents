@@ -6,8 +6,6 @@
         <attribute name="emojiTitle" optional="YES" attributeType="String"/>
         <attribute name="emojiVariant" optional="YES" attributeType="String"/>
         <attribute name="expiresAt" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="guidedAnswer" optional="YES" attributeType="String"/>
-        <attribute name="guidedQuestion" optional="YES" attributeType="String"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="scheduledAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="score" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>

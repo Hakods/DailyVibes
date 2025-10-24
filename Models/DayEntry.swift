@@ -24,11 +24,6 @@ struct DayEntry: Identifiable, Codable, Equatable {
     var emojiVariant: String?
     var emojiTitle: String?
     
-    // --- YENİ ALANLAR ---
-    var guidedQuestion: String? // O gün sorulan yönlendirme sorusu
-    var guidedAnswer: String? // Kullanıcının bu soruya verdiği cevap
-    // İleride farklı egzersizler için başka alanlar eklenebilir
-    // --- YENİ ALANLAR SONU ---
     
     init(
         id: UUID = UUID(),
@@ -42,9 +37,6 @@ struct DayEntry: Identifiable, Codable, Equatable {
         score: Int? = nil,
         emojiVariant: String? = nil,
         emojiTitle: String? = nil,
-        // --- YENİ PARAMETRELER ---
-        guidedQuestion: String? = nil,
-        guidedAnswer: String? = nil
     ) {
         self.id = id
         self.day = day
@@ -57,9 +49,6 @@ struct DayEntry: Identifiable, Codable, Equatable {
         self.score = score
         self.emojiVariant = emojiVariant
         self.emojiTitle = emojiTitle
-        // --- YENİ ATAMALAR ---
-        self.guidedQuestion = guidedQuestion
-        self.guidedAnswer = guidedAnswer
     }
     
     // --- YENİ: Core Data Entegrasyonu Güncellemesi ---
@@ -77,10 +66,6 @@ struct DayEntry: Identifiable, Codable, Equatable {
         self.emojiVariant = coreDataObject.emojiVariant
         self.emojiTitle = coreDataObject.emojiTitle
         self.mood = nil // Mood hala Core Data'da saklanmıyor varsayımıyla
-        
-        // Yeni alanları Core Data'dan oku (Core Data modeli güncellendikten sonra)
-        self.guidedQuestion = coreDataObject.guidedQuestion
-        self.guidedAnswer = coreDataObject.guidedAnswer
     }
     
     func update(coreDataObject: DayEntryCD) {
@@ -94,12 +79,7 @@ struct DayEntry: Identifiable, Codable, Equatable {
         coreDataObject.score = Int64(self.score ?? 0)
         coreDataObject.emojiVariant = self.emojiVariant
         coreDataObject.emojiTitle = self.emojiTitle
-        
-        // Yeni alanları Core Data'ya yaz (Core Data modeli güncellendikten sonra)
-        coreDataObject.guidedQuestion = self.guidedQuestion
-        coreDataObject.guidedAnswer = self.guidedAnswer
     }
-    // --- Core Data Güncellemesi Sonu ---
 }
 
 // MARK: - Mood
