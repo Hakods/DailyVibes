@@ -54,17 +54,20 @@ final class AIService {
     private func scopeEntries(_ entries: [DayEntry], lastDays: Int?, lastCount: Int) -> [DayEntry] {
         let now = Date()
         var list = entries
-        
+
+        print("➡️ scopeEntries GİRDİ: \(list.count) kayıt. İlk tarih: \(list.min(by: { $0.day < $1.day })?.day.formatted() ?? "N/A"), Son tarih: \(list.max(by: { $0.day < $1.day })?.day.formatted() ?? "N/A")")
+
         list = list.filter { Calendar.current.compare($0.day, to: now, toGranularity: .day) != .orderedDescending }
-        
-        if let d = lastDays {
-            let cutoff = Calendar.current.date(byAdding: .day, value: -d, to: now) ?? .distantPast
-            list = list.filter { $0.day >= cutoff }
-        }
-        
+
+        print("   Filtre (Gelecek Hariç): \(list.count) kayıt kaldı.")
+
         list.sort { $0.day > $1.day }
+
+        let result = Array(list.prefix(lastCount))
+
+        print("⬅️ scopeEntries ÇIKTI: \(result.count) kayıt seçildi (\(lastCount) limitiyle). İlk tarih: \(result.last?.day.formatted() ?? "N/A"), Son tarih: \(result.first?.day.formatted() ?? "N/A")")
         
-        return Array(list.prefix(lastCount))
+        return result
     }
     
     
