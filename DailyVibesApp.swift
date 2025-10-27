@@ -5,6 +5,9 @@
 //  Created by Ahmet Hakan Altıparmak on 7.10.2025.
 //
 
+// Dosya: Daily Vibes/DailyVibesApp.swift
+// SENİN KODUNA GÖRE GÜNCELLENMİŞ HALİ
+
 import SwiftUI
 import FirebaseCore
 import CoreData
@@ -21,29 +24,57 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct DailyVibesApp: App {
-    // YENİ: Uygulama delegesini SwiftUI yaşam döngüsüne bağlıyoruz.
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    
-    
+    // --- ScenePhase EKSİKTİ, EKLEYELİM ---
+    @Environment(\.scenePhase) var scenePhase
+    // --- ScenePhase SON ---
+
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+
     let persistenceController = PersistenceController.shared
     @StateObject private var store: StoreService
     @StateObject private var schedule = ScheduleService()
-    @StateObject private var themeManager = ThemeManager() // Bu da eksikti, ekledim.
-    
+    // themeManager burada oluşturuluyor
+    @StateObject private var themeManager = ThemeManager()
+
     init() {
         _store = StateObject(wrappedValue: RepositoryProvider.shared.store)
+        // --- GEÇİCİ TEST KODU ---
+        UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+        print("DEBUG: Onboarding flag reset to false.")
+        // --- GEÇİCİ TEST KODU SONU ---
     }
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                .environmentObject(store)
-                .environmentObject(schedule)
-                .environmentObject(themeManager) // Bu da eksikti, ekledim.
-                .tint(Theme.accent)
-                .background(Theme.bg)
-                .preferredColorScheme(.light)
+            if hasCompletedOnboarding {
+                RootView()
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                    .environmentObject(store)
+                    .environmentObject(schedule)
+                    .environmentObject(themeManager) // RootView için zaten vardı
+                    .tint(Theme.accent)
+                    .background(Theme.bg)
+                    .preferredColorScheme(.light)
+            } else {
+                OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                    .environmentObject(RepositoryProvider.shared.notification)
+                    // --- BURAYA EKLE ---
+                    .environmentObject(themeManager)
+                    // --- EKLEME SONU ---
+                    .tint(Theme.accent)
+                    .background(Theme.bg)
+                    .preferredColorScheme(.light)
+            }
         }
+         // --- ScenePhase onChange EKSİKTİ, EKLEYELİM ---
+         // (ReviewHandler kullanacaksan bu bloğu aktif et)
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+             if newPhase == .active && oldPhase != .active {
+                 // ReviewHandler.shared.appLaunched() // Değerlendirme isteme için
+                 print("App became active") // Test için log
+             }
+        }
+         // --- onChange SONU ---
     }
 }
