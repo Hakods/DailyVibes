@@ -21,7 +21,7 @@ struct RootView: View {
                     .tabItem { Label("Özetler", systemImage: "sparkles.rectangle.stack.fill")
                     }
                 CoachView()
-                    .tabItem { Label("Vibe Koçun", systemImage: "brain.head.profile") }
+                    .tabItem { Label("Vibe Koç", systemImage: "brain.head.profile") }
                 HistoryView()
                     .tabItem {
                         Label("Geçmiş", systemImage: "clock.fill")

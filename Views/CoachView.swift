@@ -71,7 +71,7 @@ struct CoachView: View {
                     }
                 }
             }
-            .navigationTitle("Vibe Koçun")
+            .navigationTitle("Vibe Koç")
             .toolbar {
                 Button { showSettings = true } label: { Image(systemName: "gearshape.fill") }
             }
