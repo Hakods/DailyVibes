@@ -20,11 +20,7 @@ struct TodayView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             AnimatedAuroraBackground()
-            
-                .sheet(isPresented: $vm.showBreathingExercise) {
-                    BreathingExerciseView()
-                }
-            
+                .sheet(isPresented: $vm.showBreathingExercise) { BreathingExerciseView() }
             
             ScrollViewReader { proxy in
                 ScrollView {
@@ -32,48 +28,35 @@ struct TodayView: View {
                         header
                         
                         if let e = vm.entry {
-                            Card {
-                                if e.status == .pending {
-                                    if vm.isAnswerWindowActive {
-                                        topRow(for: e)
-                                        Divider().padding(.vertical, 6)
-                                        moodPicker
-                                        ratingRow
-                                        promptArea
-                                        Group { composer }.id(editorAnchorID)
-                                        saveRow(for: e)
-                                    } else {
-                                        PendingStateView()
-                                    }
-                                } else {
-                                    answeredBlock(for: e)
-                                }
-                            }
-                            .animation(.default, value: vm.isAnswerWindowActive)
-                            .transition(.opacity.combined(with: .move(edge: .bottom)))
+                            entryCardContent(for: e, proxy: proxy)
                         } else {
                             Card {
-                                Text("Bugün için planlanmış ping yok.").foregroundStyle(Theme.textSec)
+                                HStack(spacing: 10) {
+                                    Image(systemName: "hourglass.bottomhalf.filled")
+                                        .foregroundStyle(Theme.secondary)
+                                    Text("Bugünkü ping henüz gelmedi.")
+                                        .foregroundStyle(Theme.textSec)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.vertical, 10)
                             }
                         }
-                        mindfulnessSection // Bu kalsın
+                        if vm.showMindfulnessCard {
+                            mindfulnessSection
+                                .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .top)))
+                        }
                     }
                     .padding(20)
-                    // Padding'i basitleştir
                     .padding(.bottom, isEditingTextEditor ? 300 : 0)
                     .transaction { $0.animation = nil }
                 }
                 .appBackground()
                 .scrollDismissesKeyboard(.interactively)
                 .contentShape(Rectangle())
-                .onTapGesture {
-                    isEditingTextEditor = false
-                    // --- KALDIRILDI: isEditingGuidedAnswer = false ---
-                }
-                // Sadece isEditingTextEditor'ı takip et
+                .onTapGesture { isEditingTextEditor = false }
                 .onChange(of: isEditingTextEditor) { _, editing in handleFocusChange(editing: editing, proxy: proxy, anchor: editorAnchorID) }
-                // --- KALDIRILDI: isEditingGuidedAnswer için onChange ---
             }
+            
             if showSavedToast {
                 SaveToast(text: "Kaydedildi")
                     .padding(.bottom, 16)
@@ -84,6 +67,7 @@ struct TodayView: View {
         .onChange(of: vm.entry, initial: true) { _, newEntry in
             themeManager.update(for: newEntry)
         }
+        .animation(.easeInOut, value: vm.showMindfulnessCard)
     }
     
     @ViewBuilder
@@ -91,49 +75,42 @@ struct TodayView: View {
         Card {
             if e.status == .pending {
                 if vm.isAnswerWindowActive {
-                    // Aktif pencere içeriği
                     topRow(for: e)
                     Divider().padding(.vertical, 6)
                     moodPicker
                     ratingRow
                     promptArea
-                    Group { composer }.id(editorAnchorID)
+                    Group { composer() }.id(editorAnchorID)
                     saveRow(for: e)
                 } else {
-                    // Bekleme durumu
                     PendingStateView()
                 }
             } else {
-                // Cevaplanmış durumu
-                answeredBlock(for: e)
+                answeredBlock(for: e) // Günün Sorusu olmadan
             }
         }
         .animation(.default, value: vm.isAnswerWindowActive)
         .transition(.opacity.combined(with: .move(edge: .bottom)))
     }
     
-    
-    
-    // YENİ: Farkındalık Bölümü
     private var mindfulnessSection: some View {
         Card {
             VStack(alignment: .leading, spacing: 10) {
                 Label("Bir Mola Ver", systemImage: "figure.mind.and.body")
                     .font(.headline)
-                Text("Kısa bir nefes egzersizi ile an'a odaklan.")
+                
+                Text("Yoğun hissediyorsan, kısa bir nefes egzersizi an'a dönmene yardımcı olabilir.")
                     .font(.caption)
-                    .foregroundStyle(Theme.textSec)
-                Button {
-                    vm.toggleBreathingExercise() // Sheet'i aç/kapat
-                } label: {
+                    .foregroundStyle(Theme.warn)
+                
+                Button { vm.toggleBreathingExercise() } label: {
                     Label("Nefes Egzersizini Başlat", systemImage: "wind")
                 }
-                .buttonStyle(SubtleButtonStyle()) // Farklı bir stil kullanalım
+                .buttonStyle(SubtleButtonStyle())
                 .padding(.top, 5)
             }
         }
     }
-    
     // MARK: - Header
     private var header: some View {
         HStack(spacing: 12) {
@@ -168,7 +145,6 @@ struct TodayView: View {
         }
     }
     
-    // YENİ: Bekleme durumunu gösteren yenilikçi kart
     private struct PendingStateView: View {
         var body: some View {
             VStack(spacing: 12) {
@@ -190,7 +166,6 @@ struct TodayView: View {
         }
     }
     
-    // MARK: - Mood Picker
     private var moodPicker: some View {
         let items = MoodEmojiCatalog.all
         let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
@@ -216,8 +191,6 @@ struct TodayView: View {
                             withAnimation(.easeInOut(duration: 0.15)) {
                                 vm.selectedEmojiVariant = item.emoji
                                 vm.selectedEmojiTitle = item.title
-                                // GÜNCELLEME 1: Hatalı olan bu satırı siliyoruz.
-                                // vm.selectedMood = .happy
                             }
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         } label: {
@@ -264,11 +237,12 @@ struct TodayView: View {
                 .foregroundStyle(Theme.textSec)
         }
     }
-    private var composer: some View {
+
+    private func composer() -> some View {
         VStack(alignment: .leading, spacing: 8) {
             PlaceholderTextEditor(text: $vm.text,
-                                  placeholder: "Bugün nasılsın? Birkaç cümle yeter…")
-            .focused($isEditingTextEditor)
+                                              placeholder: vm.dynamicPlaceholder,
+                                              isFocused: $isEditingTextEditor)
             .frame(minHeight: 100)
             .padding(10)
             .background(Theme.bg)
@@ -285,17 +259,15 @@ struct TodayView: View {
                 Button {
                     vm.text = ""
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                } label: {
-                    Label("Temizle", systemImage: "eraser")
-                }
-                .buttonStyle(.borderless)
-                .foregroundStyle(Theme.accent)
+                } label: { Label("Temizle", systemImage: "eraser") }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(Theme.accent)
             }
         }
     }
+
     private func saveRow(for e: DayEntry) -> some View {
         VStack(alignment: .trailing, spacing: 8) {
-            // Eksik şartları listeleyen metin
             if !unmetConditions.isEmpty {
                 Text(unmetConditions.joined(separator: "\n"))
                     .font(.caption)
@@ -329,12 +301,9 @@ struct TodayView: View {
         .onChange(of: vm.text) { _, _ in updateSaveButtonState() }
         .onAppear { updateSaveButtonState() }
     }
-    
-    // MARK: - Answered Block
-    // GÜNCELLEME 3: Bu fonksiyonu tamamen değiştiriyoruz.
+   
     private func answeredBlock(for e: DayEntry) -> some View {
-        VStack(alignment: .leading, spacing: 12) { // Spacing'i 12 yapabiliriz
-            // Durum, Puan, Emoji (aynı)
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 StatusBadge(status: e.status)
                 Spacer()
@@ -356,62 +325,49 @@ struct TodayView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             
-            // --- KALDIRILDI: Yönlendirme sorusu ve cevabı gösterme ---
-            
-            // Ana Not
             if let t = e.text, !t.isEmpty {
-                // --- KALDIRILDI: Divider ve "Ana Notun" başlığı ---
                 Text(t)
-                    .frame(maxWidth: .infinity, alignment: .leading) // Bu satır eklendi
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(12)
                     .background(Theme.bg)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
-                // --- Güncellenmiş mesaj ---
                 Text("Bu gün için not eklenmemiş.")
                     .foregroundStyle(Theme.textSec)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical) // Biraz dikey boşluk
+                    .padding(.vertical)
             }
         }
     }
     
     private func handleFocusChange(editing: Bool, proxy: ScrollViewProxy, anchor: String) {
-        guard editing else { return } // Sadece fokus aldığında çalışsın
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { // Klavye çıktıktan sonra
+        guard editing else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             withAnimation(.easeInOut(duration: 0.2)) {
                 proxy.scrollTo(anchor, anchor: .bottom)
             }
         }
     }
     
-    // MARK: - Helpers
     private func saveDisabled() -> Bool {
-        // Eğer eksik şart listesi boş değilse, buton devre dışıdır.
         !unmetConditions.isEmpty
     }
     
     private func updateSaveButtonState() {
         var conditions: [String] = []
         
-        // 1. Emoji seçilmiş mi?
         if vm.selectedEmojiVariant == nil {
             conditions.append("• Bir mod seçmelisin.")
         }
         
-        // 2. Metin 10 karakterden uzun mu?
         if vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count < 10 {
             conditions.append("• En az 10 karakter girmelisin.")
         }
-        
-        // 3. Metin 500 karakterden kısa mı?
+
         if vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count > 500 {
             conditions.append("• Notun 500 karakteri geçmemeli.")
         }
         
-        // Puan zaten slider ile her zaman seçili olduğu için kontrol etmeye gerek yok.
-        
-        // `unmetConditions` listesini güncelle, bu `saveDisabled` fonksiyonunu tetikleyecek.
         withAnimation(.easeInOut) {
             self.unmetConditions = conditions
         }
@@ -439,9 +395,6 @@ struct TodayView: View {
     }
 }
 
-
-// MARK: - Küçük Bileşenler
-
 private struct CountdownPill: View {
     let remaining: Int
     var body: some View {
@@ -450,7 +403,7 @@ private struct CountdownPill: View {
             .padding(.horizontal, 12).padding(.vertical, 6)
             .background(Theme.accent.opacity(0.12))
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .animation(.none, value: remaining) // her saniye titreşim olmasın
+            .animation(.none, value: remaining)
     }
 }
 
@@ -492,32 +445,44 @@ private struct CircleProgress: View {
 private struct PlaceholderTextEditor: View {
     @Binding var text: String
     let placeholder: String
-    
+    @FocusState.Binding var isFocused: Bool
+
     var body: some View {
         ZStack(alignment: .topLeading) {
+            TextEditor(text: $text)
+                .focused($isFocused)
+                .background(Theme.bg)
+                .accessibilityLabel(Text(placeholder))
+
             if text.isEmpty {
                 Text(placeholder)
                     .foregroundStyle(Theme.textSec)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 12)
+                    .onTapGesture {
+                        isFocused = true
+                    }
+                    .allowsHitTesting(!isFocused && text.isEmpty)
+                    .accessibilityHidden(true)
             }
-            TextEditor(text: $text)
-                .opacity(0.98)
-                .background(Color.clear)
         }
+         .contentShape(Rectangle())
+         .onTapGesture {
+             isFocused = true
+         }
     }
 }
 
 struct BreathingExerciseView: View {
     @State private var scale: CGFloat = 0.5
     @State private var text = "Nefes Al..."
-    @Environment(\.dismiss) var dismiss // Kapatmak için
+    @Environment(\.dismiss) var dismiss
     
-    let animationDuration = 4.0 // Her aşamanın süresi
+    let animationDuration = 4.0
     
     var body: some View {
         ZStack {
-            Theme.AnimatedBackground().opacity(0.7) // Hafif arka plan
+            Theme.AnimatedBackground().opacity(0.7)
             
             VStack(spacing: 40) {
                 Text("Sadece Nefesine Odaklan")
@@ -536,10 +501,10 @@ struct BreathingExerciseView: View {
                 
                 Text(text)
                     .font(.headline)
-                    .animation(nil, value: text) // Metin aniden değişsin
+                    .animation(nil, value: text)
                 
                 Button("Bitir") {
-                    dismiss() // Sheet'i kapat
+                    dismiss()
                 }
                 .buttonStyle(SubtleButtonStyle())
                 .padding(.top, 20)
@@ -550,21 +515,17 @@ struct BreathingExerciseView: View {
     }
     
     func startAnimation() {
-        // Başlangıç durumu
         scale = 0.5
         text = "Nefes Al..."
         
-        // Nefes Alma (Büyüme)
         withAnimation(.easeInOut(duration: animationDuration)) {
             scale = 1.0
         }
         
-        // Tutma
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
             text = "Tut..."
         }
         
-        // Nefes Verme (Küçülme)
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration * 2) {
             text = "Nefes Ver..."
             withAnimation(.easeInOut(duration: animationDuration)) {
@@ -572,9 +533,8 @@ struct BreathingExerciseView: View {
             }
         }
         
-        // Döngü
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration * 3) {
-            startAnimation() // Tekrar başlat
+            startAnimation()
         }
     }
 }
@@ -594,7 +554,6 @@ private struct SaveToast: View {
     }
 }
 
-/// Geniş emoji + isim kataloğu
 enum MoodEmojiCatalog {
     struct Item: Identifiable, Hashable {
         let id = UUID()
