@@ -253,11 +253,12 @@
 				};
 			};
 			buildConfigurationList = 3C96F0382E85555700BB73A9 /* Build configuration list for PBXProject "Daily Vibes" */;
-			developmentRegion = en;
+			developmentRegion = tr;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				tr,
 			);
 			mainGroup = 3C96F0342E85555700BB73A9;
 			minimizedProjectReferenceProxies = 1;
