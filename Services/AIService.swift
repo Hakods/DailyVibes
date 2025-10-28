@@ -110,16 +110,10 @@ final class AIService {
             "Bu ilginç bir konu! Cevapladıktan sonra, nasıl hissettiğine odaklanmak istersen buradayım.",
             "Elbette, bu konuda bilgim var. Yine de hatırlatmak isterim ki önceliğim senin duygusal yolculuğuna eşlik etmek."
         ]
-        // GÜNCELLEME: Stile göre değil, rastgele seçelim.
-        // .randomElement() metodu diziden rastgele bir eleman seçer. Dizi boşsa nil döner,
-        // bu yüzden ?? ile varsayılan bir değer (ilk cümle) atıyoruz.
+      
         let reminderText = reminderVariations.randomElement() ?? reminderVariations[0]
-        // --- Hatırlatma Metinleri Sonu ---
-
-        // --- Dinamik Rehberlik (Hatırlatıcı metni kullanacak şekilde güncellendi) ---
         let guidance: String
         switch questionType {
-            // ... (data, analysis, greeting caseleri aynı kalır) ...
         case "data":
             guidance = """
             Kullanıcı geçmiş kayıtlardan spesifik bir bilgi istiyor... (öncekiyle aynı)
@@ -132,7 +126,6 @@ final class AIService {
             guidance = "Kullanıcı genel bir sohbet başlatıyor (selamlaşma)... (öncekiyle aynı)"
 
         case "off_topic":
-            // Seçilen rastgele reminderText kullanılıyor.
             guidance = """
             Kullanıcının sorusu kişisel duygu durumu veya geçmiş kayıtlarıyla ilgili görünmüyor...
             **Önce, sorduğu genel bilgi sorusunu kendi bilgine dayanarak DOĞRU bir şekilde cevapla.**
@@ -140,14 +133,11 @@ final class AIService {
             Kullanıcı verilerini bu tür sorular için kullanma.
             """
         default:
-            guidance = "Kullanıcının sorusunu 'KULLANICI VERİLERİ'ni bağlam olarak kullanarak..." // (öncekiyle aynı)
+            guidance = "Kullanıcının sorusunu 'KULLANICI VERİLERİ'ni bağlam olarak kullanarak..."
         }
-        // --- Rehberlik Sonu ---
 
-        // Kısalık (aynı kalabilir)
         let brevity: String
         switch style {
-        // ... (öncekiyle aynı)
         case .concise: brevity = "Cevabın ÇOK KISA ve öz olmalı. Maksimum 2-3 cümle (eğer hatırlatma ekliyorsan o hariç)."
         case .normal: brevity = "Cevabın kısa ve anlaşılır olmalı. Genellikle 4-6 cümle yeterlidir (eğer hatırlatma ekliyorsan o hariç)."
         case .deep:
@@ -155,8 +145,6 @@ final class AIService {
             else { brevity = "Cevabın kısa ve anlaşılır olmalı (4-6 cümle)." }
         }
 
-
-        // Veri Gizleme (aynı kalabilir)
         let includeUserData = (questionType != "off_topic" && questionType != "greeting")
         let userDataSection = includeUserData ? """
             KULLANICI VERİLERİ (Referans için):
@@ -164,7 +152,6 @@ final class AIService {
             ----
             """ : ""
 
-        // Prompt'un geri kalanı (aynı kalabilir)
         return """
             Sen 'Vibe Koçu'sun. Davranış kuralların şunlardır:
             - KESİNLİKLE Markdown kullanma (*, **, # vb.). Cevabın tamamen düz metin olsun.
