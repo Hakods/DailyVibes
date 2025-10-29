@@ -153,16 +153,6 @@ final class StoreService: ObservableObject {
         return self.isProUnlocked
     }
     
-#if DEBUG
-    /// SADECE DEBUG: isProUnlocked durumunu 'false' yapar.
-    func resetProStatusForDebug() {
-        print("⚠️ DEBUG ACTION: Pro durumu sıfırlanıyor (isProUnlocked = false).")
-        self.isProUnlocked = false
-        // İsteğe bağlı: Arayüzün güncellenmesi için @Published değişkeni tetiklendi
-        // objectWillChange.send() // Genellikle gerekmez, @Published yeterli olur
-    }
-#endif
-    
     func restore() async {
         print("🔄 StoreService: Satın alımlar geri yükleniyor...")
         do {

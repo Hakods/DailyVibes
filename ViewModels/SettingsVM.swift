@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 @MainActor
 final class SettingsVM: ObservableObject {
@@ -26,11 +27,33 @@ final class SettingsVM: ObservableObject {
         abs.dateStyle = .medium
         abs.timeStyle = .short
         self.absoluteFormatter = abs
+        
+        Task {
+            await checkAuthStatus()
+        }
     }
 
+    func checkAuthStatus() async {
+        self.authGranted = await RepositoryProvider.shared.notification.checkAuthStatus()
+    }
+    
     func requestNotifications() {
         Task { @MainActor in
-            authGranted = await RepositoryProvider.shared.notification.requestAuth()
+            let currentStatus = await UNUserNotificationCenter.current().notificationSettings()
+            
+            if currentStatus.authorizationStatus == .denied {
+                print("İzin daha önce reddedilmiş, Ayarlar'a yönlendiriliyor...")
+                if let appSettingsURL = URL(string: UIApplication.openSettingsURLString) {
+                    await UIApplication.shared.open(appSettingsURL)
+                }
+            } else if currentStatus.authorizationStatus == .notDetermined {
+                print("İzin isteniyor...")
+                let granted = await RepositoryProvider.shared.notification.requestAuth()
+                self.authGranted = granted
+            } else if currentStatus.authorizationStatus == .authorized {
+                print("İzin zaten verilmiş.")
+                self.authGranted = true
+            }
         }
     }
     

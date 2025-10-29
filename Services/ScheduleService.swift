@@ -46,9 +46,6 @@ final class ScheduleService: ObservableObject {
     
     func planForNext(days: Int = 14) async {
         guard canPlanToday() else {
-            #if DEBUG
-            print("⚠️ planForNext() SKIPPED (throttled for today)")
-            #endif
             return
         }
 
@@ -65,10 +62,6 @@ final class ScheduleService: ObservableObject {
                 entries[idx].status = .missed
             }
         }
-
-        #if DEBUG
-        print("🔄 Planlama başlıyor… \(days) gün için (window: \(fixedStartHour):00–\(fixedEndHour):00)")
-        #endif
 
         // 2) Bugün dâhil ileri günleri planla (her gün tek bildirim)
         for i in 0..<days {
@@ -92,19 +85,10 @@ final class ScheduleService: ObservableObject {
             }
 
             try? await notifier.scheduleUniqueDaily(for: day, at: fire)
-
-            #if DEBUG
-            let df = DateFormatter(); df.dateFormat = "dd MMM yyyy, HH:mm"
-            print("✅ Planlandı → \(df.string(from: fire))  [id: mood-\(DateFormatter.dayKey.string(from: day))]")
-            #endif
         }
 
         try? repo.save(entries)
         markPlannedToday()
-
-        #if DEBUG
-        await logPendingSummary()
-        #endif
     }
 
     func planAdminOneMinute() async {
@@ -131,12 +115,6 @@ final class ScheduleService: ObservableObject {
 
         try? repo.save(entries)
         try? await notifier.scheduleUniqueDaily(for: today, at: fire)
-
-        #if DEBUG
-        let df = DateFormatter(); df.dateFormat = "dd MMM yyyy, HH:mm:ss"
-        print("⚡️ Admin planı → \(df.string(from: fire))  [id: mood-\(DateFormatter.dayKey.string(from: today))]")
-        await logPendingSummary()
-        #endif
     }
 
     /// Belirli bir saate **tekil** bildirim planla (aynı güne eskileri iptal eder).
@@ -158,12 +136,6 @@ final class ScheduleService: ObservableObject {
 
         try? repo.save(entries)
         try? await notifier.scheduleUniqueDaily(for: day, at: date)
-
-        #if DEBUG
-        let df = DateFormatter(); df.dateFormat = "dd MMM yyyy, HH:mm"
-        print("🧪 Test planı → \(df.string(from: date))  [id: mood-\(DateFormatter.dayKey.string(from: day))]")
-        await logPendingSummary()
-        #endif
     }
 
     // MARK: - Private helpers (TimeWindow bağımsız)

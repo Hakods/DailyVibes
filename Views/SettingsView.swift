@@ -19,165 +19,169 @@ struct SettingsView: View {
     @State private var showExportToast = false
     @State private var showingExportErrorAlert = false
     @State private var exportErrorMessage = ""
-    @State private var showAdminTools = false
     
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                
-                AnimatedAuroraBackground()
-                
-                if showExportToast {
-                    VStack {
-                        Spacer()
-                        Text("✅ Dışa aktarma tamamlandı!")
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(12)
-                            .shadow(radius: 3)
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
-                            .padding(.bottom, 20)
-                    }
-                    .animation(.easeInOut, value: showExportToast)
+        ZStack {
+            
+            AnimatedAuroraBackground()
+            
+            if showExportToast {
+                VStack {
+                    Spacer()
+                    Text("✅ Dışa aktarma tamamlandı!")
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(12)
+                        .shadow(radius: 3)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .padding(.bottom, 20)
                 }
-                
-                
-                Form {
-                    // MARK: - Bildirim Ayarları
-                    Section {
-                        NotificationStatusView(authGranted: vm.authGranted) {
-                            vm.requestNotifications()
-                        }
-                        // Ping sayısı ayarı kaldırıldı.
-                    } header: {
-                        Text("🔔 Günlük Ping Ayarları")
-                    } footer: {
-                        Text("Ping'ler her gün **10:00 – 22:00** arasında rastgele bir saatte gönderilir.")
-                    }
-                    
-                    // MARK: - Daily Vibes Pro
-                    Section {
-                        if store.isProUnlocked {
-                            ProActiveStatusView()
-                            Button {
-                                prepareAndExportToFile()
-                            } label: {
-                                HStack {
-                                    if isExportPreparing {
-                                        ProgressView().tint(.white)
-                                        Text("Dışa aktarılıyor...").fontWeight(.semibold)
-                                    } else {
-                                        Label("Verileri Dosyaya Aktar (CSV)", systemImage: "doc.badge.arrow.up.fill")
-                                            .fontWeight(.semibold)
-                                    }
-                                }
-                                .animation(.easeInOut(duration: 0.25), value: isExportPreparing)
-                            }
-                            .buttonStyle(PrimaryButtonStyle())
-                            .disabled(isExportPreparing)
-                            
-                            Label {
-                                Text("Kayıtların yalnızca cihazında saklanır, dışa aktarma manuel dosya kaydı yapar.")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                                    .multilineTextAlignment(.leading)
-                            } icon: {
-                                Image(systemName: "lock.doc.fill")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding(.top, 4)
-                            
-                        } else {
-                            VStack(spacing: 15) {
-                                Text("✨ Daily Vibes Pro'ya Geçin")
-                                    .font(.headline)
-                                Text("Sınırsız AI Koçu erişimi, derinlemesine özetler, veri dışa aktarma ve daha fazlası için Pro'ya yükseltin.")
-                                    .font(.caption)
-                                    .foregroundStyle(Theme.textSec)
-                                    .multilineTextAlignment(.center)
-                                Button("Pro Özellikleri Gör ve Abone Ol") {
-                                    showPaywallSheet = true
-                                }
-                                .buttonStyle(PrimaryButtonStyle())
-                            }
-                            .padding(.vertical)
-                        }
-                    } header: {
-                        Text("✨ Daily Vibes Pro")
-                    } footer: {
-                        Text("Satın alma Apple Kimliğinize bağlıdır. Aile Paylaşımı ve iade hakları Apple politikalarına tabidir.")
-                            .font(.caption2)
-                    }
-                    
-                    // MARK: - Planlama Bilgisi
-                    Section {
-                        PlanningInfoView()
-#if DEBUG
-                        if let lastPlan = schedule.lastManualPlanAt {
-                            HStack {
-                                Text("Son Otomatik Planlama:")
-                                Spacer()
-                                Text(vm.planTimestampDescription(for: lastPlan)) // Text içine alındı
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-#endif
-                    } header: {
-                        Text("📅 Planlama")
-                    } footer: {
-                        Text("Bildirimler her gün otomatik olarak planlanır.")
-                    }
-                    
-                    // MARK: - Yardımcı Bilgiler
-                    Section {
-                        TipsView()
-                    } header: {
-                        Text("💡 İpuçları")
-                    }
-                    
-                    
-                    // MARK: - ADMIN (DEBUG)
-#if DEBUG
-                    AdminToolsView(showAdminTools: $showAdminTools, vm: vm, schedule: schedule) // Sıfırlama butonu dahil
-#endif
-                }
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
-            }
-            .navigationTitle("Ayarlar")
-            .onAppear {
-                Task { @MainActor in
-                    vm.authGranted = await RepositoryProvider.shared.notification.checkAuthStatus()
-                    if store.products.isEmpty {
-                        await store.loadProducts()
-                    }
-#if !DEBUG
-                    await store.updateSubscriptionStatus()
-#endif
-                }
-            }
-            .sheet(item: $exportURL, onDismiss: {
-                cleanupTemporaryFile(url: tempURLToDelete)
-                tempURLToDelete = nil
-                exportURL = nil
-            }) { url in
-                DocumentPicker(fileURLToExport: url)
-                    .ignoresSafeArea()
+                .animation(.easeInOut, value: showExportToast)
             }
             
-            // --- HATA ALERT MODIFIER ---
-            .alert("Dışa Aktarma Hatası", isPresented: $showingExportErrorAlert) {
-                Button("Tamam") { }
-            } message: { Text(exportErrorMessage) }
-                .sheet(isPresented: $showPaywallSheet) {
-                    PaywallView(vm: PaywallVM(store: self.store))
-                        .environmentObject(self.store)
+            
+            Form {
+                // MARK: - Bildirim Ayarları
+                Section {
+                    NotificationStatusView(authGranted: vm.authGranted) {
+                        vm.requestNotifications()
+                    }
+                    // Ping sayısı ayarı kaldırıldı.
+                } header: {
+                    Text("🔔 Günlük Ping Ayarları")
+                } footer: {
+                    Text("Ping'ler her gün **10:00 – 22:00** arasında rastgele bir saatte gönderilir.")
                 }
+                
+                // MARK: - Daily Vibes Pro
+                Section {
+                    if store.isProUnlocked {
+                        ProActiveStatusView()
+                        Button {
+                            prepareAndExportToFile()
+                        } label: {
+                            HStack {
+                                if isExportPreparing {
+                                    ProgressView().tint(.white)
+                                    Text("Dışa aktarılıyor...").fontWeight(.semibold)
+                                } else {
+                                    Label("Verileri Dosyaya Aktar (CSV)", systemImage: "doc.badge.arrow.up.fill")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                            .animation(.easeInOut(duration: 0.25), value: isExportPreparing)
+                        }
+                        .buttonStyle(PrimaryButtonStyle())
+                        .disabled(isExportPreparing)
+                        
+                        Label {
+                            Text("Kayıtların yalnızca cihazında saklanır, dışa aktarma manuel dosya kaydı yapar.")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.leading)
+                        } icon: {
+                            Image(systemName: "lock.doc.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.top, 4)
+                        
+                    } else {
+                        VStack(spacing: 15) {
+                            Text("✨ Daily Vibes Pro'ya Geçin")
+                                .font(.headline)
+                            Text("Sınırsız AI Koçu erişimi, derinlemesine özetler, veri dışa aktarma ve daha fazlası için Pro'ya yükseltin.")
+                                .font(.caption)
+                                .foregroundStyle(Theme.textSec)
+                                .multilineTextAlignment(.center)
+                            Button("Pro Özellikleri Gör ve Abone Ol") {
+                                showPaywallSheet = true
+                            }
+                            .buttonStyle(PrimaryButtonStyle())
+                        }
+                        .padding(.vertical)
+                    }
+                } header: {
+                    Text("✨ Daily Vibes Pro")
+                } footer: {
+                    Text("Satın alma Apple Kimliğinize bağlıdır. Aile Paylaşımı ve iade hakları Apple politikalarına tabidir.")
+                        .font(.caption2)
+                }
+                
+                // MARK: - Planlama Bilgisi
+                Section {
+                    PlanningInfoView()
+                } header: {
+                    Text("📅 Planlama")
+                } footer: {
+                    Text("Bildirimler her gün otomatik olarak planlanır.")
+                }
+                
+                // MARK: - Yardımcı Bilgiler
+                Section {
+                    TipsView()
+                } header: {
+                    Text("💡 İpuçları")
+                }
+                
+                Section("Hakkında & Destek") {
+                    
+                    NavigationLink {
+                        LegalTextView(title: "Gizlilik Politikası", content: .privacyPolicy)
+                    } label: {
+                        Label("Gizlilik Politikası", systemImage: "lock.shield.fill")
+                            .foregroundStyle(Theme.accent)
+                    }
+                    
+                    NavigationLink {
+                        LegalTextView(title: "Kullanım Koşulları", content: .termsOfService)
+                    } label: {
+                        Label("Kullanım Koşulları", systemImage: "doc.text.fill")
+                            .foregroundStyle(Theme.accent)
+                    }
+                    
+                    AboutLink(
+                        title: "Destek & Geri Bildirim",
+                        iconName: "envelope.fill",
+                        urlString: "mailto:dailyvibesdestek@gmail.com"
+                    )
+                }
+                .listRowBackground(Theme.card.opacity(0.8))
+                
+                Section {
+                    AppVersionView()
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
+            .navigationTitle("Ayarlar")
         }
-        .navigationViewStyle(.stack)
+        .onAppear {
+            Task { @MainActor in
+                vm.authGranted = await RepositoryProvider.shared.notification.checkAuthStatus()
+                if store.products.isEmpty {
+                    await store.loadProducts()
+                }
+                await store.updateSubscriptionStatus()
+            }
+        }
+        .sheet(item: $exportURL, onDismiss: {
+            cleanupTemporaryFile(url: tempURLToDelete)
+            tempURLToDelete = nil
+            exportURL = nil
+        }) { url in
+            DocumentPicker(fileURLToExport: url)
+                .ignoresSafeArea()
+        }
+        
+        .alert("Dışa Aktarma Hatası", isPresented: $showingExportErrorAlert) {
+            Button("Tamam") { }
+        } message: { Text(exportErrorMessage) }
+            .sheet(isPresented: $showPaywallSheet) {
+                PaywallView(vm: PaywallVM(store: self.store))
+                    .environmentObject(self.store)
+            }
     }
     
     private func prepareAndExportToFile() {
@@ -322,16 +326,16 @@ private struct TipsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Label("Kısa ve düzenli yazmak en önemlisi.", systemImage: "pencil.line")
-            Label("Ping saatlerini arada gözden geçir.", systemImage: "calendar.badge.clock")
+            Label("Ping saatlerini kaçırmamaya dikkat et.", systemImage: "calendar.badge.clock")
         }
         .font(.caption)
         .foregroundStyle(Theme.textSec)
     }
 }
 
-// Hakkında Bölümü Linkleri (Aynı)
 private struct AboutLink: View {
     let title: String
+    let iconName: String
     let urlString: String
     @Environment(\.openURL) var openURL
     
@@ -340,18 +344,26 @@ private struct AboutLink: View {
             if let url = URL(string: urlString) { openURL(url) }
         } label: {
             HStack {
-                Text(title)
+                Label {
+                    Text(title)
+                        .foregroundStyle(Theme.accent)
+                } icon: {
+                    Image(systemName: iconName)
+                        .foregroundStyle(Theme.accent)
+                }
+                
                 Spacer()
-                Image(systemName: urlString.starts(with: "mailto:") ? "envelope.fill" : "arrow.up.forward.app.fill")
-                    .foregroundStyle(.secondary)
+                
+                Image(systemName: "arrow.up.forward.app.fill")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.secondary.opacity(0.7))
             }
-            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .foregroundStyle(.primary)
+        .contentShape(Rectangle())
     }
 }
-
 // Uygulama Versiyonu (Aynı)
 private struct AppVersionView: View {
     var body: some View {
@@ -369,61 +381,6 @@ private struct AppVersionView: View {
             return "Bilinmiyor"
         }
         return "\(version) (\(build))"
-    }
-}
-
-
-// Admin Araçları (Sıfırlama butonu dahil, değişiklik yok)
-private struct AdminToolsView: View {
-    @Binding var showAdminTools: Bool
-    @ObservedObject var vm: SettingsVM
-    @ObservedObject var schedule: ScheduleService
-    @EnvironmentObject var store: StoreService // Store eklendi
-    
-    var body: some View {
-        Section("🛠️ Admin Araçları (DEBUG)") {
-            DisclosureGroup("Araçları Göster/Gizle", isExpanded: $showAdminTools) {
-                VStack(alignment: .leading, spacing: 10) {
-                    // 1 dk ping butonu
-                    Button {
-                        Task {
-                            if !vm.authGranted { vm.authGranted = await RepositoryProvider.shared.notification.requestAuth() }
-                            await schedule.planAdminOneMinute()
-                            RepositoryProvider.shared.notification.dumpPending()
-                        }
-                    } label: { Label("1 dk sonra ping planla", systemImage: "bolt.fill") }
-                        .buttonStyle(.bordered).tint(.orange)
-                    
-                    // 5 sn test butonu
-                    Button {
-                        Task {
-                            if !vm.authGranted { vm.authGranted = await RepositoryProvider.shared.notification.requestAuth() }
-                            await RepositoryProvider.shared.notification.scheduleIn(seconds: 5)
-                            RepositoryProvider.shared.notification.dumpPending()
-                        }
-                    } label: { Label("5 sn sonra test bildirimi", systemImage: "paperplane.fill") }
-                        .buttonStyle(.bordered).tint(.blue)
-                    
-                    Divider().padding(.vertical, 4)
-                    
-                    // Sıfırlama butonu
-                    Button(role: .destructive) {
-                        store.resetProStatusForDebug() // Fonksiyonu çağır
-                        HapticsService.notification(.warning)
-                    } label: { Label("Pro Aboneliğini Sıfırla (Debug)", systemImage: "arrow.counterclockwise.circle.fill") }
-                        .buttonStyle(.bordered).tint(.purple)
-                    
-                    Divider().padding(.vertical, 4)
-                    
-                    // Purge butonu
-                    Button(role: .destructive) {
-                        Task { await RepositoryProvider.shared.notification.purgeAllAppPending() }
-                    } label: { Label("Bekleyen bildirimleri temizle (purge)", systemImage: "trash") }
-                        .buttonStyle(.bordered).tint(.red)
-                }
-                .padding(.top, 5)
-            }
-        }
     }
 }
 

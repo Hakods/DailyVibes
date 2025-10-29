@@ -5,9 +5,6 @@
 //  Created by Ahmet Hakan Altıparmak on 7.10.2025.
 //
 
-// Dosya: Daily Vibes/DailyVibesApp.swift
-// SENİN KODUNA GÖRE GÜNCELLENMİŞ HALİ
-
 import SwiftUI
 import FirebaseCore
 import CoreData
@@ -25,9 +22,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct DailyVibesApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    // --- ScenePhase EKSİKTİ, EKLEYELİM ---
     @Environment(\.scenePhase) var scenePhase
-    // --- ScenePhase SON ---
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
 
@@ -39,10 +34,6 @@ struct DailyVibesApp: App {
 
     init() {
         _store = StateObject(wrappedValue: RepositoryProvider.shared.store)
-        // --- GEÇİCİ TEST KODU ---
-        UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
-        print("DEBUG: Onboarding flag reset to false.")
-        // --- GEÇİCİ TEST KODU SONU ---
     }
 
     var body: some Scene {

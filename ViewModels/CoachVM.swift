@@ -31,9 +31,6 @@ final class CoachVM: ObservableObject {
     @Published var showPaywall = false
     @Published private(set) var freeMessagesRemaining: Int
     
-    // GÜNCELLEME: Admin modunu açıp kapatabileceğimiz yeni bir ayar
-    @Published var isAdminOverrideEnabled: Bool
-    
     private let dailyFreeMessageLimit = 3
     private let store: StoreService
     
@@ -51,13 +48,6 @@ final class CoachVM: ObservableObject {
         self.repo = repo ?? RepositoryProvider.shared.dayRepo
         self.store = store
         self.freeMessagesRemaining = 0
-        
-#if DEBUG
-        self.isAdminOverrideEnabled = true
-#else
-        self.isAdminOverrideEnabled = false
-#endif
-        
         self.freeMessagesRemaining = calculateRemainingMessages()
         updateInitialMessage()
     }
@@ -66,13 +56,12 @@ final class CoachVM: ObservableObject {
         let initialMessage: String
         if store.isProUnlocked {
             initialMessage = "Merhaba! Ben Vibe Koçu. Sınırsız Pro erişiminle sana yardımcı olmaya hazırım."
-        } else if isAdminOverrideEnabled {
-            initialMessage = "Merhaba! Ben Vibe Koçu. Admin modu aktif, sınırsız erişime sahipsin. 🚀"
-        } else {
+        }
+        else {
             self.freeMessagesRemaining = calculateRemainingMessages()
             initialMessage = "Merhaba! Ben Vibe Koçu. Bugün için \(freeMessagesRemaining) ücretsiz mesaj hakkınla başlayabilirsin ✨"
         }
-        
+    
         if chatMessages.first?.text != initialMessage {
             if chatMessages.isEmpty {
                 chatMessages.append(ChatMessage(text: initialMessage, isFromUser: false))
@@ -86,7 +75,7 @@ final class CoachVM: ObservableObject {
         let trimmed = userQuestion.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         
-        if !store.isProUnlocked && !isAdminOverrideEnabled {
+        if !store.isProUnlocked {
             if freeMessagesRemaining <= 0 {
                 appendPaywallMessage()
                 return

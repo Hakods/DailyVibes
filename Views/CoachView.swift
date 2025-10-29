@@ -52,8 +52,7 @@ struct CoachView: View {
                         .scrollDismissesKeyboard(.interactively)
                     }
                     
-                    // GÜNCELLEME: Admin modunu da kontrol ediyoruz
-                    if !store.isProUnlocked && vm.freeMessagesRemaining <= 0 && !vm.isAdminOverrideEnabled {
+                    if !store.isProUnlocked && vm.freeMessagesRemaining <= 0 {
                         PaywallPromptView(onTap: { vm.showPaywall = true })
                     } else {
                         ChatInputBar(
@@ -231,15 +230,6 @@ private struct CoachSettingsView: View {
                         Text("Yavaş").font(.caption)
                     }
                 }
-                
-#if DEBUG
-                Section("Admin Araçları") {
-                    Toggle("Sınırsız Mesaj Hakkı (Admin)", isOn: $vm.isAdminOverrideEnabled)
-                        .onChange(of: vm.isAdminOverrideEnabled) { _, _ in
-                            vm.updateInitialMessage()
-                        }
-                }
-#endif
             }
             .navigationTitle("Koç Ayarları")
             .navigationBarTitleDisplayMode(.inline)

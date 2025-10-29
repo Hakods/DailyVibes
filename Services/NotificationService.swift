@@ -79,14 +79,6 @@ final class NotificationService: NSObject, ObservableObject {
         try? await UNUserNotificationCenter.current().add(req)
     }
     
-    // MARK: - DEBUG log helper
-#if DEBUG
-    private func dbg(_ items: Any..., fn: String = #function) {
-        let stamp = ISO8601DateFormatter().string(from: Date())
-        print("🔔[\(stamp)] \(fn):", items.map { "\($0)" }.joined(separator: " "))
-    }
-#endif
-    
     func scheduleUniqueDaily(for day: Date, at fire: Date) async throws {
         let id = Notif.id(for: day)
         
@@ -99,9 +91,6 @@ final class NotificationService: NSObject, ObservableObject {
         
         if !sameDayIds.isEmpty {
             center.removePendingNotificationRequests(withIdentifiers: sameDayIds)
-#if DEBUG
-            dbg("removed \(sameDayIds.count) pending for", id)
-#endif
         }
         
         // 2) Yeniyi oluştur
@@ -114,13 +103,6 @@ final class NotificationService: NSObject, ObservableObject {
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
         let req = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
         try await center.add(req)
-        
-#if DEBUG
-        let df = DateFormatter(); df.dateFormat = "yyyy-MM-dd HH:mm"
-        dbg("scheduled", id, "→", df.string(from: fire), "(comps:", comps, ")")
-        let after = await pendingRequests().filter { $0.identifier.hasPrefix("mood-") }
-        dbg("total mood- pending:", after.count)
-#endif
     }
     
     
@@ -186,31 +168,6 @@ final class NotificationService: NSObject, ObservableObject {
         }
         print("-----------------------------------------------------")
     }
-
-    
-#if DEBUG
-    /// Bekleyen bildirimleri okunaklı şekilde döker.
-    func dumpAllAppPendingPretty() async {
-        let df = DateFormatter(); df.dateFormat = "yyyy-MM-dd HH:mm"
-        let reqs = await pendingRequests()
-        let sorted = reqs.sorted { a, b in
-            let ta = (a.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate()
-            let tb = (b.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate()
-            switch (ta, tb) {
-            case let (a?, b?): return a < b
-            case (_?, nil):    return true
-            case (nil, _?):    return false
-            default:           return a.identifier < b.identifier
-            }
-        }
-        print("====== PENDING (\(sorted.count)) ======")
-        for r in sorted {
-            let when = (r.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate()
-            print("• \(r.identifier) → \(when.map(df.string(from:)) ?? "-")")
-        }
-        print("===============================")
-    }
-#endif
 }
 
 extension NotificationService {
