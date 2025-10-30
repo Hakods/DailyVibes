@@ -44,12 +44,20 @@ final class CoachVM: ObservableObject {
     private let aiService = AIService()
     private var streamTask: Task<Void, Never>?
     
+    private var cancellables = Set<AnyCancellable>()
+    
     init(repo: DayEntryRepository? = nil, store: StoreService) {
         self.repo = repo ?? RepositoryProvider.shared.dayRepo
         self.store = store
         self.freeMessagesRemaining = 0
         self.freeMessagesRemaining = calculateRemainingMessages()
-        updateInitialMessage()
+        store.$isProUnlocked
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateInitialMessage()
+            }
+            .store(in: &cancellables)
     }
     
     func updateInitialMessage() {
@@ -141,11 +149,9 @@ final class CoachVM: ObservableObject {
         }
     }
     
-    // YENİ FONKSİYONLAR
     private func appendPaywallMessage() {
         let paywallMessage = ChatMessage(text: "Günlük ücretsiz mesaj limitine ulaştın. Sınırsız sohbet ve daha derin analizler için Pro'ya geçmeye ne dersin?", isFromUser: false)
         chatMessages.append(paywallMessage)
-        // Arayüzün ödeme duvarını göstermesi için sinyal gönder
         showPaywall = true
     }
     
@@ -155,7 +161,7 @@ final class CoachVM: ObservableObject {
         
         if !Calendar.current.isDateInToday(lastUsedDate) {
             defaults.set(dailyFreeMessageLimit, forKey: "aiMessageCount")
-            defaults.set(Date(), forKey: "lastAImessageDate") // Tarihi bugüne güncelle
+            defaults.set(Date(), forKey: "lastAImessageDate")
             return dailyFreeMessageLimit
         }
         
