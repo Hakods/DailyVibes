@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3C227EE62EB233B700EEF6C3 /* LegalTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C227EE52EB233B700EEF6C3 /* LegalTextView.swift */; };
+		3C294E2E2EB372F700B4E78A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 3C294E2D2EB372F700B4E78A /* FirebaseAppCheck */; };
 		3C2B39DF2EA65AE000D8E5AB /* TestStore.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 3C2B39DE2EA65AE000D8E5AB /* TestStore.storekit */; };
 		3C96F0452E85555800BB73A9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3C96F0442E85555800BB73A9 /* Assets.xcassets */; };
 		3C96F0732E8559AF00BB73A9 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C96F06F2E85587700BB73A9 /* HapticsService.swift */; };
@@ -54,6 +55,7 @@
 
 /* Begin PBXFileReference section */
 		3C227EE52EB233B700EEF6C3 /* LegalTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegalTextView.swift; sourceTree = "<group>"; };
+		3C294E2F2EB3733F00B4E78A /* Daily Vibes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Daily Vibes.entitlements"; sourceTree = "<group>"; };
 		3C2B39DE2EA65AE000D8E5AB /* TestStore.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestStore.storekit; sourceTree = "<group>"; };
 		3C96F0442E85555800BB73A9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3C96F05B2E85575300BB73A9 /* DayEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayEntry.swift; sourceTree = "<group>"; };
@@ -104,6 +106,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3CCCE1302EA102FC00BC7727 /* FirebaseAnalytics in Frameworks */,
+				3C294E2E2EB372F700B4E78A /* FirebaseAppCheck in Frameworks */,
 				3CCCE12E2EA102FC00BC7727 /* FirebaseAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -111,9 +114,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3C294E2C2EB372F700B4E78A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		3C96F0342E85555700BB73A9 = {
 			isa = PBXGroup;
 			children = (
+				3C294E2F2EB3733F00B4E78A /* Daily Vibes.entitlements */,
 				3CB610CA2EA790A700508731 /* Daily-Vibes-Info.plist */,
 				3C2B39DE2EA65AE000D8E5AB /* TestStore.storekit */,
 				3CEDF50D2E9E42F500595983 /* PersistenceController.swift */,
@@ -128,6 +139,7 @@
 				3C96F04E2E85563F00BB73A9 /* Models */,
 				3CC8D0C52E93C7C700C5A259 /* Daily Vibes.app */,
 				3CCCE12A2EA0FEA500BC7727 /* GoogleService-Info.plist */,
+				3C294E2C2EB372F700B4E78A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -235,6 +247,7 @@
 			packageProductDependencies = (
 				3CCCE12D2EA102FC00BC7727 /* FirebaseAI */,
 				3CCCE12F2EA102FC00BC7727 /* FirebaseAnalytics */,
+				3C294E2D2EB372F700B4E78A /* FirebaseAppCheck */,
 			);
 			productName = "Daily Vibes";
 			productReference = 3CC8D0C52E93C7C700C5A259 /* Daily Vibes.app */;
@@ -466,6 +479,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Daily Vibes.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 75R4MMW9Q8;
@@ -500,6 +514,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Daily Vibes.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 75R4MMW9Q8;
@@ -564,6 +579,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		3C294E2D2EB372F700B4E78A /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3CCCE12C2EA102FB00BC7727 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
 		3CCCE12D2EA102FC00BC7727 /* FirebaseAI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 3CCCE12C2EA102FB00BC7727 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

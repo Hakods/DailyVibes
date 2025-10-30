@@ -8,11 +8,25 @@
 import SwiftUI
 import FirebaseCore
 import CoreData
+import FirebaseAppCheck
 
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+    
+    var providerFactory: AppCheckProviderFactory
+    #if DEBUG
+      providerFactory = AppCheckDebugProviderFactory()
+      print("🔔 App Check: DEBUG modu aktif.")
+    #else
+      providerFactory = AppAttestProviderFactory()
+      print("🔒 App Check: RELEASE (App Attest) modu aktif.")
+    #endif
+    
+    AppCheck.setAppCheckProviderFactory(providerFactory)
+
     FirebaseApp.configure()
+    
     return true
   }
 }
@@ -56,7 +70,7 @@ struct DailyVibesApp: App {
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
              if newPhase == .active && oldPhase != .active {
-                 print("App became active") // Test için log
+                 print("App became active")
              }
         }
     }
