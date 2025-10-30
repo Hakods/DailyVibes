@@ -43,7 +43,7 @@ enum LegalContent: String {
     
     **5. İletişim**
     
-    Sorularınız için lütfen [destek@senin-emailin.com] adresinden bize ulaşın.
+    Sorularınız için lütfen [dailyvibes.development@gmail.com] adresinden bize ulaşın.
     """
     
     case termsOfService = """
@@ -72,7 +72,7 @@ enum LegalContent: String {
     
     **4. İletişim**
     
-    Sorularınız için lütfen [destek@senin-emailin.com] adresinden bize ulaşın.
+    Sorularınız için lütfen [dailyvibes.development@gmail.com] adresinden bize ulaşın.
     """
 }
 

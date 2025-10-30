@@ -144,7 +144,7 @@ struct SettingsView: View {
                     AboutLink(
                         title: "Destek & Geri Bildirim",
                         iconName: "envelope.fill",
-                        urlString: "mailto:dailyvibesdestek@gmail.com"
+                        urlString: "mailto:dailyvibes.development@gmail.com"
                     )
                 }
                 .listRowBackground(Theme.card.opacity(0.8))
