@@ -13,10 +13,10 @@ struct StatusBadge: View {
     var body: some View {
         let (txt, col, sys): (String, Color, String) = {
             switch status {
-            case .answered: return ("Cevaplandı", Theme.good, "checkmark.circle.fill")
-            case .missed:   return ("Kaçırıldı", Theme.bad,  "exclamationmark.circle.fill")
-            case .late:     return ("Geç Cevap", Theme.warn, "clock.badge.exclamationmark.fill")
-            case .pending:  return ("Beklemede", Theme.secondary, "hourglass.circle.fill")
+            case .answered: return ("Status.answered", Theme.good, "checkmark.circle.fill")
+            case .missed:   return ("Status.missed", Theme.bad,  "exclamationmark.circle.fill")
+            case .late:     return ("Status.late", Theme.warn, "clock.badge.exclamationmark.fill")
+            case .pending:  return ("Status.pending", Theme.secondary, "hourglass.circle.fill")
             }
         }()
         return Label(txt, systemImage: sys)

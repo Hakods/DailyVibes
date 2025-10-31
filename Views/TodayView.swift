@@ -117,7 +117,7 @@ struct TodayView: View {
             CircleProgress(progress: progressRatio(), size: 42)
             VStack(alignment: .leading, spacing: 2) {
                 Text("Günün kaydı").font(.headline)
-                Text(subtitleText()).font(.caption).foregroundStyle(Theme.textSec)
+                Text(LocalizedStringKey(subtitleKey())).font(.caption).foregroundStyle(Theme.textSec)
             }
             Spacer()
             if let allow = vm.entry?.allowEarlyAnswer, allow {
@@ -380,13 +380,13 @@ struct TodayView: View {
         return CGFloat(1 - (left / total))
     }
     
-    private func subtitleText() -> String {
-        guard let e = vm.entry else { return "Bugün plan yok" }
+    private func subtitleKey() -> String {
+        guard let e = vm.entry else { return "today.subtitle.noPlan" }
         switch e.status {
-        case .pending:  return "Cevap bekleniyor"
-        case .answered: return "Bugünkü kayıt tamam"
-        case .missed:   return "Bugünkü kayıt kaçırıldı"
-        case .late:     return "Geç cevap"
+        case .pending:  return "today.subtitle.pending"
+        case .answered: return "today.subtitle.answered"
+        case .missed:   return "today.subtitle.missed"
+        case .late:     return "today.subtitle.late"
         }
     }
     

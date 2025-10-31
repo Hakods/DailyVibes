@@ -9,7 +9,9 @@ import SwiftUI
 
 struct CoachView: View {
     @StateObject private var vm: CoachVM
+    
     @EnvironmentObject var store: StoreService
+    @EnvironmentObject var languageSettings: LanguageSettings
     
     @FocusState private var isTextFieldFocused: Bool
     @State private var showSettings = false
@@ -27,7 +29,9 @@ struct CoachView: View {
                     ScrollViewReader { proxy in
                         ScrollView {
                             VStack(spacing: 12) {
-                                if vm.chatMessages.count <= 1 { WelcomeCardView() }
+                                if vm.chatMessages.count == 1 && !vm.chatMessages[0].isFromUser {
+                                    WelcomeCardView()
+                                }
                                 
                                 ForEach(vm.chatMessages) { message in
                                     MessageView(message: message)
@@ -40,7 +44,7 @@ struct CoachView: View {
                                             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
                                         Spacer()
                                     }
-                                    .transition(.opacity) // Daha yumuşak bir geçiş için
+                                    .transition(.opacity)
                                 }
                             }
                             .padding()
@@ -56,6 +60,7 @@ struct CoachView: View {
                         PaywallPromptView(onTap: { vm.showPaywall = true })
                     } else {
                         ChatInputBar(
+                            vm: vm,
                             userQuestion: $vm.userQuestion,
                             isLoading: $vm.isLoading,
                             isTextFieldFocused: $isTextFieldFocused,
@@ -70,7 +75,7 @@ struct CoachView: View {
                     }
                 }
             }
-            .navigationTitle("Vibe Koç")
+            .navigationTitle(LocalizedStringKey("coach.nav.title"))
             .toolbar {
                 Button { showSettings = true } label: { Image(systemName: "gearshape.fill") }
             }
@@ -80,6 +85,12 @@ struct CoachView: View {
             }
             .sheet(isPresented: $showSettings) {
                 CoachSettingsView(vm: vm)
+            }
+            .onAppear {
+                vm.updateLanguage(langCode: languageSettings.selectedLanguageCode)
+            }
+            .onChange(of: languageSettings.selectedLanguageCode) { newLangCode in
+                vm.updateLanguage(langCode: newLangCode)
             }
         }
     }
@@ -101,10 +112,10 @@ private struct PaywallPromptView: View {
         VStack(spacing: 0) {
             Divider()
             VStack(spacing: 12) {
-                Text("Günlük ücretsiz limitine ulaştın.")
+                Text(LocalizedStringKey("coach.paywall.title"))
                     .font(.headline)
                 
-                Button("Sınırsız Sohbet İçin Pro'ya Geç") {
+                Button(LocalizedStringKey("coach.paywall.button")) {
                     onTap()
                 }
                 .buttonStyle(PrimaryButtonStyle())
@@ -125,19 +136,19 @@ private struct WelcomeCardView: View {
                 Image(systemName: "brain.head.profile")
                     .font(.largeTitle)
                     .foregroundStyle(Theme.accentGradient)
-                Text("Vibe Koçu'na Hoş Geldin!")
+                Text(LocalizedStringKey("coach.welcome.title"))
                     .font(.title2.bold())
             }
             
-            Text("Son zamanlardaki kayıtlarını analiz ederek sana özel içgörüler sunabilirim. Merak ettiklerini sormaktan çekinme.")
+            Text(LocalizedStringKey("coach.welcome.body"))
                 .font(.subheadline)
                 .foregroundStyle(Theme.textSec)
             
             VStack(alignment: .leading, spacing: 8) {
-                Text("Örnek Sorular:").font(.headline)
-                Text("• Son zamanlarda neden yorgun hissediyorum?")
-                Text("• En mutlu olduğum anlar hangileriydi?")
-                Text("• Stresimin ana kaynağı ne gibi duruyor?")
+                Text(LocalizedStringKey("coach.welcome.examples.title")).font(.headline)
+                Text(LocalizedStringKey("coach.welcome.examples.q1"))
+                Text(LocalizedStringKey("coach.welcome.examples.q2"))
+                Text(LocalizedStringKey("coach.welcome.examples.q3"))
             }
             .font(.footnote)
         }
@@ -148,6 +159,7 @@ private struct WelcomeCardView: View {
 
 // YENİ: Daha şık ve fonksiyonel bir input bar
 private struct ChatInputBar: View {
+    @ObservedObject var vm: CoachVM
     @Binding var userQuestion: String
     @Binding var isLoading: Bool
     var isTextFieldFocused: FocusState<Bool>.Binding
@@ -155,18 +167,23 @@ private struct ChatInputBar: View {
     var onSend: () -> Void
     var onCancel: () -> Void
     
+    private var placeholder: String {
+        let key = isLoading ? "coach.input.placeholder.loading" : "coach.input.placeholder.default"
+        return NSLocalizedString(key, bundle: vm.currentBundle, comment: "Chat input placeholder")
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             Divider()
             HStack(spacing: 12) {
                 // Metin giriş alanı
-                TextField(isLoading ? "Cevap bekleniyor..." : "Koçuna bir soru sor...", text: $userQuestion, axis: .vertical)
+                TextField(placeholder, text: $userQuestion, axis: .vertical)
                     .textFieldStyle(.plain)
                     .focused(isTextFieldFocused)
                     .disabled(isLoading)
                     .padding(8)
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-                    .lineLimit(1...5) // Metin uzadıkça kutu da büyüsün
+                    .lineLimit(1...5)
                 
                 // Sağ taraftaki buton alanı (Dinamik olarak değişecek)
                 ZStack {
@@ -203,38 +220,45 @@ private struct CoachSettingsView: View {
     @ObservedObject var vm: CoachVM
     @Environment(\.dismiss) var dismiss
     
+    private var creativeDescription: String {
+        let key = vm.isCreative ? "coach.settings.creative.desc" : "coach.settings.balanced.desc"
+        return NSLocalizedString(key, bundle: vm.currentBundle, comment: "Creative toggle description")
+    }
+    
     var body: some View {
         NavigationView {
             Form {
-                Section("Yaratıcılık") {
-                    Toggle("Geçmişe Daha Az Bağlı Kal", isOn: $vm.isCreative)
-                    Text(vm.isCreative ? "Koç, verilerini ilham kaynağı olarak kullanır ve daha özgür cevaplar verir." : "Koç, cevaplarını büyük ölçüde girdiğin kayıtlara dayandırır.")
+                Section(LocalizedStringKey("coach.settings.creativity.title")) {
+                    Toggle(LocalizedStringKey("coach.settings.creative.toggle"), isOn: $vm.isCreative)
+                    
+                    Text(creativeDescription)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .animation(.easeInOut(duration: 0.1), value: vm.isCreative)
                 }
                 
-                Section("Cevap Uzunluğu") {
+                Section(LocalizedStringKey("coach.settings.length.title")) {
                     Slider(value: $vm.shortnessLevel, in: 0.0...1.0)
                     HStack {
-                        Text("Detaylı").font(.caption)
+                        Text(LocalizedStringKey("coach.settings.length.detailed")).font(.caption)
                         Spacer()
-                        Text("Kısa ve Öz").font(.caption)
+                        Text(LocalizedStringKey("coach.settings.length.concise")).font(.caption)
                     }
                 }
                 
-                Section("Yazma Hızı") {
+                Section(LocalizedStringKey("coach.settings.speed.title")) {
                     Slider(value: $vm.typingSpeed, in: 0.0...0.05)
                     HStack {
-                        Text("Hızlı").font(.caption)
+                        Text(LocalizedStringKey("coach.settings.speed.fast")).font(.caption)
                         Spacer()
-                        Text("Yavaş").font(.caption)
+                        Text(LocalizedStringKey("coach.settings.speed.slow")).font(.caption)
                     }
                 }
             }
-            .navigationTitle("Koç Ayarları")
+            .navigationTitle(LocalizedStringKey("coach.settings.nav.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                Button("Bitti") {
+                Button(LocalizedStringKey("button.done")) {
                     dismiss()
                 }
             }

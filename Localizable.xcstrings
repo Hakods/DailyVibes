@@ -1,0 +1,1877 @@
+{
+  "sourceLanguage" : "tr",
+  "strings" : {
+    "'%@' için sonuç bulunamadı." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No results found for '%@'."
+          }
+        }
+      }
+    },
+    "%@ - %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ – %2$@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ - %2$@"
+          }
+        }
+      }
+    },
+    "%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
+    },
+    "%lld/10" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/10"
+          }
+        }
+      }
+    },
+    "%lld/500" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/500"
+          }
+        }
+      }
+    },
+    "→" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "→"
+          }
+        }
+      }
+    },
+    "✅ Dışa aktarma tamamlandı!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✅ Export complete!"
+          }
+        }
+      }
+    },
+    "✨ Daily Vibes Pro" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✨ Daily Vibes Pro"
+          }
+        }
+      }
+    },
+    "✨ Daily Vibes Pro ✨" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✨ Daily Vibes Pro ✨"
+          }
+        }
+      }
+    },
+    "✨ Daily Vibes Pro'ya Geçin" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✨ Upgrade to Daily Vibes Pro"
+          }
+        }
+      }
+    },
+    "💡 İpuçları" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "💡 Tips"
+          }
+        }
+      }
+    },
+    "📅 Planlama" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "📅 Planning"
+          }
+        }
+      }
+    },
+    "🔔 Günlük Ping Ayarları" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🔔 Daily Ping Settings"
+          }
+        }
+      }
+    },
+    "Ayarlar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "Başla!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start!"
+          }
+        }
+      }
+    },
+    "Bildirim geldiğinde gününü kaydetmek için 10 dakikan olacak." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You'll have 10 minutes to log your day when the notification arrives."
+          }
+        }
+      }
+    },
+    "Bildirim İzni Gerekli" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notification Permission Required"
+          }
+        }
+      }
+    },
+    "Bildirimler Aktif" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications Active"
+          }
+        }
+      }
+    },
+    "Bildirimler her gün otomatik olarak planlanır." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications are scheduled automatically every day."
+          }
+        }
+      }
+    },
+    "Bildirimlere İzin Ver" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Notifications"
+          }
+        }
+      }
+    },
+    "Bildirimleriniz her gün otomatik olarak planlanır ve rastgele bir saatte gönderilir." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications are scheduled automatically every day and sent at a random time."
+          }
+        }
+      }
+    },
+    "Bir Mola Ver" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a Break"
+          }
+        }
+      }
+    },
+    "Bitir" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finish"
+          }
+        }
+      }
+    },
+    "Bu filtreye uygun kayıt yok." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries match this filter."
+          }
+        }
+      }
+    },
+    "Bu gün için not eklenmemiş." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No note added for this day."
+          }
+        }
+      }
+    },
+    "Bugün" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        }
+      }
+    },
+    "Bugün nasılsın?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How are you today?"
+          }
+        }
+      }
+    },
+    "Bugünkü modun?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's mood?"
+          }
+        }
+      }
+    },
+    "Bugünkü ping henüz gelmedi." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's ping hasn't arrived yet."
+          }
+        }
+      }
+    },
+    "button.done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitti"
+          }
+        }
+      }
+    },
+    "Cevap Aralığı" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Response Range"
+          }
+        }
+      }
+    },
+    "Cevap penceresi **%@** içinde kapanır." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Response window closes in **%@**."
+          }
+        }
+      }
+    },
+    "coach.input.placeholder.default" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask your coach a question..."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koçuna bir soru sor..."
+          }
+        }
+      }
+    },
+    "coach.input.placeholder.loading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for response..."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cevap bekleniyor..."
+          }
+        }
+      }
+    },
+    "coach.nav.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vibe Coach"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vibe Koç"
+          }
+        }
+      }
+    },
+    "coach.paywall.button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go Pro for Unlimited Chat"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sınırsız Sohbet İçin Pro'ya Geç"
+          }
+        }
+      }
+    },
+    "coach.paywall.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You've reached your daily free limit."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Günlük ücretsiz limitine ulaştın."
+          }
+        }
+      }
+    },
+    "coach.settings.balanced.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Coach will base its answers heavily on your logged entries."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koç, cevaplarını büyük ölçüde girdiğin kayıtlara dayandırır."
+          }
+        }
+      }
+    },
+    "coach.settings.creative.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Coach will use your data as inspiration and give more creative answers."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koç, verilerini ilham kaynağı olarak kullanır ve daha özgür cevaplar verir."
+          }
+        }
+      }
+    },
+    "coach.settings.creative.toggle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Focus Less on Past"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçmişe Daha Az Bağlı Kal"
+          }
+        }
+      }
+    },
+    "coach.settings.creativity.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creativity"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yaratıcılık"
+          }
+        }
+      }
+    },
+    "coach.settings.length.concise" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Short and Sweet"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kısa ve Öz"
+          }
+        }
+      }
+    },
+    "coach.settings.length.detailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detailed"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detaylı"
+          }
+        }
+      }
+    },
+    "coach.settings.length.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Response Length"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cevap Uzunluğu"
+          }
+        }
+      }
+    },
+    "coach.settings.nav.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coach Settings"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koç Ayarları"
+          }
+        }
+      }
+    },
+    "coach.settings.speed.fast" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slow"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hızlı"
+          }
+        }
+      }
+    },
+    "coach.settings.speed.slow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fast"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yavaş"
+          }
+        }
+      }
+    },
+    "coach.settings.speed.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typing Speed"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yazma Hızı"
+          }
+        }
+      }
+    },
+    "coach.welcome.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I can analyze your recent entries to offer personal insights. Don't hesitate to ask what you're curious about."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son zamanlardaki kayıtlarını analiz ederek sana özel içgörüler sunabilirim. Merak ettiklerini sormaktan çekinme."
+          }
+        }
+      }
+    },
+    "coach.welcome.examples.q1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Why have I been feeling tired lately?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Son zamanlarda neden yorgun hissediyorum?"
+          }
+        }
+      }
+    },
+    "coach.welcome.examples.q2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• What were my happiest moments?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• En mutlu olduğum anlar hangileriydi?"
+          }
+        }
+      }
+    },
+    "coach.welcome.examples.q3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• What seems to be the main source of my stress?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Stresimin ana kaynağı ne gibi duruyor?"
+          }
+        }
+      }
+    },
+    "coach.welcome.examples.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Example Questions:"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Örnek Sorular:"
+          }
+        }
+      }
+    },
+    "coach.welcome.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Vibe Coach!"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vibe Koçu'na Hoş Geldin!"
+          }
+        }
+      }
+    },
+    "Daily Vibes Pro ile sınırsız içgörüye, özel analizlere ve daha fazlasına erişin." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get unlimited insights, special analyses, and more with Daily Vibes Pro."
+          }
+        }
+      }
+    },
+    "Devam ederek, [Kullanım Koşulları](terms) ve [Gizlilik Politikası](privacy)'nı kabul etmiş olursunuz." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By continuing, you agree to the [Terms of Service](terms) and [Privacy Policy](privacy)."
+          }
+        }
+      }
+    },
+    "Dil (Test Amaçlı)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language (For Testing)"
+          }
+        }
+      }
+    },
+    "Dışa aktarılıyor..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporting..."
+          }
+        }
+      }
+    },
+    "Dışa Aktarma Hatası" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export Error"
+          }
+        }
+      }
+    },
+    "En İyi Anlar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Best Moments"
+          }
+        }
+      }
+    },
+    "Erken cevap" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Early response"
+          }
+        }
+      }
+    },
+    "Erken cevap modu aktif" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Early response mode active"
+          }
+        }
+      }
+    },
+    "Geçmiş" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History"
+          }
+        }
+      }
+    },
+    "Geri sayım ilerleme" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Countdown progress"
+          }
+        }
+      }
+    },
+    "Gün" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day"
+          }
+        }
+      }
+    },
+    "Güncel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current"
+          }
+        }
+      }
+    },
+    "Günün kaydı" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log of the day"
+          }
+        }
+      }
+    },
+    "Günün puanı" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day's rating"
+          }
+        }
+      }
+    },
+    "Günün Puanı" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day's rating"
+          }
+        }
+      }
+    },
+    "Günün Vibe'ı Yolda..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's Vibe is on the way..."
+          }
+        }
+      }
+    },
+    "Haftanın günlerine göre ortalama puanların" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your average ratings by day of the week"
+          }
+        }
+      }
+    },
+    "Haftanın Ritmi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekly Rhythm"
+          }
+        }
+      }
+    },
+    "Hakkında & Destek" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About & Support"
+          }
+        }
+      }
+    },
+    "Henüz geçmiş bir kaydın yok." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You don't have any past entries yet."
+          }
+        }
+      }
+    },
+    "Henüz Yeterli Veri Yok" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Enough Data Yet"
+          }
+        }
+      }
+    },
+    "İleri" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
+        }
+      }
+    },
+    "İndirimli!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discounted!"
+          }
+        }
+      }
+    },
+    "İstatistikler" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistics"
+          }
+        }
+      }
+    },
+    "İzin Ver" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow"
+          }
+        }
+      }
+    },
+    "İzin verildi!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allowed!"
+          }
+        }
+      }
+    },
+    "Kalan süre" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time remaining"
+          }
+        }
+      }
+    },
+    "Kapat" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        }
+      }
+    },
+    "Kaydet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "Kayıt Detayı" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry Detail"
+          }
+        }
+      }
+    },
+    "Kayıtların yalnızca cihazında saklanır, dışa aktarma manuel dosya kaydı yapar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your entries are stored only on your device; exporting creates a manual file backup."
+          }
+        }
+      }
+    },
+    "Kısa ve düzenli yazmak en önemlisi." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Writing briefly and regularly is key."
+          }
+        }
+      }
+    },
+    "Kısaca gününün nasıl geçtiğini, nasıl hissettiğini yaz." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Briefly write how your day went and how you felt."
+          }
+        }
+      }
+    },
+    "legal.privacyPolicy.content" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Privacy Policy**\n\nLast Updated: October 29, 2025\n\nThank you for using Daily Vibes. Your privacy is very important to us.\n\n**1. Data We Collect**\n\nWhen you use the app, the following data is stored ONLY locally on your device:\n* Your mood entries (emoji, rating, notes).\n* The timestamps of your entries.\n\n**2. Third-Party Data Sharing (Vibe Coach)**\n\nWhen you use the \"Vibe Coach\" feature, the following data is sent SECURELY to the Firebase AI (Google Gemini) service for analysis and response generation:\n* The mood, rating, and note texts from your past entries (if any).\n* The questions you ask the coach.\n\nThis data is processed subject to Google's privacy policies and is used solely to generate a response for you. Personally identifiable information (name, email, etc.) is not collected or sent.\n\n**3. Permissions**\n\n* **Notifications:** Notification permission is requested so the app can send you daily reminders (\"pings\").\n* **Microphone and Speech Recognition:** Microphone and speech recognition permissions are requested to enable the voice note feature (if you use it). Your voice data is processed on-device and may be sent to Apple's speech recognition service.\n\n**4. Data Security**\n\nApart from the Vibe Coach feature, all your data is stored only on your own device using Core Data. No one else can access your data.\n\n**5. Contact**\n\nFor questions, please contact us at [dailyvibes.develop@gmail.com]."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Gizlilik Politikası**\n\nSon Güncelleme: 29 Ekim 2025\n\nDaily Vibes'ı kullandığınız için teşekkür ederiz. Gizliliğiniz bizim için çok önemlidir.\n\n**1. Topladığımız Veriler**\n\nUygulamayı kullandığınızda aşağıdaki veriler SADECE cihazınızda yerel olarak saklanır:\n* Ruh hali girişleriniz (emoji, puan, notlar).\n* Girişlerinizin zaman damgaları.\n\n**2. Üçüncü Taraf Veri Paylaşımı (Vibe Koçu)**\n\n\"Vibe Koçu\" özelliğini kullandığınızda, analiz ve cevap üretilmesi amacıyla aşağıdaki veriler Firebase AI (Google Gemini) servisine GÜVENLİ BİR ŞEKİLDE gönderilir:\n* Geçmiş kayıtlarınızdaki ruh hali, puan ve not metinleri (eğer varsa).\n* Koça sorduğunuz sorular.\n\nBu veriler, Google'ın gizlilik politikalarına tabi olarak işlenir ve sadece size cevap üretmek amacıyla kullanılır. Kişisel tanımlayıcı bilgiler (isim, e-posta vb.) toplanmaz veya gönderilmez.\n\n**3. İzinler**\n\n* **Bildirimler:** Uygulamanın size günlük hatırlatma (\"ping\") gönderebilmesi için bildirim izni istenir.\n* **Mikrofon ve Konuşma Tanıma:** Sesli not özelliğini (eğer kullanırsanız) etkinleştirmek için mikrofon ve konuşma tanıma izinleri istenir. Ses veriniz cihazınızda işlenir ve Apple'ın konuşma tanıma servisine gönderilebilir.\n\n**4. Veri Güvenliği**\n\nVibe Koçu özelliği dışında, tüm verileriniz sadece kendi cihazınızda, Core Data kullanılarak saklanır. Verilerinize sizden başka kimse erişemez.\n\n**5. İletişim**\n\nSorularınız için lütfen [dailyvibes.develop@gmail.com] adresinden bize ulaşın."
+          }
+        }
+      }
+    },
+    "legal.privacyPolicy.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizlilik Politikası"
+          }
+        }
+      }
+    },
+    "legal.termsOfService.content" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Terms of Service (EULA)**\n\nLast Updated: October 29, 2025\n\nPlease read these Terms of Service carefully.\n\n**1. Description of Service**\n\nDaily Vibes (\"The App\") is a mobile application that allows users to record their daily moods and notes, analyze them, and receive insights through an artificial intelligence (\"Vibe Coach\").\n\n**2. Subscriptions**\n\nSome features of the App (marked as \"Pro\") may require a paid subscription.\n* Payments will be charged to your Apple ID account.\n* Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period.\n* You can manage and cancel your subscriptions in your App Store account settings.\n\n**3. Disclaimer (IMPORTANT)**\n\nThe content provided by the \"Vibe Coach\" is generated by artificial intelligence and **does not constitute medical advice, psychological counseling, or diagnosis.**\n\nThe App cannot replace a professional mental health expert. If you are experiencing serious mental or emotional difficulties, please consult a licensed therapist or doctor. Decisions you make based on the information from the Vibe Coach are entirely your own responsibility.\n\n**4. İletişim**\n\nFor questions, please contact us at [dailyvibes.develop@gmail.com]."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Kullanım Koşulları (EULA)**\n\nSon Güncelleme: 29 Ekim 2025\n\nLütfen bu Kullanım Koşullarını dikkatlice okuyun.\n\n**1. Hizmetin Tanımı**\n\nDaily Vibes (\"Uygulama\"), kullanıcıların günlük ruh hallerini ve notlarını kaydetmelerine, analiz etmelerine ve bir yapay zeka (\"Vibe Koçu\") aracılığıyla içgörüler almalarına olanak tanıyan bir mobil uygulamadır.\n\n**2. Abonelikler**\n\nUygulamanın bazı özellikleri (\"Pro\" olarak işaretlenenler) ücretli bir abonelik gerektirebilir.\n* Ödemeler Apple Kimliği hesabınız üzerinden alınacaktır.\n* Abonelikler, mevcut dönemin bitiminden en az 24 saat önce iptal edilmediği sürece otomatik olarak yenilenir.\n* Aboneliklerinizi App Store hesap ayarlarınızdan yönetebilir ve iptal edebilirsiniz.\n\n**3. Sorumluluk Reddi (ÖNEMLİ)**\n\n\"Vibe Koçu\" tarafından sağlanan içerikler, yapay zeka tarafından üretilmiştir ve **tıbbi tavsiye, psikolojik danışmanlık veya teşhis niteliği taşımaz.**\n\nUygulama, profesyonel bir ruh sağlığı uzmanının yerini alamaz. Ciddi zihinsel veya duygusal zorluklar yaşıyorsanız, lütfen lisanslı bir terapiste veya doktora danışın. Vibe Koçu'nun verdiği bilgilere dayanarak aldığınız kararlar tamamen kendi sorumluluğunuzdadır.\n\n**4. İletişim**\n\nSorularınız için lütfen [dailyvibes.develop@gmail.com] adresinden bize ulaşın."
+          }
+        }
+      }
+    },
+    "legal.termsOfService.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms of Service"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kullanım Koşulları"
+          }
+        }
+      }
+    },
+    "Metin yok" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No text"
+          }
+        }
+      }
+    },
+    "Metinde ara…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search in text..."
+          }
+        }
+      }
+    },
+    "Mod" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mood"
+          }
+        }
+      }
+    },
+    "Nefes Egzersizini Başlat" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Breathing Exercise"
+          }
+        }
+      }
+    },
+    "Notun" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Note"
+          }
+        }
+      }
+    },
+    "Oluşturuluyor..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generating..."
+          }
+        }
+      }
+    },
+    "Ort. Puan (Son 30 gün)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avg. Rating (Last 30 days)"
+          }
+        }
+      }
+    },
+    "Ortalama Puan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Average Rating"
+          }
+        }
+      }
+    },
+    "Özetler" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summaries"
+          }
+        }
+      }
+    },
+    "Ping alabilmek için izin vermelisin." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You need to allow notifications to get pings."
+          }
+        }
+      }
+    },
+    "Ping almaya hazırsın!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You're ready to get pings!"
+          }
+        }
+      }
+    },
+    "Ping saatlerini kaçırmamaya dikkat et." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try not to miss the ping times."
+          }
+        }
+      }
+    },
+    "Ping'ler her gün **10:00 – 22:00** arasında rastgele bir saatte gönderilir." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pings are sent daily at a random time between **10:00 – 22:00**."
+          }
+        }
+      }
+    },
+    "Potansiyelini Açığa Çıkar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock Your Potential"
+          }
+        }
+      }
+    },
+    "Pro özellikler aktif. Teşekkürler!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro features active. Thank you!"
+          }
+        }
+      }
+    },
+    "Pro Özellikleri Gör ve Abone Ol" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See Pro Features and Subscribe"
+          }
+        }
+      }
+    },
+    "Puan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rating"
+          }
+        }
+      }
+    },
+    "Puan Zaman Çizelgesi (Son 30 Gün)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rating Timeline (Last 30 Days)"
+          }
+        }
+      }
+    },
+    "Ruh Hali Dağılımı" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mood Distribution"
+          }
+        }
+      }
+    },
+    "Sadece Nefesine Odaklan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Just Focus On Your Breath"
+          }
+        }
+      }
+    },
+    "Satın Alımları Geri Yükle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore Purchases"
+          }
+        }
+      }
+    },
+    "Satın alma Apple Kimliğinize bağlıdır. Aile Paylaşımı ve iade hakları Apple politikalarına tabidir." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase is tied to your Apple ID. Family Sharing and refund rights are subject to Apple's policies."
+          }
+        }
+      }
+    },
+    "Satın alma Apple Kimliğinize bağlıdır. Aile Paylaşımı ve iade hakları Apple politikalarına tabidir. Abonelik, iptal edilmediği sürece otomatik olarak yenilenir." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase is tied to your Apple ID. Family Sharing and refund rights are subject to Apple's policies. Subscriptions renew automatically unless canceled."
+          }
+        }
+      }
+    },
+    "Sayı" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Count"
+          }
+        }
+      }
+    },
+    "Şimdi Oluştur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generate Now"
+          }
+        }
+      }
+    },
+    "Sınırsız AI Koçu erişimi, derinlemesine özetler, veri dışa aktarma ve daha fazlası için Pro'ya yükseltin." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upgrade to Pro for unlimited AI Coach access, in-depth summaries, data export, and more."
+          }
+        }
+      }
+    },
+    "Status.answered" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Answered"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cevaplandı"
+          }
+        }
+      }
+    },
+    "Status.late" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Late Answered"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geç Cevap"
+          }
+        }
+      }
+    },
+    "Status.missed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missed"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaçırıldı"
+          }
+        }
+      }
+    },
+    "Status.pending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pending"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beklemede"
+          }
+        }
+      }
+    },
+    "summary.empty.canGenerate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No summary generated yet. Tap the button to create one."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henüz bir özet oluşturulmadı. Oluşturmak için butona dokun."
+          }
+        }
+      }
+    },
+    "summary.empty.cannotGenerate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A summary has already been generated for this period, or there is no data."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu dönem için özet zaten oluşturulmuş veya veri yok."
+          }
+        }
+      }
+    },
+    "summary.error.generationFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A problem occurred while generating the summary."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Özet oluşturulurken bir sorun oluştu."
+          }
+        }
+      }
+    },
+    "summary.error.prefix" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error:"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hata:"
+          }
+        }
+      }
+    },
+    "summary.error.prefix %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error : %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hata: %@"
+          }
+        }
+      }
+    },
+    "summary.monthly.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Monthly Summary"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aylık Özetin"
+          }
+        }
+      }
+    },
+    "summary.navigation.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Summaries"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Özetlerin"
+          }
+        }
+      }
+    },
+    "summary.weekly.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Weekly Summary"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haftalık Özetin"
+          }
+        }
+      }
+    },
+    "Tamam" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "Tarih" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        }
+      }
+    },
+    "Temizle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear"
+          }
+        }
+      }
+    },
+    "today.subtitle.answered" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's log is complete"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bugünkü kayıt tamam"
+          }
+        }
+      }
+    },
+    "today.subtitle.late" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Late response"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geç cevap"
+          }
+        }
+      }
+    },
+    "today.subtitle.missed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's log was missed"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bugünkü kayıt kaçırıldı"
+          }
+        }
+      }
+    },
+    "today.subtitle.noPlan" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No plan for today"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bugün plan yok"
+          }
+        }
+      }
+    },
+    "today.subtitle.pending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for response"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cevap bekleniyor"
+          }
+        }
+      }
+    },
+    "Toplam Kayıt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Entries"
+          }
+        }
+      }
+    },
+    "Uygulama Dili" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Language"
+          }
+        }
+      }
+    },
+    "Uygulama Versiyonu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Version"
+          }
+        }
+      }
+    },
+    "Uygulamayı kullanmaya devam ettikçe, ruh halin ve puanlarınla ilgili ilginç istatistikler burada görünecek." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As you continue to use the app, interesting stats about your mood and ratings will appear here."
+          }
+        }
+      }
+    },
+    "Verileri Dosyaya Aktar (CSV)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export Data to File (CSV)"
+          }
+        }
+      }
+    },
+    "Vibe Koç" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vibe Coach"
+          }
+        }
+      }
+    },
+    "Vibe'ını kaydetme zamanı!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time to log your vibe!"
+          }
+        }
+      }
+    },
+    "vibeCoach.error.generic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sorry, something went wrong."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Üzgünüm, bir sorun oluştu."
+          }
+        }
+      }
+    },
+    "vibeCoach.paywall.upsell" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You've reached your daily free message limit. How about upgrading to Pro for unlimited chat and deeper analysis?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Günlük ücretsiz mesaj limitine ulaştın. Sınırsız sohbet ve daha derin analizler için Pro'ya geçmeye ne dersin?"
+          }
+        }
+      }
+    },
+    "vibeCoach.welcome.free" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hi! I'm the Vibe Coach. You can start with your %ld free messages for today ✨"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merhaba! Ben Vibe Koçu. Bugün için %ld ücretsiz mesaj hakkınla başlayabilirsin ✨"
+          }
+        }
+      }
+    },
+    "vibeCoach.welcome.pro" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hi! I'm the Vibe Coach. With your unlimited Pro access, I'm ready to help."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merhaba! Ben Vibe Koçu. Sınırsız Pro erişiminle sana yardımcı olmaya hazırım."
+          }
+        }
+      }
+    },
+    "Yeni özet her ayın 1'inde aktif olur." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New summary becomes active on the 1st of each month."
+          }
+        }
+      }
+    },
+    "Yeni özet her Pazartesi aktif olur." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New summary becomes active every Monday."
+          }
+        }
+      }
+    },
+    "Yenile" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh"
+          }
+        }
+      }
+    },
+    "Yoğun hissediyorsan, kısa bir nefes egzersizi an'a dönmene yardımcı olabilir." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you're feeling overwhelmed, a short breathing exercise can help you return to the moment."
+          }
+        }
+      }
+    },
+    "Yükleniyor..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading..."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

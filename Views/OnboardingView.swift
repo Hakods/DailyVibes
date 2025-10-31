@@ -56,8 +56,34 @@ struct OnboardingView: View {
     @State private var notificationGranted = false
     @Namespace var namespace
     
+    @State private var showPrivacyPolicy = false
+    @State private var showTermsOfService = false
+    
     var currentStep: OnboardingStep { onboardingSteps[currentStepIndex] }
     
+    @ViewBuilder
+    private var legalTextView: some View {
+        if currentStep.isFinalStep {
+            Text("Devam ederek, [Kullanım Koşulları](terms) ve [Gizlilik Politikası](privacy)'nı kabul etmiş olursunuz.")
+                .font(.caption)
+                .foregroundStyle(Theme.textSec)
+                .tint(Theme.accent)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 30)
+                .padding(.bottom, 16)
+                .transition(.opacity.animation(.easeIn.delay(0.2)))
+                .environment(\.openURL, OpenURLAction { url in
+                    if url.absoluteString == "terms" {
+                        showTermsOfService = true
+                        return .handled
+                    } else if url.absoluteString == "privacy" {
+                        showPrivacyPolicy = true
+                        return .handled
+                    }
+                    return .systemAction
+                })
+        }
+    }
     var body: some View {
         ZStack {
             AnimatedAuroraBackground()
@@ -100,6 +126,8 @@ struct OnboardingView: View {
                 }
                 .padding(.bottom, 16)
                 
+                legalTextView
+                
                 Button {
                     handleNextButtonTap()
                 } label: {
@@ -116,6 +144,26 @@ struct OnboardingView: View {
                 .disabled(currentStep.isPermissionStep && !notificationRequested)
             }
             .animation(.easeInOut(duration: 0.4), value: currentStepIndex)
+        }
+        .sheet(isPresented: $showPrivacyPolicy) {
+            NavigationView {
+                LegalTextView(content: .privacyPolicy)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Kapat") { showPrivacyPolicy = false }
+                        }
+                    }
+            }
+        }
+        .sheet(isPresented: $showTermsOfService) {
+            NavigationView {
+                LegalTextView(content: .termsOfService)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Kapat") { showTermsOfService = false }
+                        }
+                    }
+            }
         }
         .onAppear {
             Task {

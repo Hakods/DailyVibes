@@ -24,7 +24,7 @@ struct SummaryView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         SummaryCard(
                             period: .week,
-                            title: "Haftalık Özetin",
+                            title: "summary.weekly.title",
                             summaryText: vm.weeklySummary,
                             isLoading: vm.isLoadingWeekly,
                             errorMessage: vm.errorMessage,
@@ -35,7 +35,7 @@ struct SummaryView: View {
 
                         SummaryCard(
                             period: .month,
-                            title: "Aylık Özetin",
+                            title: "summary.monthly.title",
                             summaryText: vm.monthlySummary,
                             isLoading: vm.isLoadingMonthly,
                             errorMessage: vm.errorMessage,
@@ -48,7 +48,7 @@ struct SummaryView: View {
                 }
                 .appBackground()
             }
-            .navigationTitle("Özetlerin")
+            .navigationTitle(LocalizedStringKey("summary.navigation.title"))
         }
     }
 }
@@ -65,15 +65,15 @@ struct SummaryCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.title2.bold())
 
             if isLoading {
             } else if let error = errorMessage {
-                 Text("Hata: \(error)")
+                Text("summary.error.prefix \(error)")
                     .foregroundStyle(Theme.bad)
             } else if summaryText.isEmpty {
-                 Text(isGenerateEnabled ? "Henüz bir özet oluşturulmadı. Oluşturmak için butona dokun." : "Bu dönem için özet zaten oluşturulmuş veya veri yok.")
+                Text(isGenerateEnabled ? LocalizedStringKey("summary.empty.canGenerate") : LocalizedStringKey("summary.empty.cannotGenerate"))
                     .foregroundStyle(Theme.textSec)
             } else {
                 Text(summaryText)

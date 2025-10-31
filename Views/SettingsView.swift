@@ -9,8 +9,10 @@ import StoreKit
 struct SettingsView: View {
     @EnvironmentObject var schedule: ScheduleService
     @EnvironmentObject var store: StoreService
-    @StateObject private var vm = SettingsVM()
+    @EnvironmentObject var languageSettings: LanguageSettings
     @Environment(\.openURL) var openURL
+    
+    @StateObject private var vm = SettingsVM()
     
     @State private var showPaywallSheet = false
     @State private var exportURL: URL?
@@ -125,19 +127,31 @@ struct SettingsView: View {
                     Text("💡 İpuçları")
                 }
                 
+                Section {
+                    Picker("Uygulama Dili", selection: $languageSettings.selectedLanguageCode) {
+                        ForEach(LanguageCode.allCases) { lang in
+                            Text(lang.displayName).tag(lang.rawValue)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                } header: {
+                    Text("Dil (Test Amaçlı)")
+                }
+                
                 Section("Hakkında & Destek") {
                     
                     NavigationLink {
-                        LegalTextView(title: "Gizlilik Politikası", content: .privacyPolicy)
+                        LegalTextView(content: .privacyPolicy)
                     } label: {
-                        Label("Gizlilik Politikası", systemImage: "lock.shield.fill")
+                        Label(LocalizedStringKey("legal.privacyPolicy.title"), systemImage: "lock.shield.fill")
                             .foregroundStyle(Theme.accent)
                     }
                     
                     NavigationLink {
-                        LegalTextView(title: "Kullanım Koşulları", content: .termsOfService)
+                        LegalTextView(content: .termsOfService)
                     } label: {
-                        Label("Kullanım Koşulları", systemImage: "doc.text.fill")
+                        Label(LocalizedStringKey("legal.termsOfService.title"), systemImage: "doc.text.fill")
                             .foregroundStyle(Theme.accent)
                     }
                     

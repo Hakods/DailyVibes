@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import SwiftUI // Gerekebilir
+import SwiftUI
 
 @MainActor
 final class SummaryVM: ObservableObject {
@@ -18,9 +18,8 @@ final class SummaryVM: ObservableObject {
     @Published var isLoadingMonthly: Bool = false
     @Published var errorMessage: String? = nil
 
-    // ✅ DOĞRU YÖNTEM: @Published ile saklanan durum değişkenleri
-    @Published var canGenerateWeeklySummary: Bool = true
-    @Published var canGenerateMonthlySummary: Bool = true
+    @Published var canGenerateWeeklySummary: Bool = false
+    @Published var canGenerateMonthlySummary: Bool = false
 
     private let repo: DayEntryRepository
     private let aiService = AIService()
@@ -67,12 +66,11 @@ final class SummaryVM: ObservableObject {
                  let relevantEntries = filterEntries(allEntries, for: period)
 
                  guard relevantEntries.count > 2 else {
-                     let noDataMessage = "Bu dönem için özet oluşturacak yeterli veri bulunmuyor."
-                     await MainActor.run { // Main thread'de güncelleme yapalım
-                        self.setSummary(noDataMessage, for: period)
-                        self.saveSummary(noDataMessage, date: Date(), for: period) // Veri olmadığını da kaydet
-                        self.setIsLoading(false, for: period)
-                        self.checkForNewDataAndUpdateButtonStates() // Buton durumunu güncelle
+                     await MainActor.run {
+                         self.setSummary("", for: period)
+                         self.saveSummary("", date: Date(), for: period)
+                         self.setIsLoading(false, for: period)
+                         self.checkForNewDataAndUpdateButtonStates()
                      }
                      return
                  }
@@ -105,7 +103,7 @@ final class SummaryVM: ObservableObject {
              } catch {
                  print("🛑 SummaryVM: Özet oluşturma hatası: \(error)")
                  await MainActor.run {
-                     self.errorMessage = "Özet oluşturulurken bir sorun oluştu."
+                     self.errorMessage = NSLocalizedString("summary.error.generationFailed", comment: "Summary generation failed")
                      self.loadSavedSummaries()
                  }
              }
@@ -182,10 +180,10 @@ final class SummaryVM: ObservableObject {
         let lastGenerationDate = defaults.object(forKey: generationDateKey) as? Date
         let savedSummary = defaults.string(forKey: summaryKey)
 
-        guard let lastDate = lastGenerationDate, let summary = savedSummary, !summary.isEmpty, !summary.contains("yeterli veri bulunmuyor") else {
+        guard let lastDate = lastGenerationDate, let summary = savedSummary, !summary.isEmpty else {
             return filterEntries(allEntries, for: period).count > 2 // Veri varsa oluştur
         }
-
+        
         if !isDate(lastDate, stillValidFor: period) {
              return filterEntries(allEntries, for: period).count > 2 // Yeni dönem için veri varsa oluştur
         }

@@ -46,6 +46,9 @@ final class CoachVM: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     
+    private(set) var currentLangCode: String = "system"
+    private(set) var currentBundle: Bundle = .main
+    
     init(repo: DayEntryRepository? = nil, store: StoreService) {
         self.repo = repo ?? RepositoryProvider.shared.dayRepo
         self.store = store
@@ -60,16 +63,43 @@ final class CoachVM: ObservableObject {
             .store(in: &cancellables)
     }
     
+    func updateLanguage(langCode: String) {
+        let newCode: String
+        if langCode == "system" {
+            newCode = Bundle.main.preferredLocalizations.first ?? "en"
+        } else {
+            newCode = langCode
+        }
+        
+        guard newCode != self.currentLangCode || self.chatMessages.isEmpty else {
+            return
+        }
+        
+        print("VIBE COACH DİLİ GÜNCELLENİYOR: \(newCode)")
+        self.currentLangCode = newCode
+        
+        if let path = Bundle.main.path(forResource: newCode, ofType: "lproj"),
+           let bundle = Bundle(path: path) {
+            self.currentBundle = bundle
+        } else {
+            self.currentBundle = .main
+        }
+        updateInitialMessage()
+    }
+    
+    
     func updateInitialMessage() {
         let initialMessage: String
+        
         if store.isProUnlocked {
-            initialMessage = "Merhaba! Ben Vibe Koçu. Sınırsız Pro erişiminle sana yardımcı olmaya hazırım."
+            initialMessage = NSLocalizedString("vibeCoach.welcome.pro", bundle: self.currentBundle, comment: "Pro welcome message")
         }
         else {
             self.freeMessagesRemaining = calculateRemainingMessages()
-            initialMessage = "Merhaba! Ben Vibe Koçu. Bugün için \(freeMessagesRemaining) ücretsiz mesaj hakkınla başlayabilirsin ✨"
+            let formatString = NSLocalizedString("vibeCoach.welcome.free", bundle: self.currentBundle, comment: "Free welcome message with count")
+            initialMessage = String(format: formatString, freeMessagesRemaining)
         }
-    
+        
         if chatMessages.first?.text != initialMessage {
             if chatMessages.isEmpty {
                 chatMessages.append(ChatMessage(text: initialMessage, isFromUser: false))
@@ -114,7 +144,7 @@ final class CoachVM: ObservableObject {
                 mode: mode,
                 style: style,
                 useLastDays: recentDays,
-                useLastCount: maxCount 
+                useLastCount: maxCount
             )
             
             var aiMessageID: UUID?
@@ -138,7 +168,8 @@ final class CoachVM: ObservableObject {
                 }
             } catch {
                 await MainActor.run {
-                    self.chatMessages.append(ChatMessage(text: "Üzgünüm, bir sorun oluştu.", isFromUser: false))
+                    let errorText = NSLocalizedString("vibeCoach.error.generic", bundle: self.currentBundle, comment: "Generic error message in chat")
+                    self.chatMessages.append(ChatMessage(text: errorText, isFromUser: false))
                 }
             }
             
@@ -150,9 +181,13 @@ final class CoachVM: ObservableObject {
     }
     
     private func appendPaywallMessage() {
-        let paywallMessage = ChatMessage(text: "Günlük ücretsiz mesaj limitine ulaştın. Sınırsız sohbet ve daha derin analizler için Pro'ya geçmeye ne dersin?", isFromUser: false)
-        chatMessages.append(paywallMessage)
-        showPaywall = true
+        let paywallText = NSLocalizedString("vibeCoach.paywall.upsell", bundle: self.currentBundle, comment: "Paywall upsell message in chat")
+        let paywallMessage = ChatMessage(text: paywallText, isFromUser: false)
+        
+        if chatMessages.last?.text != paywallText {
+            chatMessages.append(paywallMessage)
+            showPaywall = true
+        }
     }
     
     private func calculateRemainingMessages() -> Int {

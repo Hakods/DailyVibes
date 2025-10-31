@@ -55,9 +55,6 @@ final class RepositoryProvider {
             UserDefaults.standard.set(true, forKey: migrationKey)
             print("MIGRATION: \(oldEntries.count) kayıt başarıyla CoreData'ya taşındı.")
             
-            // İsteğe bağlı ama önerilen: Eski JSON dosyasını silerek yer kaplamasını önle.
-            // Bu fonksiyonu FileDayEntryRepository.swift dosyasına eklemen gerekecek.
-            // fileRepo.deleteStore()
             
         } catch {
             print("MIGRATION BAŞARISIZ: Veri taşınırken bir hata oluştu: \(error)")
