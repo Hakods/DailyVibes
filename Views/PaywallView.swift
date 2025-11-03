@@ -9,18 +9,18 @@ import SwiftUI
 import StoreKit
 
 struct PaywallView: View {
-    // ViewModel'i dışarıdan alacağız veya burada oluşturacağız
     @StateObject var vm: PaywallVM
-    @EnvironmentObject var store: StoreService // Store'a erişim gerekebilir
-    @Environment(\.dismiss) var dismiss // Sheet'i kapatmak için
+    @EnvironmentObject var store: StoreService
+    @EnvironmentObject var languageSettings: LanguageSettings
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        NavigationView { // Sheet içinde başlık ve kapatma butonu için
+        NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
                     HeaderView()
                     FeaturesView()
-                    SubscriptionOptionsView(vm: vm) // Seçenekleri gösteren alt view
+                    SubscriptionOptionsView(vm: vm)
                     RestoreButtonView(vm: vm)
                     ErrorTextView(vm: vm)
                     TermsTextView()
@@ -29,20 +29,25 @@ struct PaywallView: View {
                 .padding(.bottom) // ScrollView alt boşluğu
             }
             .background(AnimatedAuroraBackground().opacity(0.3)) // Hafif arka plan
-            .navigationTitle("✨ Daily Vibes Pro ✨")
+            .navigationTitle(LocalizedStringKey("paywall.nav.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Kapat") { dismiss() }
+                    Button(LocalizedStringKey("button.close")) { dismiss() }
                 }
             }
-            // Ürünler yüklenirken veya satın alma sırasında overlay gösterebiliriz
             .overlay {
                 if store.products.isEmpty || vm.isPurchasing {
-                    ProgressView("Yükleniyor...")
+                    ProgressView(LocalizedStringKey("Yükleniyor..."))
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
                 }
+            }
+            .onAppear {
+                vm.updateLanguage(langCode: languageSettings.selectedLanguageCode)
+            }
+            .onChange(of: languageSettings.selectedLanguageCode) { _, newLangCode in
+                vm.updateLanguage(langCode: newLangCode)
             }
         }
     }
@@ -53,12 +58,12 @@ struct PaywallView: View {
 private struct HeaderView: View {
     var body: some View {
         VStack(spacing: 8) {
-            Image(systemName: "sparkles") // Veya özel bir Pro ikonu
+            Image(systemName: "sparkles")
                 .font(.system(size: 50))
                 .foregroundStyle(Theme.accentGradient)
-            Text("Potansiyelini Açığa Çıkar")
+            Text(LocalizedStringKey("Potansiyelini Açığa Çıkar"))
                 .font(.title2.bold())
-            Text("Daily Vibes Pro ile sınırsız içgörüye, özel analizlere ve daha fazlasına erişin.")
+            Text(LocalizedStringKey("Daily Vibes Pro ile sınırsız içgörüye, özel analizlere ve daha fazlasına erişin."))
                 .font(.subheadline)
                 .foregroundStyle(Theme.textSec)
                 .multilineTextAlignment(.center)
@@ -71,9 +76,9 @@ private struct HeaderView: View {
 private struct FeaturesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            FeatureItem(icon: "brain.head.profile.fill", text: "**Sınırsız AI Koçu Erişimi:** Günlük limit olmadan içgörüler alın.")
-            FeatureItem(icon: "chart.line.uptrend.xyaxis.circle.fill", text: "**Derinlemesine Özetler:** AI destekli haftalık ve aylık analizler.") // Yeni ekledik
-            FeatureItem(icon: "arrow.down.doc.fill", text: "**Veri Dışa Aktarma:** Tüm kayıtlarınızı CSV formatında yedekleyin.")
+            FeatureItem(icon: "brain.head.profile.fill", textKey: "paywall.feature.ai")
+            FeatureItem(icon: "chart.line.uptrend.xyaxis.circle.fill", textKey: "paywall.feature.summaries")
+            FeatureItem(icon: "arrow.down.doc.fill", textKey: "paywall.feature.export")
         }
         .padding()
         .background(.ultraThinMaterial.opacity(0.8), in: RoundedRectangle(cornerRadius: 16))
@@ -82,7 +87,7 @@ private struct FeaturesView: View {
 
 private struct FeatureItem: View {
     let icon: String
-    let text: String
+    let textKey: String
     
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -90,7 +95,7 @@ private struct FeatureItem: View {
                 .foregroundStyle(Theme.accent)
                 .frame(width: 20, alignment: .center)
                 .padding(.top, 1)
-            Text(.init(text)) // Markdown
+            Text(LocalizedStringKey(textKey))
                 .font(.caption)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -101,7 +106,7 @@ private struct FeatureItem: View {
 
 private struct SubscriptionOptionsView: View {
     @ObservedObject var vm: PaywallVM
-    @EnvironmentObject var store: StoreService // Ürünlere erişmek için
+    @EnvironmentObject var store: StoreService
     
     var body: some View {
         VStack(spacing: 12) {
@@ -118,6 +123,10 @@ private struct SubscriptionButton: View {
     
     var isYearly: Bool { product.id == "pro_yearly" }
     
+    private var fallbackDescriptionKey: String {
+        isYearly ? "paywall.product.year.fallback" : "paywall.product.month.fallback"
+    }
+    
     var body: some View {
         Button {
             vm.buyProduct(product)
@@ -126,9 +135,16 @@ private struct SubscriptionButton: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(product.displayName)
                         .font(.headline)
-                    Text(product.description.isEmpty ? (isYearly ? "Tüm yıl boyunca Pro erişim" : "Aylık Pro erişim") : product.description)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    
+                    if product.description.isEmpty {
+                        Text(LocalizedStringKey(fallbackDescriptionKey))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text(product.description)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 Spacer()
                 Text(product.displayPrice)
@@ -137,19 +153,15 @@ private struct SubscriptionButton: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 14)
-                    .fill(.ultraThinMaterial) // Veya Theme.card
+                    .fill(.ultraThinMaterial)
                     .overlay(
-                        // Yıllık planı vurgulamak için
                         RoundedRectangle(cornerRadius: 14)
                             .stroke(isYearly ? Theme.accent : Color.clear, lineWidth: 2)
                     )
             )
             .overlay(alignment: .topTrailing) {
-                // Yıllık planda indirim etiketi
                 if isYearly {
-                    // İndirimi hesapla (StoreService'te hesaplanıp Product'a eklenebilir veya burada yapılabilir)
-                    // Şimdilik sadece bir etiket koyalım
-                    Text("İndirimli!")
+                    Text(LocalizedStringKey("İndirimli!"))
                         .font(.caption2.bold())
                         .padding(.horizontal, 8).padding(.vertical, 4)
                         .background(Theme.accent)
@@ -168,9 +180,9 @@ private struct SubscriptionButton: View {
 private struct RestoreButtonView: View {
     @ObservedObject var vm: PaywallVM
     var body: some View {
-        Button("Satın Alımları Geri Yükle") { vm.restore() }
+        Button(LocalizedStringKey("Satın Alımları Geri Yükle")) { vm.restore() }
             .font(.footnote)
-            .tint(Theme.accent) // Buton rengi
+            .tint(Theme.accent)
             .disabled(vm.isPurchasing)
     }
 }
@@ -190,7 +202,7 @@ private struct ErrorTextView: View {
 
 private struct TermsTextView: View {
     var body: some View {
-        Text("Satın alma Apple Kimliğinize bağlıdır. Aile Paylaşımı ve iade hakları Apple politikalarına tabidir. Abonelik, iptal edilmediği sürece otomatik olarak yenilenir.")
+        Text(LocalizedStringKey("Satın alma Apple Kimliğinize bağlıdır. Aile Paylaşımı ve iade hakları Apple politikalarına tabidir. Abonelik, iptal edilmediği sürece otomatik olarak yenilenir."))
             .font(.caption2)
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)

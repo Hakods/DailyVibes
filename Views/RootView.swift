@@ -15,26 +15,24 @@ struct RootView: View {
             TabView {
                 TodayView()
                     .tabItem {
-                        Label("Bugün", systemImage: "sun.max.fill")
+                        Label(LocalizedStringKey("tab.today"), systemImage: "sun.max.fill")
                     }
                 SummaryView()
-                    .tabItem { Label("Özetler", systemImage: "sparkles.rectangle.stack.fill")
+                    .tabItem {
+                        Label(LocalizedStringKey("tab.summaries"), systemImage: "sparkles.rectangle.stack.fill")
                     }
                 CoachView()
-                    .tabItem { Label("Vibe Koç", systemImage: "brain.head.profile") }
+                    .tabItem {
+                        Label(LocalizedStringKey("tab.coach"), systemImage: "brain.head.profile")
+                    }
                 HistoryView()
                     .tabItem {
-                        Label("Geçmiş", systemImage: "clock.fill")
+                        Label(LocalizedStringKey("tab.history"), systemImage: "clock.fill")
                     }
                 
-                StatsView()
+                MoreView()
                     .tabItem {
-                        Label("İstatistikler", systemImage: "chart.pie.fill")
-                    }
-                
-                SettingsView()
-                    .tabItem {
-                        Label("Ayarlar", systemImage: "gearshape.fill")
+                        Label(LocalizedStringKey("tab.more"), systemImage: "ellipsis")
                     }
             }
             .tint(Theme.secondary)

@@ -15,10 +15,37 @@ final class PaywallVM: ObservableObject {
     @Published var errorMessage: String?
     let store: StoreService
     
+    private var currentLangCode: String = "system"
+    private(set) var currentBundle: Bundle = .main
+    
     init(store: StoreService) {
         self.store = store
         if store.products.isEmpty {
             Task { await store.loadProducts() }
+        }
+    }
+    
+    func updateLanguage(langCode: String) {
+        let newCode: String
+        if langCode == "system" {
+            newCode = Bundle.main.preferredLocalizations.first ?? "en"
+        } else {
+            newCode = langCode
+        }
+        
+        guard newCode != self.currentLangCode else { return }
+        
+        self.currentLangCode = newCode
+        
+        if let path = Bundle.main.path(forResource: newCode, ofType: "lproj"),
+           let bundle = Bundle(path: path) {
+            self.currentBundle = bundle
+        } else {
+            self.currentBundle = .main
+        }
+
+        if errorMessage != nil {
+            errorMessage = nil
         }
     }
     
@@ -44,9 +71,9 @@ final class PaywallVM: ObservableObject {
             await store.restore()
             isPurchasing = false
             if store.isProUnlocked {
-                errorMessage = "Satın alımlar başarıyla geri yüklendi."
+                errorMessage = NSLocalizedString("paywall.restore.success", bundle: self.currentBundle, comment: "Restore success")
             } else {
-                errorMessage = "Geri yüklenecek aktif bir abonelik bulunamadı."
+                errorMessage = NSLocalizedString("paywall.restore.notFound", bundle: self.currentBundle, comment: "Restore not found")
             }
         }
     }
@@ -60,26 +87,30 @@ final class PaywallVM: ObservableObject {
             case .unknown:
                 if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError,
                    underlyingError.domain == NSURLErrorDomain {
-                    errorMessage = "Ağ hatası oluştu. İnternet bağlantınızı kontrol edin (Kod: \(underlyingError.code))."
+                    let format = NSLocalizedString("paywall.error.network", bundle: self.currentBundle, comment: "Network error")
+                    errorMessage = String(format: format, underlyingError.code)
                 } else {
-                    errorMessage = "Bilinmeyen bir satın alma hatası oluştu. Lütfen tekrar deneyin."
+                    errorMessage = NSLocalizedString("paywall.error.unknownSK", bundle: self.currentBundle, comment: "Unknown SK error")
                 }
-            case .clientInvalid: errorMessage = "Satın alma işlemi başlatılamadı (Geçersiz istemci)."
+            case .clientInvalid: errorMessage = NSLocalizedString("paywall.error.clientInvalid", bundle: self.currentBundle, comment: "Client invalid")
             case .paymentCancelled: errorMessage = nil
-            case .paymentInvalid: errorMessage = "Ödeme bilgileri geçersiz."
-            case .paymentNotAllowed: errorMessage = "Bu cihazda satın alma yetkiniz yok."
-            case .storeProductNotAvailable: errorMessage = "Ürün şu anda mağazada mevcut değil."
-            default: errorMessage = "Bir App Store sorunu oluştu (Kod: \(nsError.code)). Lütfen tekrar deneyin."
+            case .paymentInvalid: errorMessage = NSLocalizedString("paywall.error.paymentInvalid", bundle: self.currentBundle, comment: "Payment invalid")
+            case .paymentNotAllowed: errorMessage = NSLocalizedString("paywall.error.paymentNotAllowed", bundle: self.currentBundle, comment: "Payment not allowed")
+            case .storeProductNotAvailable: errorMessage = NSLocalizedString("paywall.error.productNotAvailable", bundle: self.currentBundle, comment: "Product not available")
+            default:
+                let format = NSLocalizedString("paywall.error.defaultSK", bundle: self.currentBundle, comment: "Default SK error")
+                errorMessage = String(format: format, nsError.code)
             }
         } else if let storeError = error as? StoreService.StoreError {
             switch storeError {
-            case .productNotFound: errorMessage = "Abonelik ürünü bulunamadı. Lütfen daha sonra tekrar deneyin."
-            case .verificationFailed: errorMessage = "Satın alma doğrulanamadı. Apple Kimliğinizle ilgili bir sorun olabilir."
-            case .paymentPending: errorMessage = "Ödeme beklemede (Ask to Buy vb.). Onaylandığında erişiminiz açılacaktır."
-            case .unknown: errorMessage = "Bilinmeyen bir satın alma sonucu. Lütfen tekrar deneyin."
+            case .productNotFound: errorMessage = NSLocalizedString("paywall.error.productNotFound", bundle: self.currentBundle, comment: "Product not found")
+            case .verificationFailed: errorMessage = NSLocalizedString("paywall.error.verificationFailed", bundle: self.currentBundle, comment: "Verification failed")
+            case .paymentPending: errorMessage = NSLocalizedString("paywall.error.paymentPending", bundle: self.currentBundle, comment: "Payment pending")
+            case .unknown: errorMessage = NSLocalizedString("paywall.error.unknownStore", bundle: self.currentBundle, comment: "Unknown store error")
             }
         } else {
-            errorMessage = "Satın alma başarısız oldu: \(error.localizedDescription)"
+            let format = NSLocalizedString("paywall.error.genericPrefix", bundle: self.currentBundle, comment: "Generic error prefix")
+            errorMessage = String(format: format, error.localizedDescription)
         }
     }
 }

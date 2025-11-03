@@ -7,15 +7,28 @@ import SwiftUI
 
 struct HistoryView: View {
     @StateObject private var vm = HistoryVM()
+    @EnvironmentObject var languageSettings: LanguageSettings
     @State private var query: String = ""
     @State private var filter: Filter = .all
     @Namespace private var anim
     @FocusState private var searchFocused: Bool
     
+    private var currentLocale: Locale {
+        languageSettings.computedLocale ?? Locale.autoupdatingCurrent
+    }
+    
     enum Filter: String, CaseIterable {
-        case all = "Tümü"
-        case answered = "Cevaplanan"
-        case missed = "Kaçırılan"
+        case all
+        case answered
+        case missed
+        
+        func displayNameKey() -> String {
+            switch self {
+            case .all: return "history.filter.all"
+            case .answered: return "history.filter.answered"
+            case .missed: return "history.filter.missed"
+            }
+        }
     }
     
     var body: some View {
@@ -24,7 +37,7 @@ struct HistoryView: View {
                 AnimatedAuroraBackground()
                 
                 VStack(spacing: 0) {
-                    SummaryHeader(entries: vm.entries)
+                    SummaryHeader(entries: vm.entries, locale: currentLocale)
                     
                     VStack(spacing: 12) {
                         Segmented(filter: $filter, anim: anim)
@@ -34,7 +47,7 @@ struct HistoryView: View {
                     .padding(.top, 8)
                     .padding(.bottom, 4)
                     
-                    let listData = makeListData()
+                    let listData = makeListData(locale: currentLocale)
                     
                     List {
                         if listData.isEmpty {
@@ -49,7 +62,7 @@ struct HistoryView: View {
                                         NavigationLink {
                                             HistoryDetailView(entry: e)
                                         } label: {
-                                            HistoryRow(entry: e)
+                                            HistoryRow(entry: e, locale: currentLocale)
                                         }
                                         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                                         .listRowBackground(Color.clear)
@@ -70,12 +83,14 @@ struct HistoryView: View {
                 }
                 .appBackground()
             }
-            .navigationTitle("Geçmiş")
-            .toolbar { Button("Yenile") { vm.refresh() } }
+            .navigationTitle(LocalizedStringKey("history.nav.title"))
+            .toolbar {
+                Button(LocalizedStringKey("button.refresh")) { vm.refresh() }
+            }
         }
     }
     
-    private func makeListData() -> [MonthSection] {
+    private func makeListData(locale: Locale) -> [MonthSection] {
         let now = Date()
         
         let filtered = vm.entries
@@ -96,7 +111,9 @@ struct HistoryView: View {
                 let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !q.isEmpty else { return true }
                 let inText  = ($0.text ?? "").localizedCaseInsensitiveContains(q)
-                let inMood  = ($0.emojiTitle ?? $0.mood?.title ?? "").localizedCaseInsensitiveContains(q)
+                let moodKey = ($0.emojiTitle ?? $0.mood?.title ?? "")
+                let localizedMoodTitle = NSLocalizedString(moodKey, comment: "Mood title")
+                let inMood = localizedMoodTitle.localizedCaseInsensitiveContains(q)
                 return inText || inMood
             }
         
@@ -105,17 +122,17 @@ struct HistoryView: View {
             return MonthKey(year: comps.year ?? 0, month: comps.month ?? 0)
         }
         
-        let tr = Locale(identifier: "tr_TR")
         let df = DateFormatter()
-        df.locale = tr
-        df.dateFormat = "LLLL yyyy"
+        df.locale = locale
+        df.dateFormat = "LLLL yyyy" // "LLLL" formatı zaten dile duyarlıdır
         
         let sortedKeys = grouped.keys.sorted { (a, b) in (a.year, a.month) > (b.year, b.month) }
         
         return sortedKeys.map { key in
             let comps = DateComponents(calendar: Calendar.current, year: key.year, month: key.month, day: 1)
             let date = comps.date ?? Date()
-            let title = df.string(from: date).capitalized(with: tr)
+            // LOKALİZE EDİLDİ: 'capitalized(with: locale)' kullanıldı
+            let title = df.string(from: date).capitalized(with: locale)
             let items = (grouped[key] ?? []).sorted { $0.day > $1.day }
             return MonthSection(monthKey: key, monthTitle: title, items: items)
         }
@@ -134,6 +151,7 @@ struct HistoryView: View {
 
 private struct SummaryHeader: View {
     let entries: [DayEntry]
+    let locale: Locale
     
     var body: some View {
         let today = Calendar.current.startOfDay(for: Date())
@@ -146,11 +164,11 @@ private struct SummaryHeader: View {
         
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
-                MetricCard(title: "Seri", value: "\(streak) 🔥", subtitle: "art arda gün")
-                MetricCard(title: "Cevaplanan", value: "\(answered)", subtitle: "toplam")
-                MetricCard(title: "Kaçırılan", value: "\(missed)", subtitle: "toplam")
+                MetricCard(titleKey: "history.metric.streak", value: "\(streak) 🔥", subtitleKey: "history.metric.streak.sub")
+                MetricCard(titleKey: "history.metric.answered", value: "\(answered)", subtitleKey: "history.metric.total")
+                MetricCard(titleKey: "history.metric.missed", value: "\(missed)", subtitleKey: "history.metric.total")
                 if pendingToday {
-                    MetricCard(title: "Bugün", value: "Beklemede", subtitle: "henüz yazmadın")
+                    MetricCard(titleKey: "history.metric.today", value: NSLocalizedString("history.metric.pending", comment:""), subtitleKey: "history.metric.pending.sub")
                 }
             }
             .padding(.horizontal, 16)
@@ -179,15 +197,15 @@ private struct SummaryHeader: View {
 }
 
 private struct MetricCard: View {
-    let title: String
+    let titleKey: String
     let value: String
-    let subtitle: String
+    let subtitleKey: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(.caption).foregroundStyle(Theme.textSec)
+            Text(LocalizedStringKey(titleKey)).font(.caption).foregroundStyle(Theme.textSec)
             Text(value).font(.title3.bold())
-            Text(subtitle).font(.caption2).foregroundStyle(Theme.textSec)
+            Text(LocalizedStringKey(subtitleKey)).font(.caption2).foregroundStyle(Theme.textSec)
         }
         .padding(14)
         .background(Theme.card)
@@ -206,7 +224,7 @@ private struct Segmented: View {
         // ScrollView'ı kaldırıp, sona bir Spacer ekleyerek sola yaslıyoruz.
         HStack(spacing: 8) {
             ForEach(HistoryView.Filter.allCases, id: \.self) { f in
-                pill(f, f.rawValue)
+                pill(f)
             }
             Spacer() // Bu, tüm butonları sola iter.
         }
@@ -217,12 +235,12 @@ private struct Segmented: View {
     }
     
     @ViewBuilder
-    private func pill(_ f: HistoryView.Filter, _ title: String) -> some View {
+    private func pill(_ f: HistoryView.Filter) -> some View {
         let isSel = filter == f
         Button {
             withAnimation(.easeInOut(duration: 0.18)) { filter = f }
         } label: {
-            Text(title)
+            Text(LocalizedStringKey(f.displayNameKey()))
                 .font(.callout.weight(isSel ? .semibold : .regular))
                 .lineLimit(1)
                 .minimumScaleFactor(0.85)
@@ -291,10 +309,11 @@ private struct MonthHeader: View {
 
 private struct HistoryRow: View {
     let entry: DayEntry
+    let locale: Locale
     
-    private var titleTR: String {
+    private var localizedTitle: String {
         let df = DateFormatter()
-        df.locale = Locale(identifier: "tr_TR")
+        df.locale = locale
         df.dateStyle = .long
         return df.string(from: entry.day)
     }
@@ -312,14 +331,14 @@ private struct HistoryRow: View {
         entry.emojiVariant ?? entry.mood?.emoji
     }
     
-    private var moodTitle: String? {
+    private var moodTitleKey: String? {
         entry.emojiTitle ?? entry.mood?.title
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
-                Text(titleTR).font(.headline)
+                Text(localizedTitle).font(.headline)
                 Spacer()
                 StatusBadge(status: entry.status)
             }
@@ -335,10 +354,10 @@ private struct HistoryRow: View {
             
             if moodEmoji != nil || entry.score != nil {
                 HStack(spacing: 8) {
-                    if let emo = moodEmoji, let lbl = moodTitle {
+                    if let emo = moodEmoji, let lblKey = moodTitleKey {
                         HStack(spacing: 6) {
                             Text(emo)
-                            Text(lbl)
+                            Text(LocalizedStringKey(lblKey))
                                 .font(.caption.weight(.semibold))
                         }
                         .padding(.horizontal, 10).padding(.vertical, 6)
@@ -364,11 +383,11 @@ private struct HistoryRow: View {
             if let t = entry.text, !t.isEmpty {
                 Text(t).lineLimit(3)
             } else if moodEmoji == nil && entry.score == nil {
-                Text("Metin yok").foregroundStyle(Theme.textSec)
+                Text(LocalizedStringKey("Metin yok")).foregroundStyle(Theme.textSec)
             }
         }
-        .padding(.horizontal, 16) // Yatay padding'i buraya taşıdık
-        .padding(.vertical, 16)   // Dikey padding zaten vardı
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Theme.card)
@@ -390,11 +409,11 @@ private struct EmptyState: View {
     var body: some View {
         VStack(spacing: 12) {
             if !query.isEmpty {
-                Text("'\(query)' için sonuç bulunamadı.")
+                Text(String(format: NSLocalizedString("'%@' için sonuç bulunamadı.", comment: ""), query))
             } else if filter != .all {
-                Text("Bu filtreye uygun kayıt yok.")
+                Text(LocalizedStringKey("Bu filtreye uygun kayıt yok."))
             } else {
-                Text("Henüz geçmiş bir kaydın yok.")
+                Text(LocalizedStringKey("Henüz geçmiş bir kaydın yok."))
             }
         }
         .font(.title3.bold())
