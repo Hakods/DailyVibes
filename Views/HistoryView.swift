@@ -8,7 +8,6 @@ import SwiftUI
 struct HistoryView: View {
     @StateObject private var vm = HistoryVM()
     @State private var query: String = ""
-    // GÜNCELLEME: Filtre enum'u daha basit ve en başta tanımlı
     @State private var filter: Filter = .all
     @Namespace private var anim
     @FocusState private var searchFocused: Bool

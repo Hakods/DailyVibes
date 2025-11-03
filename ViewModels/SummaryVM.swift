@@ -17,7 +17,6 @@ final class SummaryVM: ObservableObject {
     @Published var isLoadingWeekly: Bool = false
     @Published var isLoadingMonthly: Bool = false
     @Published var errorMessage: String? = nil
-
     @Published var canGenerateWeeklySummary: Bool = false
     @Published var canGenerateMonthlySummary: Bool = false
 
@@ -25,6 +24,8 @@ final class SummaryVM: ObservableObject {
     private let aiService = AIService()
     private var streamTask: Task<Void, Never>?
     private var cancellable: AnyCancellable?
+    private var currentLangCode: String = "system"
+    private var currentBundle: Bundle = .main
 
     // UserDefaults Anahtarları
     private let weeklySummaryKey = "savedWeeklySummaryText"
@@ -44,6 +45,26 @@ final class SummaryVM: ObservableObject {
                 print("SummaryVM: Yeni kayıt algılandı, buton durumları kontrol ediliyor...")
                 self?.checkForNewDataAndUpdateButtonStates()
             }
+    }
+    
+    func updateLanguage(langCode: String) {
+        let newCode: String
+        if langCode == "system" {
+            newCode = Bundle.main.preferredLocalizations.first ?? "en"
+        } else {
+            newCode = langCode
+        }
+        
+        guard newCode != self.currentLangCode else { return }
+        self.currentLangCode = newCode
+        
+        if let path = Bundle.main.path(forResource: newCode, ofType: "lproj"),
+           let bundle = Bundle(path: path) {
+            self.currentBundle = bundle
+        } else {
+            self.currentBundle = .main
+        }
+        print("SummaryVM DİLİ GÜNCELLENDİ: \(newCode)")
     }
 
     // Özet oluşturma fonksiyonu (kaydetme dahil)
@@ -80,10 +101,11 @@ final class SummaryVM: ObservableObject {
                  case .week: aiPeriod = .week
                  case .month: aiPeriod = .month
                  }
-
+                 
                  let responseStream = self.aiService.generateSummaryStream(
-                     entries: relevantEntries,
-                     period: aiPeriod
+                    entries: relevantEntries,
+                    period: aiPeriod,
+                    languageCode: self.currentLangCode
                  )
 
                  var summaryText = ""

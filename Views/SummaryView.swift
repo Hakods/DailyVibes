@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SummaryView: View {
     @StateObject private var vm: SummaryVM
+    @EnvironmentObject var languageSettings: LanguageSettings
 
     init() {
         _vm = StateObject(wrappedValue: SummaryVM())
@@ -49,6 +50,12 @@ struct SummaryView: View {
                 .appBackground()
             }
             .navigationTitle(LocalizedStringKey("summary.navigation.title"))
+            .onAppear {
+                vm.updateLanguage(langCode: languageSettings.selectedLanguageCode)
+            }
+            .onChange(of: languageSettings.selectedLanguageCode) {_, newLangCode in
+                vm.updateLanguage(langCode: newLangCode)
+            }
         }
     }
 }

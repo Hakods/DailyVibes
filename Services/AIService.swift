@@ -6,6 +6,14 @@
 //
 
 
+//
+//  AIService.swift
+//  Daily Vibes
+//
+//  Created by Ahmet Hakan Altıparmak on 16.10.2025.
+//
+
+
 import Foundation
 import FirebaseAI
 
@@ -19,7 +27,7 @@ final class AIService {
     init() {
         let ai = FirebaseAI.firebaseAI(backend: .googleAI())
         self.model = ai.generativeModel(modelName: "gemini-2.5-flash")
-        print("✅ AIService, 'gemini-2.5-flash' ile başarıyla başlatıldı.")
+        print("✅ AIService, 'gemini-1.5-flash' ile başarıyla başlatıldı.")
     }
     
     func askAIStream(
@@ -27,12 +35,15 @@ final class AIService {
         entries: [DayEntry],
         mode: Mode,
         style: ResponseStyle,
+        languageCode: String,
         useLastDays: Int?,
         useLastCount: Int
     ) -> AsyncThrowingStream<String, Error> {
         
+        let content = PromptContent(languageCode: languageCode)
         let scoped = scopeEntries(entries, lastDays: useLastDays, lastCount: useLastCount)
-        let prompt = buildPrompt(question: question, entries: scoped, mode: mode, style: style)
+        
+        let prompt = buildPrompt(question: question, entries: scoped, mode: mode, style: style, content: content)
         
         return AsyncThrowingStream { continuation in
             Task {
@@ -51,157 +62,137 @@ final class AIService {
         }
     }
     
+    // scopeEntries fonksiyonu aynı kalabilir (içinde dil yok)
     private func scopeEntries(_ entries: [DayEntry], lastDays: Int?, lastCount: Int) -> [DayEntry] {
         let now = Date()
-        var list = entries
-
-        print("➡️ scopeEntries GİRDİ: \(list.count) kayıt. İlk tarih: \(list.min(by: { $0.day < $1.day })?.day.formatted() ?? "N/A"), Son tarih: \(list.max(by: { $0.day < $1.day })?.day.formatted() ?? "N/A")")
-
-        list = list.filter { Calendar.current.compare($0.day, to: now, toGranularity: .day) != .orderedDescending }
-
-        print("   Filtre (Gelecek Hariç): \(list.count) kayıt kaldı.")
-
+        var list = entries.filter { Calendar.current.compare($0.day, to: now, toGranularity: .day) != .orderedDescending }
         list.sort { $0.day > $1.day }
-
         let result = Array(list.prefix(lastCount))
-
-        print("⬅️ scopeEntries ÇIKTI: \(result.count) kayıt seçildi (\(lastCount) limitiyle). İlk tarih: \(result.last?.day.formatted() ?? "N/A"), Son tarih: \(result.first?.day.formatted() ?? "N/A")")
-        
         return result
     }
     
-    
+    // GÜNCELLENDİ: 'content' objesini parametre olarak alır
     private func buildPrompt(
         question: String,
         entries: [DayEntry],
         mode: Mode,
-        style: ResponseStyle
+        style: ResponseStyle,
+        content: PromptContent // YENİ
     ) -> String {
-        let entriesText = formatEntriesForAI(entries) // Veriyi formatla
-
-        // Tarih bilgisi
+        
+        // GÜNCELLENDİ: Veriyi, gelen 'locale' bilgisine göre formatla
+        let entriesText = formatEntriesForAI(entries, locale: content.locale)
+        
+        // GÜNCELLENDİ: Tarihi, gelen 'locale' bilgisine göre formatla
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd MMMM yyyy, EEEE"
-        dateFormatter.locale = Locale(identifier: "tr_TR")
+        dateFormatter.locale = content.locale
         let todayString = dateFormatter.string(from: Date())
-
-        // Soru Analizi (aynı kalır)
+        
+        // GÜNCELLENDİ: Soru analizini dile göre yap
         let lowerQuestion = question.lowercased()
-        let specificDataKeywords = ["dün", "geçen hafta", "hangi gün", "kaç kere", "listele", "ne zaman", "skoru", "puanı", "modu", "notu", "kaçtı"]
-        let analysisKeywords = ["neden", "nasıl", "analiz", "tavsiye", "sebep", "hissetmemin", "sence", "yorumla", "psikolog"]
-        let offTopicKeywords = ["neresi", "kimdir", "nedir", "ne kadar", "hangi", "kaç yılında", "başkenti"]
-        let generalGreetings = ["selam", "merhaba", "naber", "nasılsın", "kimsin", "hey"]
-
         var questionType = "analysis"
-        if generalGreetings.contains(where: { lowerQuestion.contains($0) }) {
+        if content.generalGreetings.contains(where: { lowerQuestion.contains($0) }) {
             questionType = "greeting"
-        } else if specificDataKeywords.contains(where: { lowerQuestion.contains($0) }) {
+        } else if content.specificDataKeywords.contains(where: { lowerQuestion.contains($0) }) {
             questionType = "data"
-        } else if analysisKeywords.contains(where: { lowerQuestion.contains($0) }) {
+        } else if content.analysisKeywords.contains(where: { lowerQuestion.contains($0) }) {
             questionType = "analysis"
-        } else if offTopicKeywords.contains(where: { lowerQuestion.contains($0) }) || !entriesText.isEmpty && !lowerQuestion.contains("ben") && !lowerQuestion.contains("his") && !lowerQuestion.contains("günüm") {
+        } else if content.offTopicKeywords.contains(where: { lowerQuestion.contains($0) }) || !entriesText.isEmpty && !lowerQuestion.contains("ben") && !lowerQuestion.contains("his") && !lowerQuestion.contains("günüm") && !lowerQuestion.contains("my") && !lowerQuestion.contains("feel") {
             questionType = "off_topic"
         }
-
-        // --- Farklı Hatırlatma Metinleri ---
-        let reminderVariations = [
-            "Ancak asıl görevimin, senin duygu durumunu ve girdilerini analiz ederek sana destek olmak olduğunu unutma.",
-            "Genel soruları da cevaplayabilirim, ama istersen Vibe'ların hakkında daha derinlemesine konuşabiliriz.",
-            "Bu ilginç bir konu! Cevapladıktan sonra, nasıl hissettiğine odaklanmak istersen buradayım.",
-            "Elbette, bu konuda bilgim var. Yine de hatırlatmak isterim ki önceliğim senin duygusal yolculuğuna eşlik etmek."
-        ]
-      
-        let reminderText = reminderVariations.randomElement() ?? reminderVariations[0]
+        
+        // GÜNCELLENDİ: Hatırlatma metinlerini dile göre al
+        let reminderText = content.reminderVariations.randomElement() ?? content.reminderVariations[0]
+        
         let guidance: String
         switch questionType {
-        case "data":
-            guidance = """
-            Kullanıcı geçmiş kayıtlardan spesifik bir bilgi istiyor... (öncekiyle aynı)
-            """
-        case "analysis":
-            guidance = """
-            Kullanıcı bir durumu anlamak... (öncekiyle aynı)
-            """
-        case "greeting":
-            guidance = "Kullanıcı genel bir sohbet başlatıyor (selamlaşma)... (öncekiyle aynı)"
-
-        case "off_topic":
-            guidance = """
-            Kullanıcının sorusu kişisel duygu durumu veya geçmiş kayıtlarıyla ilgili görünmüyor...
-            **Önce, sorduğu genel bilgi sorusunu kendi bilgine dayanarak DOĞRU bir şekilde cevapla.**
-            **Ardından, cevabının SONUNA şu cümleyi EKLE:** '\(reminderText)'
-            Kullanıcı verilerini bu tür sorular için kullanma.
-            """
-        default:
-            guidance = "Kullanıcının sorusunu 'KULLANICI VERİLERİ'ni bağlam olarak kullanarak..."
+        case "data": guidance = content.guidanceData
+        case "analysis": guidance = content.guidanceAnalysis
+        case "greeting": guidance = content.guidanceGreeting
+        case "off_topic": guidance = content.guidanceOffTopic(reminder: reminderText)
+        default: guidance = content.guidanceDefault
         }
-
+        
         let brevity: String
         switch style {
-        case .concise: brevity = "Cevabın ÇOK KISA ve öz olmalı. Maksimum 2-3 cümle (eğer hatırlatma ekliyorsan o hariç)."
-        case .normal: brevity = "Cevabın kısa ve anlaşılır olmalı. Genellikle 4-6 cümle yeterlidir (eğer hatırlatma ekliyorsan o hariç)."
+        case .concise: brevity = content.brevityConcise
+        case .normal: brevity = content.brevityNormal
         case .deep:
-            if questionType == "analysis" { brevity = "Cevabın düşünceli ve biraz daha detaylı olabilir (6-8 cümle)." }
-            else { brevity = "Cevabın kısa ve anlaşılır olmalı (4-6 cümle)." }
+            if questionType == "analysis" { brevity = content.brevityDeepAnalysis }
+            else { brevity = content.brevityNormal }
         }
-
+        
         let includeUserData = (questionType != "off_topic" && questionType != "greeting")
         let userDataSection = includeUserData ? """
-            KULLANICI VERİLERİ (Referans için):
-            \(entriesText.isEmpty ? "Henüz analiz edilecek kayıt yok." : entriesText)
+            \(content.userDataHeader):
+            \(entriesText.isEmpty ? content.userDataEmpty : entriesText)
             ----
             """ : ""
-
+        
+        // GÜNCELLENDİ: Ana prompt'un tamamı artık 'content' objesinden geliyor
         return """
-            Sen 'Vibe Koçu'sun. Davranış kuralların şunlardır:
-            - KESİNLİKLE Markdown kullanma (*, **, # vb.). Cevabın tamamen düz metin olsun.
-            - Tıbbi veya kesin teşhis niteliğinde tavsiye ASLA verme. 'Bir uzmana danışmak faydalı olabilir' gibi yönlendirmeler yapabilirsin.
+            \(content.systemRole)
+            - \(content.ruleMarkdown)
+            - \(content.ruleMedical)
             - \(guidance)
             - \(brevity)
-
+            
             ----
-            ÖNEMLİ BİLGİ:
-            - Bugünün tarihi: \(todayString)
-            - \(includeUserData ? "Kullanıcının geçmiş kayıtları aşağıdadır ('KULLANICI VERİLERİ')..." : "Bu soru için kullanıcı verileri kullanılmamaktadır.")
-
+            \(content.importantInfoHeader):
+            - \(content.todayIs) \(todayString)
+            - \(includeUserData ? content.userDataInfo : content.userDataInfoOmitted)
+            
             \(userDataSection)
-
-            KULLANICININ SORUSU: "\(question)"
+            
+            \(content.userQuestionHeader): "\(question)"
             """
     }
     
-    private func formatEntriesForAI(_ entries: [DayEntry]) -> String {
+    // GÜNCELLENDİ: 'locale' parametresi eklendi
+    private func formatEntriesForAI(_ entries: [DayEntry], locale: Locale) -> String {
         let df = DateFormatter()
         df.dateFormat = "dd MMMM yyyy, EEEE"
-        df.locale = Locale(identifier: "tr_TR")
+        df.locale = locale // GÜNCELLENDİ
         guard !entries.isEmpty else { return "" }
         
-        let sortedEntries = entries.sorted { $0.day > $1.day } // En yeniden eskiye
+        let sortedEntries = entries.sorted { $0.day > $1.day }
+        
+        let langID = locale.language.languageCode?.identifier ?? "en"
+        
+        let dateLabel = (langID == "tr") ? "Tarih" : "Date"
+        let moodLabel = (langID == "tr") ? "Mod" : "Mood"
+        let scoreLabel = (langID == "tr") ? "Puan" : "Score"
+        let noteLabel = (langID == "tr") ? "Not" : "Note"
+        let noneLabel = (langID == "tr") ? "Belirtilmemiş" : "Not specified"
+        let noNoteLabel = (langID == "tr") ? "Not yok." : "No note."
         
         return sortedEntries.map { e in
             """
-            Tarih: \(df.string(from: e.day))
-            Mod: \(e.emojiTitle ?? "Belirtilmemiş") (\(e.emojiVariant ?? ""))
-            Puan: \(e.score.map { "\($0)/10" } ?? "Belirtilmemiş")
-            Not: \((e.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false) ? e.text! : "Not yok.")
+            \(dateLabel): \(df.string(from: e.day))
+            \(moodLabel): \(e.emojiTitle ?? noneLabel) (\(e.emojiVariant ?? ""))
+            \(scoreLabel): \(e.score.map { "\($0)/10" } ?? noneLabel)
+            \(noteLabel): \((e.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false) ? e.text! : noNoteLabel)
             """
         }.joined(separator: "\n---\n")
     }
     
     enum SummaryPeriod: String {
-        case week = "Haftalık"
-        case month = "Aylık"
+        case week
+        case month
     }
-
-    // Yeni Özet Akış Fonksiyonu
+    
     func generateSummaryStream(
         entries: [DayEntry],
-        period: SummaryPeriod
+        period: SummaryPeriod,
+        languageCode: String
     ) -> AsyncThrowingStream<String, Error> {
-
-        // Özet için özel olarak hazırlanmış prompt'u çağır
-        let prompt = buildSummaryPrompt(entries: entries, period: period)
-
+        
+        let content = PromptContent(languageCode: languageCode)
+        
+        // GÜNCELLENDİ: 'content' objesini prompt'a gönder
+        let prompt = buildSummaryPrompt(entries: entries, period: period, content: content)
+        
         return AsyncThrowingStream { continuation in
             Task {
                 do {
@@ -218,45 +209,202 @@ final class AIService {
             }
         }
     }
-
-    // Yeni Özet Prompt Fonksiyonu
-    private func buildSummaryPrompt(entries: [DayEntry], period: SummaryPeriod) -> String {
-        let entriesText = formatEntriesForAI(entries) // Kayıtları AI formatına çevir
-
-        // Tarih aralığını belirle (varsa)
-        let startDate = entries.first?.day
-        let endDate = entries.last?.day
+    
+    // GÜNCELLENDİ: 'content' objesini parametre olarak alır
+    private func buildSummaryPrompt(entries: [DayEntry], period: SummaryPeriod, content: PromptContent) -> String {
+        
+        // GÜNCELLENDİ: Veriyi ve tarihi 'locale'e göre formatla
+        let entriesText = formatEntriesForAI(entries, locale: content.locale)
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd MMMM yyyy"
-        dateFormatter.locale = Locale(identifier: "tr_TR")
-
+        dateFormatter.locale = content.locale
+        
         var dateRangeString = ""
-        if let start = startDate, let end = endDate {
-            dateRangeString = "\(dateFormatter.string(from: start)) - \(dateFormatter.string(from: end)) tarihleri arasını kapsayan"
+        if let start = entries.first?.day, let end = entries.last?.day {
+            dateRangeString = "\(content.summaryDateRangePrefix) \(dateFormatter.string(from: start)) - \(dateFormatter.string(from: end))"
         }
-
-        let periodName = period == .week ? "haftalık" : "aylık"
-
+        
+        let periodName = (period == .week) ? content.periodWeek : content.periodMonth
+        
+        // GÜNCELLENDİ: Ana özet prompt'u artık 'content' objesinden geliyor
         return """
-        Sen 'Vibe Koçu'sun ve kullanıcının \(periodName) duygu durumu özetini hazırlıyorsun.
-        Davranış kuralların şunlardır:
-        - KESİNLİKLE Markdown kullanma (*, **, # vb.). Cevabın tamamen düz metin olsun.
-        - Tıbbi veya kesin teşhis niteliğinde tavsiye ASLA verme.
-        - Sana verilen 'KULLANICI VERİLERİ'ni analiz et. Bu veriler \(dateRangeString) \(periodName) dönemi temsil ediyor.
-        - Özeti, kullanıcıyla doğrudan konuşuyormuş gibi, samimi ve destekleyici bir dille yaz.
-        - Özetin şunları içermeli (veriler yeterliyse):
-            - Genel duygu durumu: Bu dönemde en sık hangi modlar hakimdi? Genel olarak nasıl hissettin? (Örn: "Geçen hafta genel olarak enerjin yüksek görünüyordu...")
-            - Öne çıkan temalar: Notlarda sıkça geçen veya önemli görünen konular nelerdi? (Örn: "Notlarında sık sık 'proje' ve 'yorgunluk' kelimeleri geçmiş.")
-            - Puanlardaki eğilim: Puanların genel olarak nasıl bir seyir izledi? Yüksek veya düşük olduğu günler/zamanlar var mıydı? (Örn: "Hafta sonuna doğru puanlarında bir düşüş gözlemledim.")
-            - (İsteğe bağlı) Küçük bir teşvik veya farkındalık önerisi: Gelecek döneme yönelik nazik bir öneri veya gözlem. (Örn: "Belki önümüzdeki hafta kendine biraz daha dinlenme zamanı ayırabilirsin?")
-        - Cevabın DÜŞÜNCELİ ve DETAYLI (ama çok uzun olmayan, 8-10 cümle civarı) olmalı. Veri yoksa veya yetersizse bunu belirt.
+            \(content.summaryPromptRole(period: periodName))
+            \(content.summaryPromptRules)
+            - \(content.summaryPromptAnalyze(dateRange: dateRangeString, period: periodName))
+            - \(content.summaryPromptTone)
+            - \(content.summaryPromptContent)
+            - \(content.summaryPromptLength)
+            
+            ----
+            \(content.userDataHeader) (\(periodName.capitalized) \(content.summaryFor)):
+            \(entriesText.isEmpty ? content.summaryDataEmpty : entriesText)
+            ----
+            
+            \(content.summaryGenerateNow(period: periodName)):
+            """
+    }
+}
 
-        ----
-        KULLANICI VERİLERİ (\(periodName.capitalized) Özet İçin):
-        \(entriesText.isEmpty ? "Bu dönem için analiz edilecek kayıt yok." : entriesText)
-        ----
 
-        Şimdi, bu verilere dayanarak \(periodName) özeti oluştur:
-        """
+// YENİ: TÜM DİL METİNLERİNİ YÖNETEN YARDIMCI STRUCT
+private struct PromptContent {
+    let languageCode: String
+    let locale: Locale
+    
+    // --- Genel ---
+    let systemRole: String
+    let ruleMarkdown: String
+    let ruleMedical: String
+    let importantInfoHeader: String
+    let todayIs: String
+    let userDataInfo: String
+    let userDataInfoOmitted: String
+    let userDataHeader: String
+    let userDataEmpty: String
+    let userQuestionHeader: String
+    
+    // --- Soru Tipleri (Keywords) ---
+    let specificDataKeywords: [String]
+    let analysisKeywords: [String]
+    let offTopicKeywords: [String]
+    let generalGreetings: [String]
+    
+    // --- Hatırlatmalar (Off-topic) ---
+    let reminderVariations: [String]
+    
+    // --- Rehberlik (Guidance) ---
+    let guidanceData: String
+    let guidanceAnalysis: String
+    let guidanceGreeting: String
+    func guidanceOffTopic(reminder: String) -> String {
+        let template = (languageCode == "tr") ?
+        "Kullanıcının sorusu kişisel duygu durumu veya geçmiş kayıtlarıyla ilgili görünmüyor...\n**Önce, sorduğu genel bilgi sorusunu kendi bilgine dayanarak DOĞRU bir şekilde cevapla.**\n**Ardından, cevabının SONUNA şu cümleyi EKLE:** '%@'"
+        :
+        "The user's question does not seem related to personal mood or past entries...\n**First, answer the general knowledge question accurately based on your own knowledge.**\n**Then, ADD this sentence to the END of your answer:** '%@'"
+        return String(format: template, reminder)
+    }
+    let guidanceDefault: String
+    
+    // --- Kısalık (Brevity) ---
+    let brevityConcise: String
+    let brevityNormal: String
+    let brevityDeepAnalysis: String
+    
+    // --- Özet ---
+    let periodWeek: String
+    let periodMonth: String
+    let summaryFor: String
+    let summaryDataEmpty: String
+    let summaryDateRangePrefix: String
+    func summaryPromptRole(period: String) -> String {
+        return (languageCode == "tr") ? "Sen 'Vibe Koçu'sun ve kullanıcının \(period) duygu durumu özetini hazırlıyorsun." : "You are 'Vibe Coach', preparing the user's \(period) mood summary."
+    }
+    let summaryPromptRules: String
+    func summaryPromptAnalyze(dateRange: String, period: String) -> String {
+        return (languageCode == "tr") ? "Sana verilen 'KULLANICI VERİLERİ'ni analiz et. Bu veriler \(dateRange) \(period) dönemi temsil ediyor." : "Analyze the 'USER DATA' provided. This data represents the \(period) period \(dateRange)."
+    }
+    let summaryPromptTone: String
+    let summaryPromptContent: String
+    let summaryPromptLength: String
+    func summaryGenerateNow(period: String) -> String {
+        return (languageCode == "tr") ? "Şimdi, bu verilere dayanarak \(period) özeti oluştur:" : "Now, generate the \(period) summary based on this data:"
+    }
+    
+    
+    init(languageCode: String) {
+        self.languageCode = (languageCode == "tr") ? "tr" : "en"
+        
+        if self.languageCode == "tr" {
+            locale = Locale(identifier: "tr_TR")
+            systemRole = "Sen 'Vibe Koçu'sun. Davranış kuralların şunlardır:"
+            ruleMarkdown = "KESİNLİKLE Markdown kullanma (*, **, # vb.). Cevabın tamamen düz metin olsun."
+            ruleMedical = "Tıbbi veya kesin teşhis niteliğinde tavsiye ASLA verme. 'Bir uzmana danışmak faydalı olabilir' gibi yönlendirmeler yapabilirsin."
+            importantInfoHeader = "ÖNEMLİ BİLGİ:"
+            todayIs = "Bugünün tarihi:"
+            userDataInfo = "Kullanıcının geçmiş kayıtları aşağıdadır ('KULLANICI VERİLERİ')..."
+            userDataInfoOmitted = "Bu soru için kullanıcı verileri kullanılmamaktadır."
+            userDataHeader = "KULLANICI VERİLERİ (Referans için)"
+            userDataEmpty = "Henüz analiz edilecek kayıt yok."
+            userQuestionHeader = "KULLANICININ SORUSU"
+            
+            specificDataKeywords = ["dün", "geçen hafta", "hangi gün", "kaç kere", "listele", "ne zaman", "skoru", "puanı", "modu", "notu", "kaçtı"]
+            analysisKeywords = ["neden", "nasıl", "analiz", "tavsiye", "sebep", "hissetmemin", "sence", "yorumla", "psikolog", "içgörü"]
+            offTopicKeywords = ["neresi", "kimdir", "nedir", "ne kadar", "hangi", "kaç yılında", "başkenti", "matematik"]
+            generalGreetings = ["selam", "merhaba", "naber", "nasılsın", "kimsin", "hey"]
+            
+            reminderVariations = [
+                "Ancak asıl görevimin, senin duygu durumunu ve girdilerini analiz ederek sana destek olmak olduğunu unutma.",
+                "Genel soruları da cevaplayabilirim, ama istersen Vibe'ların hakkında daha derinlemesine konuşabiliriz.",
+                "Bu ilginç bir konu! Cevapladıktan sonra, nasıl hissettiğine odaklanmak istersen buradayım.",
+                "Elbette, bu konuda bilgim var. Yine de hatırlatmak isterim ki önceliğim senin duygusal yolculuğuna eşlik etmek."
+            ]
+            
+            guidanceData = "Kullanıcı geçmiş kayıtlardan spesifik bir bilgi istiyor. Sadece 'KULLANICI VERİLERİ'ne bak. Eğer veri varsa, veriyi doğrudan sun (Örn: '3 kere 'Üzgün' modu kaydetmişsin'). Veri yoksa 'Bu bilgiye kayıtlarda rastlamadım' de. ASLA yorum yapma."
+            guidanceAnalysis = "Kullanıcı bir durumu anlamak, tavsiye almak veya bir analiz istiyor ('neden', 'nasıl', 'sence'). 'KULLANICI VERİLERİ'ni kullanarak DÜŞÜNCELİ, EMPATİK ve DESTEKLEYİCİ bir cevap ver. Verileri yorumla, bağlantılar kur."
+            guidanceGreeting = "Kullanıcı genel bir sohbet başlatıyor (selamlaşma). Samimi bir şekilde selamla ve 'Sana nasıl yardımcı olabilirim?' veya 'Bugün nasıl hissediyorsun?' gibi bir soruyla konuyu Vibe'lara getirmeye çalış."
+            guidanceDefault = "Kullanıcının sorusunu 'KULLANICI VERİLERİ'ni bağlam olarak kullanarak cevapla."
+            
+            brevityConcise = "Cevabın ÇOK KISA ve öz olmalı. Maksimum 2-3 cümle (eğer hatırlatma ekliyorsan o hariç)."
+            brevityNormal = "Cevabın kısa ve anlaşılır olmalı. Genellikle 4-6 cümle yeterlidir (eğer hatırlatma ekliyorsan o hariç)."
+            brevityDeepAnalysis = "Cevabın düşünceli ve biraz daha detaylı olabilir (6-8 cümle)."
+            
+            // Özet (TR)
+            periodWeek = "haftalık"
+            periodMonth = "aylık"
+            summaryFor = "için"
+            summaryDataEmpty = "Bu dönem için analiz edilecek kayıt yok."
+            summaryDateRangePrefix = "tarihleri arasını kapsayan"
+            summaryPromptRules = "Davranış kuralların şunlardır:\n- KESİNLİKLE Markdown kullanma (*, **, # vb.). Cevabın tamamen düz metin olsun.\n- Tıbbi veya kesin teşhis niteliğinde tavsiye ASLA verme."
+            summaryPromptTone = "- Özeti, kullanıcıyla doğrudan konuşuyormuş gibi, samimi ve destekleyici bir dille yaz."
+            summaryPromptContent = "- Özetin şunları içermeli (veriler yeterliyse):\n 1. Genel duygu durumu: Bu dönemde en sık hangi modlar hakimdi? (Örn: 'Geçen hafta genel olarak enerjin yüksek görünüyordu...')\n 2. Öne çıkan temalar: Notlarda sıkça geçen konular nelerdi? (Örn: 'Notlarında sık sık 'proje' ve 'yorgunluk' kelimeleri geçmiş.')\n 3. Puanlardaki eğilim: Puanların genel olarak nasıl bir seyir izledi? (Örn: 'Hafta sonuna doğru puanlarında bir düşüş gözlemledim.')\n 4. Küçük bir teşvik veya farkındalık önerisi. (Örn: 'Belki önümüzdeki hafta kendine biraz daha dinlenme zamanı ayırabilirsin?')"
+            summaryPromptLength = "- Cevabın DÜŞÜNCELİ ve DETAYLI (ama çok uzun olmayan, 8-10 cümle civarı) olmalı. Veri yoksa veya yetersizse bunu belirt."
+            
+        } else {
+            // --- İNGİLİZCE ---
+            locale = Locale(identifier: "en_US")
+            systemRole = "You are 'Vibe Coach'. Your rules of conduct are:"
+            ruleMarkdown = "ABSOLUTELY do not use Markdown (*, **, #, etc.). Your response must be plain text."
+            ruleMedical = "NEVER give medical or diagnostic advice. You can use phrases like 'It might be helpful to consult a professional'."
+            importantInfoHeader = "IMPORTANT INFO:"
+            todayIs = "Today's date is:"
+            userDataInfo = "The user's past entries are below ('USER DATA')..."
+            userDataInfoOmitted = "User data is not being used for this question."
+            userDataHeader = "USER DATA (For Reference)"
+            userDataEmpty = "No entries available to analyze yet."
+            userQuestionHeader = "USER'S QUESTION"
+            
+            specificDataKeywords = ["yesterday", "last week", "which day", "how many times", "list", "when", "score", "rating", "mood", "note", "what was"]
+            analysisKeywords = ["why", "how", "analyze", "advice", "reason", "feeling", "what do you think", "interpret", "psychologist", "insight"]
+            offTopicKeywords = ["where is", "who is", "what is", "how much", "which", "in what year", "capital of", "math"]
+            generalGreetings = ["hi", "hello", "hey", "how are you", "who are you"]
+            
+            reminderVariations = [
+                "However, remember that my main purpose is to support you by analyzing your moods and entries.",
+                "I can answer general questions, but we can talk more deeply about your Vibes if you'd like.",
+                "That's an interesting topic! After I answer, I'm here if you want to focus on how you're feeling.",
+                "Certainly, I have information on that. I'd just like to remind you that my priority is to accompany you on your emotional journey."
+            ]
+            
+            guidanceData = "The user wants specific data from past entries. Look ONLY at 'USER DATA'. If data exists, present it directly (e.g., 'You've logged 'Sad' 3 times'). If not, say 'I couldn't find that in the records.' DO NOT interpret."
+            guidanceAnalysis = "The user wants to understand a situation, get advice, or an analysis ('why', 'how', 'what do you think'). Give a THOUGHTFUL, EMPATHETIC, and SUPPORTIVE answer using 'USER DATA'. Interpret data, make connections."
+            guidanceGreeting = "The user is starting a general chat (greeting). Greet them warmly and try to bring the topic back to Vibes, e.g., 'How can I help you?' or 'How are you feeling today?'"
+            guidanceDefault = "Answer the user's question using 'USER DATA' as context."
+            
+            brevityConcise = "Your answer must be VERY SHORT and concise. Maximum 2-3 sentences (excluding any added reminder)."
+            brevityNormal = "Your answer should be short and clear. Usually 4-6 sentences are sufficient (excluding any added reminder)."
+            brevityDeepAnalysis = "Your answer can be thoughtful and a bit more detailed (6-8 sentences)."
+            
+            // Özet (EN)
+            periodWeek = "weekly"
+            periodMonth = "monthly"
+            summaryFor = "for"
+            summaryDataEmpty = "No entries to analyze for this period."
+            summaryDateRangePrefix = "covering the dates"
+            summaryPromptRules = "Your rules of conduct are:\n- ABSOLUTELY do not use Markdown (*, **, #, etc.). Your response must be plain text.\n- NEVER give medical or diagnostic advice."
+            summaryPromptTone = "- Write the summary in a friendly and supportive tone, as if talking directly to the user."
+            summaryPromptContent = "- The summary should include (if data is sufficient):\n 1. General mood: What moods were dominant? (e.g., 'You seemed to have high energy last week...')\n 2. Prominent themes: What topics came up often in your notes? (e.g., 'The words 'project' and 'tired' appeared frequently.')\n 3. Rating trends: How did your ratings look? (e.g., 'I noticed a dip in your ratings toward the weekend.')\n 4. A small encouragement or awareness suggestion. (e.g., 'Maybe you can set aside more time to rest next week?')"
+            summaryPromptLength = "- Your response should be THOUGHTFUL and DETAILED (but not too long, around 8-10 sentences). If data is insufficient, state that."
+        }
     }
 }

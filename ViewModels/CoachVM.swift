@@ -143,6 +143,7 @@ final class CoachVM: ObservableObject {
                 entries: entries,
                 mode: mode,
                 style: style,
+                languageCode: self.currentLangCode,
                 useLastDays: recentDays,
                 useLastCount: maxCount
             )

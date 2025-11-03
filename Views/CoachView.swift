@@ -89,7 +89,7 @@ struct CoachView: View {
             .onAppear {
                 vm.updateLanguage(langCode: languageSettings.selectedLanguageCode)
             }
-            .onChange(of: languageSettings.selectedLanguageCode) { newLangCode in
+            .onChange(of: languageSettings.selectedLanguageCode) { _, newLangCode in
                 vm.updateLanguage(langCode: newLangCode)
             }
         }
