@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct RootView: View {
+    @EnvironmentObject var store: StoreService
     var body: some View {
         ZStack {
             AnimatedAuroraBackground()
@@ -21,7 +22,7 @@ struct RootView: View {
                     .tabItem {
                         Label(LocalizedStringKey("tab.summaries"), systemImage: "sparkles.rectangle.stack.fill")
                     }
-                CoachView()
+                CoachView(store: store)
                     .tabItem {
                         Label(LocalizedStringKey("tab.coach"), systemImage: "brain.head.profile")
                     }
@@ -36,6 +37,9 @@ struct RootView: View {
                     }
             }
             .tint(Theme.secondary)
+        }
+        .task {
+            await store.refreshEntitlements()
         }
     }
 }

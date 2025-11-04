@@ -27,6 +27,11 @@ final class CoachVM: ObservableObject {
     @Published var userQuestion: String = ""
     @Published var isLoading = false
     
+    @Published private(set) var isProCached: Bool = false
+    @Published private(set) var subscriptionReady: Bool = false
+    
+    var effectivePro: Bool { isProCached || !subscriptionReady }
+    
     // Pro Kontrolü
     @Published var showPaywall = false
     @Published private(set) var freeMessagesRemaining: Int
@@ -52,12 +57,25 @@ final class CoachVM: ObservableObject {
     init(repo: DayEntryRepository? = nil, store: StoreService) {
         self.repo = repo ?? RepositoryProvider.shared.dayRepo
         self.store = store
+        self.isProCached = store.isProUnlocked
         self.freeMessagesRemaining = 0
         self.freeMessagesRemaining = calculateRemainingMessages()
         store.$isProUnlocked
-            .dropFirst()
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+            .sink { [weak self] isPro in
+                guard let self else { return }
+                self.isProCached = isPro
+                self.subscriptionReady = true
+                self.updateInitialMessage()
+            }
+            .store(in: &cancellables)
+        
+        store.$isReady
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] ready in
+                self?.subscriptionReady = ready
                 self?.updateInitialMessage()
             }
             .store(in: &cancellables)
@@ -89,17 +107,15 @@ final class CoachVM: ObservableObject {
     
     
     func updateInitialMessage() {
+        let isPro = effectivePro
         let initialMessage: String
-        
-        if store.isProUnlocked {
-            initialMessage = NSLocalizedString("vibeCoach.welcome.pro", bundle: self.currentBundle, comment: "Pro welcome message")
-        }
-        else {
+        if isPro {
+            initialMessage = NSLocalizedString("vibeCoach.welcome.pro", bundle: self.currentBundle, comment: "")
+        } else {
             self.freeMessagesRemaining = calculateRemainingMessages()
-            let formatString = NSLocalizedString("vibeCoach.welcome.free", bundle: self.currentBundle, comment: "Free welcome message with count")
-            initialMessage = String(format: formatString, freeMessagesRemaining)
+            let fmt = NSLocalizedString("vibeCoach.welcome.free", bundle: self.currentBundle, comment: "")
+            initialMessage = String(format: fmt, freeMessagesRemaining)
         }
-        
         if chatMessages.first?.text != initialMessage {
             if chatMessages.isEmpty {
                 chatMessages.append(ChatMessage(text: initialMessage, isFromUser: false))
@@ -108,12 +124,14 @@ final class CoachVM: ObservableObject {
             }
         }
     }
-    
+
     func askQuestion() {
         let trimmed = userQuestion.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         
-        if !store.isProUnlocked {
+        let isPro = effectivePro
+        
+        if !isPro {
             if freeMessagesRemaining <= 0 {
                 appendPaywallMessage()
                 return
@@ -182,11 +200,10 @@ final class CoachVM: ObservableObject {
     }
     
     private func appendPaywallMessage() {
-        let paywallText = NSLocalizedString("vibeCoach.paywall.upsell", bundle: self.currentBundle, comment: "Paywall upsell message in chat")
-        let paywallMessage = ChatMessage(text: paywallText, isFromUser: false)
-        
+        guard subscriptionReady else { return }
+        let paywallText = NSLocalizedString("vibeCoach.paywall.upsell", bundle: self.currentBundle, comment: "")
         if chatMessages.last?.text != paywallText {
-            chatMessages.append(paywallMessage)
+            chatMessages.append(ChatMessage(text: paywallText, isFromUser: false))
             showPaywall = true
         }
     }

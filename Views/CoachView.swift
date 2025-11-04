@@ -16,8 +16,8 @@ struct CoachView: View {
     @FocusState private var isTextFieldFocused: Bool
     @State private var showSettings = false
     
-    init() {
-        _vm = StateObject(wrappedValue: CoachVM(store: RepositoryProvider.shared.store))
+    init(store: StoreService) {
+        _vm = StateObject(wrappedValue: CoachVM(store: store))
     }
     
     var body: some View {
@@ -56,7 +56,7 @@ struct CoachView: View {
                         .scrollDismissesKeyboard(.interactively)
                     }
                     
-                    if !store.isProUnlocked && vm.freeMessagesRemaining <= 0 {
+                    if vm.subscriptionReady && !vm.isProCached && vm.freeMessagesRemaining <= 0 {
                         PaywallPromptView(onTap: { vm.showPaywall = true })
                     } else {
                         ChatInputBar(
@@ -76,6 +76,9 @@ struct CoachView: View {
                 }
             }
             .navigationTitle(LocalizedStringKey("coach.nav.title"))
+            .task {
+                await store.refreshEntitlements()
+            }
             .toolbar {
                 Button { showSettings = true } label: { Image(systemName: "gearshape.fill") }
             }

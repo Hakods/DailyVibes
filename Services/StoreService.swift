@@ -13,6 +13,7 @@ import Combine
 final class StoreService: ObservableObject {
     @Published private(set) var products: [Product] = []
     @Published private(set) var isProUnlocked: Bool = false
+    @Published private(set) var isReady: Bool = false
     
     private let monthlyProductID = "pro_monthly"
     private let yearlyProductID = "pro_yearly"
@@ -26,13 +27,16 @@ final class StoreService: ObservableObject {
         updates = listenForUpdates()
         Task {
             await loadProducts()
-#if !DEBUG
-            print("   (Release Build): Başlangıçta abonelik durumu kontrol ediliyor...")
-            await updateSubscriptionStatus()
-#else
-            print("   (Debug Build): Başlangıçta abonelik durumu kontrol EDİLMEDİ (isProUnlocked = false).")
-#endif
+            await refreshEntitlements()
         }
+    }
+    
+    func refreshEntitlements(triggerSync: Bool = false) async {
+        if triggerSync {
+            try? await AppStore.sync()
+        }
+        _ = await updateSubscriptionStatus()
+        isReady = true
     }
     
     deinit {

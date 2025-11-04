@@ -5,15 +5,6 @@
 //  Created by Ahmet Hakan Altıparmak on 16.10.2025.
 //
 
-
-//
-//  AIService.swift
-//  Daily Vibes
-//
-//  Created by Ahmet Hakan Altıparmak on 16.10.2025.
-//
-
-
 import Foundation
 import FirebaseAI
 
@@ -27,7 +18,7 @@ final class AIService {
     init() {
         let ai = FirebaseAI.firebaseAI(backend: .googleAI())
         self.model = ai.generativeModel(modelName: "gemini-2.5-flash")
-        print("✅ AIService, 'gemini-1.5-flash' ile başarıyla başlatıldı.")
+        print("✅ AIService, 'gemini-2.5-flash' ile başarıyla başlatıldı.")
     }
     
     func askAIStream(
