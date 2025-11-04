@@ -19,7 +19,7 @@ struct StatusBadge: View {
             case .pending:  return ("Status.pending", Theme.secondary, "hourglass.circle.fill")
             }
         }()
-        return Label(txt, systemImage: sys)
+        return Label(LocalizedStringKey(txt), systemImage: sys)
             .font(.caption.bold())
             .padding(.horizontal, 10).padding(.vertical, 6)
             .background(col.opacity(0.14), in: Capsule(style: .continuous))
