@@ -127,6 +127,39 @@
         }
       }
     },
+    "Ağrılı" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Pain"
+          }
+        }
+      }
+    },
+    "Aşırı Heyecanlı" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excited"
+          }
+        }
+      }
+    },
+    "Ateşli" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feverish"
+          }
+        }
+      }
+    },
     "Ayarlar" : {
       "localizations" : {
         "en" : {
@@ -223,6 +256,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Finish"
+          }
+        }
+      }
+    },
+    "Bitkin" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exhausted"
           }
         }
       }
@@ -731,12 +775,34 @@
         }
       }
     },
+    "Çok Sinirli" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Furious"
+          }
+        }
+      }
+    },
     "Daily Vibes Pro ile sınırsız içgörüye, özel analizlere ve daha fazlasına erişin." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Get unlimited insights, special analyses, and more with Daily Vibes Pro."
+          }
+        }
+      }
+    },
+    "Deli Doluyum" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goofy"
           }
         }
       }
@@ -781,12 +847,45 @@
         }
       }
     },
+    "Doğayla İç İçe" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Nature"
+          }
+        }
+      }
+    },
+    "Düşünceli" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thoughtful"
+          }
+        }
+      }
+    },
     "En İyi Anlar" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Best Moments"
+          }
+        }
+      }
+    },
+    "Endişeli" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Worried"
           }
         }
       }
@@ -817,6 +916,45 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Countdown progress"
+          }
+        }
+      }
+    },
+    "Gerilmiş" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tense"
+          }
+        }
+      }
+    },
+    "Gözyaşı Döküyor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crying"
+          }
+        }
+      }
+    },
+    "Güleryüzlü" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smiling"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güleryüzlü"
           }
         }
       }
@@ -907,6 +1045,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "About & Support"
+          }
+        }
+      }
+    },
+    "Hayal Kırıklığı" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disappointed"
           }
         }
       }
@@ -1135,12 +1284,45 @@
         }
       }
     },
+    "Huzurlu" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peaceful"
+          }
+        }
+      }
+    },
+    "İç Çekiyor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sighing"
+          }
+        }
+      }
+    },
     "İleri" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Next"
+          }
+        }
+      }
+    },
+    "İlgisiz" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indifferent"
           }
         }
       }
@@ -1185,6 +1367,17 @@
         }
       }
     },
+    "Kafa Karışık" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confused"
+          }
+        }
+      }
+    },
     "Kalan süre" : {
       "localizations" : {
         "en" : {
@@ -1205,12 +1398,34 @@
         }
       }
     },
+    "Kararsız" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Undecided"
+          }
+        }
+      }
+    },
     "Kaydet" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save"
+          }
+        }
+      }
+    },
+    "Kaygılı" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anxious"
           }
         }
       }
@@ -1235,6 +1450,67 @@
         }
       }
     },
+    "Kendinden Emin" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confident"
+          }
+        }
+      }
+    },
+    "Kendine Güvenen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smug"
+          }
+        }
+      }
+    },
+    "Keyifli" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cheerful"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keyifli"
+          }
+        }
+      }
+    },
+    "Kırılgan" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vulnerable"
+          }
+        }
+      }
+    },
+    "Kırılmış" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hurt"
+          }
+        }
+      }
+    },
     "Kısa ve düzenli yazmak en önemlisi." : {
       "localizations" : {
         "en" : {
@@ -1251,6 +1527,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Briefly write how your day went and how you felt."
+          }
+        }
+      }
+    },
+    "Kızgın" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angry"
+          }
+        }
+      }
+    },
+    "Korkmuş" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scared"
+          }
+        }
+      }
+    },
+    "Kutlama Modu" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Celebrating"
           }
         }
       }
@@ -1323,6 +1632,45 @@
         }
       }
     },
+    "Lezzetli Anlar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yummy"
+          }
+        }
+      }
+    },
+    "Maskeli Hasta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sick (Masked)"
+          }
+        }
+      }
+    },
+    "Memnun" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pleased"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memnun"
+          }
+        }
+      }
+    },
     "Metin yok" : {
       "localizations" : {
         "en" : {
@@ -1363,12 +1711,51 @@
         }
       }
     },
+    "Neşeli" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joyful"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neşeli"
+          }
+        }
+      }
+    },
+    "Nötr" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neutral"
+          }
+        }
+      }
+    },
     "Notun" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your Note"
+          }
+        }
+      }
+    },
+    "Öfke Patlaması" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enraged"
           }
         }
       }
@@ -1399,6 +1786,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Average Rating"
+          }
+        }
+      }
+    },
+    "Parlıyorum" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sparkling"
+          }
+        }
+      }
+    },
+    "Patlamak Üzere" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About to Burst"
           }
         }
       }
@@ -1833,6 +2242,17 @@
         }
       }
     },
+    "Rahatlamış" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relaxed"
+          }
+        }
+      }
+    },
     "Ruh Hali Dağılımı" : {
       "localizations" : {
         "en" : {
@@ -1849,6 +2269,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Just Focus On Your Breath"
+          }
+        }
+      }
+    },
+    "Sakin" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calm"
           }
         }
       }
@@ -1893,12 +2324,45 @@
         }
       }
     },
+    "Sersemlemiş" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Woozy"
+          }
+        }
+      }
+    },
+    "Sessiz" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Silent"
+          }
+        }
+      }
+    },
     "Şimdi Oluştur" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Generate Now"
+          }
+        }
+      }
+    },
+    "Sıcak Kalpli" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warm-hearted"
           }
         }
       }
@@ -1977,6 +2441,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Beklemede"
+          }
+        }
+      }
+    },
+    "Şükreden" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grateful"
           }
         }
       }
@@ -2255,12 +2730,51 @@
         }
       }
     },
+    "Tatlı Gülümseme" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slight Smile"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tatlı Gülümseme"
+          }
+        }
+      }
+    },
+    "Tedirgin" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uneasy"
+          }
+        }
+      }
+    },
     "Temizle" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clear"
+          }
+        }
+      }
+    },
+    "Tersine Gülen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Silly"
           }
         }
       }
@@ -2360,6 +2874,17 @@
         }
       }
     },
+    "Üşütmüş" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeling Sick"
+          }
+        }
+      }
+    },
     "Uygulama Dili" : {
       "localizations" : {
         "en" : {
@@ -2386,6 +2911,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "As you continue to use the app, interesting stats about your mood and ratings will appear here."
+          }
+        }
+      }
+    },
+    "Uykulu" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleepy"
+          }
+        }
+      }
+    },
+    "Üzgün" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sad"
           }
         }
       }
@@ -2478,6 +3025,17 @@
         }
       }
     },
+    "Yaramaz" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mischievous"
+          }
+        }
+      }
+    },
     "Yeni özet her ayın 1'inde aktif olur." : {
       "localizations" : {
         "en" : {
@@ -2514,6 +3072,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "If you're feeling overwhelmed, a short breathing exercise can help you return to the moment."
+          }
+        }
+      }
+    },
+    "Yorgun" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tired"
           }
         }
       }
