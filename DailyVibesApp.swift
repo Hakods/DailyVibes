@@ -75,8 +75,12 @@ struct DailyVibesApp: App {
             .id(languageSettings.selectedLanguageCode)
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
-            if newPhase == .active && oldPhase != .active {
-                print("App became active")
+            
+            if newPhase == .active {
+                Task {
+                    await schedule.planForNext(days: 14)
+                    print("Uygulama aktif oldu: Gelecek 14 gün için planlama kontrol edildi.")
+                }
             }
         }
     }

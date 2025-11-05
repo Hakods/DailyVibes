@@ -53,16 +53,27 @@ final class ScheduleService: ObservableObject {
         let cal = Calendar.current
         let now = Date()
         let today = cal.startOfDay(for: now)
-
+        
         for i in -30..<0 {
-            if let d = cal.date(byAdding: .day, value: i, to: today),
-               let idx = entries.firstIndex(where: { cal.isDate($0.day, inSameDayAs: d) }),
-               entries[idx].status == .pending,
-               now > entries[idx].expiresAt {
-                entries[idx].status = .missed
+            guard let day = cal.date(byAdding: .day, value: i, to: today) else { continue }
+            
+            if let idx = entries.firstIndex(where: { cal.isDate($0.day, inSameDayAs: day) }) {
+                if entries[idx].status == .pending && now > entries[idx].expiresAt {
+                    entries[idx].status = .missed
+                }
+            } else {
+                let fakeScheduledAt = cal.date(bySettingHour: 12, minute: 0, second: 0, of: day) ?? day
+                let fakeExpiresAt = cal.date(byAdding: .minute, value: 10, to: fakeScheduledAt) ?? day
+                
+                let missedEntry = DayEntry(
+                    day: day,
+                    scheduledAt: fakeScheduledAt,
+                    expiresAt: fakeExpiresAt,
+                    status: .missed
+                )
+                entries.append(missedEntry)
             }
         }
-
         // 2) Bugün dâhil ileri günleri planla (her gün tek bildirim)
         for i in 0..<days {
             guard let day = cal.date(byAdding: .day, value: i, to: today),
@@ -88,9 +99,10 @@ final class ScheduleService: ObservableObject {
         }
 
         try? repo.save(entries)
+        RepositoryProvider.shared.entriesChanged.send()
         markPlannedToday()
     }
-
+    
     func planAdminOneMinute() async {
         var entries = (try? repo.load()) ?? []
         let now = Date()
