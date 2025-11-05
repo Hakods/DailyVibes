@@ -3,17 +3,22 @@ import SwiftUI
 struct HistoryDetailView: View {
     let entry: DayEntry
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var languageSettings: LanguageSettings
+    
+    private var currentLocale: Locale {
+        languageSettings.computedLocale ?? Locale.autoupdatingCurrent
+    }
 
     private var fullDateTitle: String {
         let df = DateFormatter()
-        df.locale = Locale(identifier: "tr_TR")
+        df.locale = currentLocale
         df.dateStyle = .full
         return df.string(from: entry.day)
     }
     
     private var moodEmoji: String? { entry.emojiVariant }
-    private var moodTitle: String? { entry.emojiTitle }
-
+    private var moodTitleKey: String? { entry.emojiTitle }
+    
     var body: some View {
         ZStack {
             // Arka plan aynı kalıyor
@@ -29,11 +34,11 @@ struct HistoryDetailView: View {
                             .font(.title2.weight(.bold))
                             .foregroundStyle(.primary)
                         
-                        if let emo = moodEmoji, let title = moodTitle {
+                        if let emo = moodEmoji, let titleKey = moodTitleKey {
                             Text(emo)
                                 .font(.system(size: 90))
                             
-                            Text(title)
+                            Text(LocalizedStringKey(titleKey))
                                 .font(.title.weight(.semibold))
                                 .foregroundStyle(Theme.accent)
                         }
