@@ -54,25 +54,25 @@ final class TodayVM: ObservableObject {
         
         switch group {
         case .mutlu:
-            dynamicPlaceholder = "Harika! Bu güzel hissi neye borçlusun?.."
+            dynamicPlaceholder = "placeholder.happy"
         case .sakin:
-            dynamicPlaceholder = "Sakinliğini anlatan birkaç kelime? Günün nasıl huzurlu geçti?.."
+            dynamicPlaceholder = "placeholder.calm"
         case .uzgun:
-            dynamicPlaceholder = "Üzgün hissetmek normal. Ne olduğunu paylaşmak ister misin?.."
+            dynamicPlaceholder = "placeholder.sad"
         case .stresliYorgun:
-            dynamicPlaceholder = "Seni yoran veya strese sokan neydi? Detayları yazmak rahatlatabilir..."
+            dynamicPlaceholder = "placeholder.stressedTired"
         case .ofkeli:
-            dynamicPlaceholder = "Öfkenin kaynağı neydi? İçini dökmek ister misin?.."
+            dynamicPlaceholder = "placeholder.angry"
         case .kaygili:
-            dynamicPlaceholder = "Kaygıların hakkında yazmak, onları yönetmene yardımcı olabilir..."
+            dynamicPlaceholder = "placeholder.anxious"
         case .hasta:
-            dynamicPlaceholder = "Geçmiş olsun. Nasıl hissettiğini veya dinlenmek için neler yaptığını yazabilirsin..."
+            dynamicPlaceholder = "placeholder.sick"
         case .eglenceli:
-            dynamicPlaceholder = "Enerjin yüksek! Günün eğlenceli anlarını anlatır mısın?.."
+            dynamicPlaceholder = "placeholder.fun"
         case .notrKararsiz:
-            dynamicPlaceholder = "Nötr veya kararsız hissetmek de bir durum. Aklından neler geçiyor?.."
+            dynamicPlaceholder = "placeholder.neutral"
         case .bilinmeyen:
-            dynamicPlaceholder = "Bugün aklından neler geçiyor? Birkaç cümle yeter…"
+            dynamicPlaceholder = "placeholder.default"
         }
         
         showMindfulnessCard = (group == .stresliYorgun || group == .ofkeli || group == .kaygili)
@@ -114,18 +114,18 @@ final class TodayVM: ObservableObject {
     
     func saveNow() {
         guard var entryToSave = entry else {
-            lastSaveMessage = "Bugün için kayıt bulunamadı."; return
+            lastSaveMessage = "save.error.notFound"; return
         }
         
         let now = Date()
         let withinWindow = (now >= entryToSave.scheduledAt && now <= entryToSave.expiresAt)
         guard entryToSave.allowEarlyAnswer || withinWindow else {
-            lastSaveMessage = "Cevap süresi henüz açılmadı."; return
+            lastSaveMessage = "save.error.notInWindow"; return
         }
         
         var list = (try? repo.load()) ?? []
         guard let idx = list.firstIndex(where: { $0.id == entryToSave.id }) else {
-            lastSaveMessage = "Kayıt bulunamadı."; return
+            lastSaveMessage = "save.error.notFound"; return
         }
         
         entryToSave.text = text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -139,11 +139,11 @@ final class TodayVM: ObservableObject {
         do {
             try repo.save(list)
             self.entry = entryToSave
-            lastSaveMessage = "Kaydedildi ✅"
+            lastSaveMessage = "save.success"
             HapticsService.notification(.success)
             RepositoryProvider.shared.entriesChanged.send()
         } catch {
-            lastSaveMessage = "Kaydederken bir hata oluştu."
+            lastSaveMessage = "save.error.generic"
             HapticsService.notification(.error)
         }
     }

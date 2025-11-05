@@ -58,7 +58,7 @@ struct TodayView: View {
             }
             
             if showSavedToast {
-                SaveToast(text: "Kaydedildi")
+                SaveToast(textKey: "save.toast.success")
                     .padding(.bottom, 16)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
@@ -196,7 +196,7 @@ struct TodayView: View {
                         } label: {
                             VStack(spacing: 6) {
                                 Text(item.emoji).font(.system(size: 28)).frame(height: 28)
-                                Text(item.title).font(.caption2).lineLimit(1).minimumScaleFactor(0.8).foregroundStyle(isSelected ? Theme.accent : Theme.textSec)
+                                Text(LocalizedStringKey(item.title)).font(.caption2).lineLimit(1).minimumScaleFactor(0.8).foregroundStyle(isSelected ? Theme.accent : Theme.textSec)
                             }
                             .frame(maxWidth: .infinity)
                             .frame(height: cellHeight)
@@ -269,7 +269,11 @@ struct TodayView: View {
     private func saveRow(for e: DayEntry) -> some View {
         VStack(alignment: .trailing, spacing: 8) {
             if !unmetConditions.isEmpty {
-                Text(unmetConditions.joined(separator: "\n"))
+                VStack(alignment: .trailing, spacing: 2) {
+                    ForEach(unmetConditions, id: \.self) { key in
+                        Text(LocalizedStringKey(key))
+                    }
+                }
                     .font(.caption)
                     .foregroundStyle(Theme.warn)
                     .multilineTextAlignment(.trailing)
@@ -283,14 +287,14 @@ struct TodayView: View {
                 Spacer()
                 Button {
                     vm.saveNow()
-                    if vm.lastSaveMessage == "Kaydedildi ✅" {
+                    if vm.lastSaveMessage == "save.success" {
                         withAnimation { showSavedToast = true }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                             withAnimation { showSavedToast = false }
                         }
                     }
                 } label: {
-                    Label("Kaydet", systemImage: "checkmark.circle.fill")
+                    Label(LocalizedStringKey("save.button.save"), systemImage: "checkmark.circle.fill")
                         .font(.body.weight(.semibold))
                 }
                 .buttonStyle(PrimaryButtonStyle())
@@ -318,7 +322,7 @@ struct TodayView: View {
             if let emoji = e.emojiVariant, let title = e.emojiTitle {
                 HStack(spacing: 8) {
                     Text(emoji).font(.title)
-                    Text(title).font(.headline.weight(.semibold))
+                    Text(LocalizedStringKey(title)).font(.headline.weight(.semibold))
                 }
                 .padding(.horizontal, 12).padding(.vertical, 8)
                 .background(Theme.card)
@@ -356,16 +360,17 @@ struct TodayView: View {
     private func updateSaveButtonState() {
         var conditions: [String] = []
         
+        // GÜNCELLEME: Türkçe metinler yerine çeviri anahtarları kullanılıyor
         if vm.selectedEmojiVariant == nil {
-            conditions.append("• Bir mod seçmelisin.")
+            conditions.append("validation.selectMood")
         }
         
         if vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count < 10 {
-            conditions.append("• En az 10 karakter girmelisin.")
+            conditions.append("validation.minChars")
         }
-
+        
         if vm.text.trimmingCharacters(in: .whitespacesAndNewlines).count > 500 {
-            conditions.append("• Notun 500 karakteri geçmemeli.")
+            conditions.append("validation.maxChars")
         }
         
         withAnimation(.easeInOut) {
@@ -455,7 +460,7 @@ private struct PlaceholderTextEditor: View {
                 .accessibilityLabel(Text(placeholder))
 
             if text.isEmpty {
-                Text(placeholder)
+                Text(LocalizedStringKey(placeholder))
                     .foregroundStyle(Theme.textSec)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 12)
@@ -540,11 +545,11 @@ struct BreathingExerciseView: View {
 }
 
 private struct SaveToast: View {
-    let text: String
+    let textKey: LocalizedStringKey
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: "checkmark.circle.fill")
-            Text(text).font(.callout.weight(.semibold))
+            Text(textKey).font(.callout.weight(.semibold))
         }
         .padding(.horizontal, 14).padding(.vertical, 10)
         .background(.ultraThinMaterial)
@@ -558,76 +563,75 @@ enum MoodEmojiCatalog {
     struct Item: Identifiable, Hashable {
         let id = UUID()
         let emoji: String
-        let title: String
+        let title: String // Bu artık bir anahtar (key)
     }
     
-    // Farklı hisleri temsil eden geniş bir emoji yelpazesi (her biri kendi ismiyle)
     static let all: [Item] = [
         // Mutlu tonlar
-        .init(emoji: "😀", title: "Neşeli"),
-        .init(emoji: "😄", title: "Keyifli"),
-        .init(emoji: "😁", title: "Güleryüzlü"),
-        .init(emoji: "😊", title: "Memnun"),
-        .init(emoji: "🙂", title: "Tatlı Gülümseme"),
-        .init(emoji: "😎", title: "Kendinden Emin"),
-        .init(emoji: "🥳", title: "Kutlama Modu"),
-        .init(emoji: "🤗", title: "Sıcak Kalpli"),
+        .init(emoji: "😀", title: "emoji.joyful"),
+        .init(emoji: "😄", title: "emoji.cheerful"),
+        .init(emoji: "😁", title: "emoji.smiling"),
+        .init(emoji: "😊", title: "emoji.pleased"),
+        .init(emoji: "🙂", title: "emoji.slightSmile"),
+        .init(emoji: "😎", title: "emoji.confident"),
+        .init(emoji: "🥳", title: "emoji.celebrating"),
+        .init(emoji: "🤗", title: "emoji.warmHearted"),
         
         // Sakin / rahat tonlar
-        .init(emoji: "😌", title: "Sakin"),
-        .init(emoji: "🧘‍♀️", title: "Rahatlamış"),
-        .init(emoji: "🌿", title: "Doğayla İç İçe"),
-        .init(emoji: "🫶", title: "Şükreden"),
-        .init(emoji: "💫", title: "Huzurlu"),
+        .init(emoji: "😌", title: "emoji.calm"),
+        .init(emoji: "🧘‍♀️", title: "emoji.relaxed"),
+        .init(emoji: "🌿", title: "emoji.inNature"),
+        .init(emoji: "🫶", title: "emoji.grateful"),
+        .init(emoji: "💫", title: "emoji.peaceful"),
         
         // Üzgün tonlar
-        .init(emoji: "😔", title: "Üzgün"),
-        .init(emoji: "😢", title: "Kırılmış"),
-        .init(emoji: "😭", title: "Gözyaşı Döküyor"),
-        .init(emoji: "🥺", title: "Kırılgan"),
-        .init(emoji: "😞", title: "Hayal Kırıklığı"),
+        .init(emoji: "😔", title: "emoji.sad"),
+        .init(emoji: "😢", title: "emoji.hurt"),
+        .init(emoji: "😭", title: "emoji.crying"),
+        .init(emoji: "🥺", title: "emoji.vulnerable"),
+        .init(emoji: "😞", title: "emoji.disappointed"),
         
         // Stresli / yorgun tonlar
-        .init(emoji: "🥱", title: "Uykulu"),
-        .init(emoji: "😪", title: "Yorgun"),
-        .init(emoji: "😵‍💫", title: "Kafa Karışık"),
-        .init(emoji: "😫", title: "Bitkin"),
-        .init(emoji: "🤯", title: "Patlamak Üzere"),
+        .init(emoji: "🥱", title: "emoji.sleepy"),
+        .init(emoji: "😪", title: "emoji.tired"),
+        .init(emoji: "😵‍💫", title: "emoji.confused"),
+        .init(emoji: "😫", title: "emoji.exhausted"),
+        .init(emoji: "🤯", title: "emoji.aboutToBurst"),
         
         // Öfkeli tonlar
-        .init(emoji: "😠", title: "Kızgın"),
-        .init(emoji: "😡", title: "Çok Sinirli"),
-        .init(emoji: "🤬", title: "Öfke Patlaması"),
-        .init(emoji: "💢", title: "Gerilmiş"),
+        .init(emoji: "😠", title: "emoji.angry"),
+        .init(emoji: "😡", title: "emoji.furious"),
+        .init(emoji: "🤬", title: "emoji.enraged"),
+        .init(emoji: "💢", title: "emoji.tense"),
         
         // Kaygılı tonlar
-        .init(emoji: "😬", title: "Tedirgin"),
-        .init(emoji: "😰", title: "Kaygılı"),
-        .init(emoji: "😨", title: "Korkmuş"),
-        .init(emoji: "🫨", title: "Endişeli"),
-        .init(emoji: "😟", title: "İç Çekiyor"),
+        .init(emoji: "😬", title: "emoji.uneasy"),
+        .init(emoji: "😰", title: "emoji.anxious"),
+        .init(emoji: "😨", title: "emoji.scared"),
+        .init(emoji: "🫨", title: "emoji.worried"),
+        .init(emoji: "😟", title: "emoji.sighing"),
         
         // Hasta / rahatsız tonlar
-        .init(emoji: "🤒", title: "Ateşli"),
-        .init(emoji: "🤕", title: "Ağrılı"),
-        .init(emoji: "🤧", title: "Üşütmüş"),
-        .init(emoji: "🥴", title: "Sersemlemiş"),
-        .init(emoji: "😷", title: "Maskeli Hasta"),
+        .init(emoji: "🤒", title: "emoji.feverish"),
+        .init(emoji: "🤕", title: "emoji.inPain"),
+        .init(emoji: "🤧", title: "emoji.feelingSick"),
+        .init(emoji: "🥴", title: "emoji.woozy"),
+        .init(emoji: "😷", title: "emoji.sickMasked"),
         
         // Eğlenceli / deli dolu tonlar
-        .init(emoji: "🤪", title: "Deli Doluyum"),
-        .init(emoji: "😜", title: "Yaramaz"),
-        .init(emoji: "😋", title: "Lezzetli Anlar"),
-        .init(emoji: "🤩", title: "Aşırı Heyecanlı"),
-        .init(emoji: "✨", title: "Parlıyorum"),
-        .init(emoji: "🙃", title: "Tersine Gülen"),
-        .init(emoji: "😏", title: "Kendine Güvenen"),
+        .init(emoji: "🤪", title: "emoji.goofy"),
+        .init(emoji: "😜", title: "emoji.mischievous"),
+        .init(emoji: "😋", title: "emoji.yummy"),
+        .init(emoji: "🤩", title: "emoji.excited"),
+        .init(emoji: "✨", title: "emoji.sparkling"),
+        .init(emoji: "🙃", title: "emoji.silly"),
+        .init(emoji: "😏", title: "emoji.smug"),
         
         // Nötr / kararsız
-        .init(emoji: "😐", title: "Nötr"),
-        .init(emoji: "😶", title: "Sessiz"),
-        .init(emoji: "🤔", title: "Düşünceli"),
-        .init(emoji: "🫤", title: "Kararsız"),
-        .init(emoji: "😑", title: "İlgisiz")
+        .init(emoji: "😐", title: "emoji.neutral"),
+        .init(emoji: "😶", title: "emoji.silent"),
+        .init(emoji: "🤔", title: "emoji.thoughtful"),
+        .init(emoji: "🫤", title: "emoji.undecided"),
+        .init(emoji: "😑", title: "emoji.indifferent")
     ]
 }
