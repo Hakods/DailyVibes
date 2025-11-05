@@ -124,52 +124,93 @@ enum Mood: String, Codable, CaseIterable, Identifiable {
 
 extension Array where Element == DayEntry {
     
-    /// DayEntry dizisini CSV formatında bir String'e dönüştürür.
-    func toCSV() -> String {
-        // Tarih formatlayıcıyı Türkçe ayarlarla oluşturalım
+    /// DayEntry dizisini, belirtilen dile göre lokalize edilmiş bir CSV String'e dönüştürür.
+    func toCSV(locale: Locale, bundle: Bundle) -> String {
+        
+        // 1. Tarih Formatlayıcıyı Lokalize Et
         let dateFormatter: DateFormatter = {
             let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss" // ISO benzeri, sıralama için uygun
-            formatter.locale = Locale(identifier: "tr_TR")
-            formatter.timeZone = TimeZone.current // Kullanıcının saat dilimi
+            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            formatter.locale = locale // <-- GÜNCELLENDİ
+            formatter.timeZone = TimeZone.current
             return formatter
         }()
         
-        // Başlık satırı
-        let header = "ID,Gün,Planlanan Zaman,Bitiş Zamanı,Durum,Erken Cevap İzni,Puan,Emoji Kodu,Emoji Başlığı,Not\n"
+        // 2. Başlık Satırını Lokalize Et
+        // (NSLocalizedString kullanarak 'bundle'dan anahtarları çeker)
+        let header = [
+            NSLocalizedString("csv.header.id", bundle: bundle, comment: "CSV Header"),
+            NSLocalizedString("csv.header.day", bundle: bundle, comment: "CSV Header"),
+            NSLocalizedString("csv.header.scheduledAt", bundle: bundle, comment: "CSV Header"),
+            NSLocalizedString("csv.header.expiresAt", bundle: bundle, comment: "CSV Header"),
+            NSLocalizedString("csv.header.status", bundle: bundle, comment: "CSV Header"),
+            NSLocalizedString("csv.header.allowEarlyAnswer", bundle: bundle, comment: "CSV Header"),
+            NSLocalizedString("csv.header.score", bundle: bundle, comment: "CSV Header"),
+            NSLocalizedString("csv.header.emojiVariant", bundle: bundle, comment: "CSV Header"),
+            NSLocalizedString("csv.header.emojiTitle", bundle: bundle, comment: "CSV Header"),
+            NSLocalizedString("csv.header.note", bundle: bundle, comment: "CSV Header")
+        ].joined(separator: ",") + "\n"
         
-        // Her bir DayEntry için veri satırlarını oluştur
+        // 3. Lokalize Edilmiş Değer Anahtarları
+        let yesKey = NSLocalizedString("csv.value.yes", bundle: bundle, comment: "CSV Value")
+        let noKey = NSLocalizedString("csv.value.no", bundle: bundle, comment: "CSV Value")
+        let noneLabelKey = NSLocalizedString("csv.value.notSpecified", bundle: bundle, comment: "CSV Value")
+        let noNoteKey = NSLocalizedString("csv.value.noNote", bundle: bundle, comment: "CSV Value")
+        
+        // 4. Veri Satırlarını Oluştur
         let dataRows = self.map { entry -> String in
-            // Not alanındaki virgül ve tırnak işaretlerinden kaçınma (CSV standardı)
-            let safeText = escapeCSVField(entry.text ?? "")
             
-            // Verileri birleştir, opsiyonel değerler için boş string kullan
+            // Emoji Başlığını Lokalize Et (entry.emojiTitle zaten anahtarı tutuyordu)
+            let localizedEmojiTitle = NSLocalizedString(entry.emojiTitle ?? noneLabelKey, bundle: bundle, comment: "Emoji title for CSV")
+            
+            // Durumu Lokalize Et (enum'dan anahtara, oradan çeviriye)
+            let localizedStatus = self.localizedStatus(from: entry.status, bundle: bundle)
+            
+            // Notu Lokalize Et
+            let note = (entry.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false) ? entry.text! : noNoteKey
+            let safeText = escapeCSVField(note)
+            
+            // Verileri birleştir
             return [
                 entry.id.uuidString,
                 dateFormatter.string(from: entry.day),
                 dateFormatter.string(from: entry.scheduledAt),
                 dateFormatter.string(from: entry.expiresAt),
-                entry.status.rawValue,
-                entry.allowEarlyAnswer ? "Evet" : "Hayır",
-                entry.score.map { String($0) } ?? "", // Puanı string'e çevir veya boş bırak
+                localizedStatus,
+                entry.allowEarlyAnswer ? yesKey : noKey,
+                entry.score.map { String($0) } ?? noneLabelKey,
                 entry.emojiVariant ?? "",
-                entry.emojiTitle ?? "",
-                safeText // Kaçınılmış not metni
-            ].joined(separator: ",") // Virgülle ayır
-        }.joined(separator: "\n") // Satırları yeni satır karakteriyle birleştir
+                escapeCSVField(localizedEmojiTitle), // Emoji başlıklarında virgül olabilir
+                safeText
+            ].joined(separator: ",")
+        }.joined(separator: "\n")
         
         return header + dataRows
     }
     
-    /// CSV alanlarındaki özel karakterlerden kaçınır (tırnak içine alır ve çift tırnakları iki katına çıkarır).
+    /// (YARDIMCI) EntryStatus enum'ını lokalize edilmiş string'e çevirir.
+    private func localizedStatus(from status: EntryStatus, bundle: Bundle) -> String {
+        let key: String
+        switch status {
+        case .answered:
+            key = "Status.answered" // "Cevaplandı"
+        case .missed:
+            key = "Status.missed" // "Kaçırıldı"
+        case .late:
+            key = "Status.late" // "Geç Cevap"
+        case .pending:
+            key = "Status.pending" // "Beklemede"
+        }
+        // Zaten .xcstrings içinde olan anahtarları kullanıyoruz
+        return NSLocalizedString(key, bundle: bundle, comment: "Entry status for CSV")
+    }
+    
+    /// CSV alanlarındaki özel karakterlerden kaçınır (bu fonksiyon aynı kaldı).
     private func escapeCSVField(_ field: String) -> String {
-        // Alan virgül, çift tırnak veya yeni satır içeriyorsa
         if field.contains(",") || field.contains("\"") || field.contains("\n") {
-            // Çift tırnakları iki katına çıkar ve tüm alanı çift tırnak içine al
             let escapedField = field.replacingOccurrences(of: "\"", with: "\"\"")
             return "\"\(escapedField)\""
         } else {
-            // Özel karakter yoksa olduğu gibi döndür
             return field
         }
     }

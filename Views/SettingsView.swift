@@ -114,6 +114,15 @@ struct SettingsView: View {
                 // MARK: - Planlama Bilgisi
                 Section {
                     PlanningInfoView()
+                    Button {
+                        Task {
+                            await schedule.planAdminOneMinute()
+                        }
+                    } label: {
+                        Label("Test Bildirimi (1 dk)", systemImage: "timer")
+                            .foregroundStyle(Theme.warn)
+                    }
+                    
                 } header: {
                     Text("📅 Planlama")
                 } footer: {
@@ -228,7 +237,24 @@ struct SettingsView: View {
                     return
                 }
                 
-                let csvString = entries.sorted { $0.day < $1.day }.toCSV()
+                let langCode = languageSettings.selectedLanguageCode
+                let currentLocale: Locale
+                let currentBundle: Bundle
+                
+                if langCode == "system" {
+                    currentLocale = Locale.autoupdatingCurrent
+                    currentBundle = .main
+                } else {
+                    currentLocale = Locale(identifier: langCode)
+                    if let path = Bundle.main.path(forResource: langCode, ofType: "lproj"),
+                       let langBundle = Bundle(path: path) {
+                        currentBundle = langBundle
+                    } else {
+                        currentBundle = .main
+                    }
+                }
+                
+                let csvString = entries.sorted { $0.day < $1.day }.toCSV(locale: currentLocale, bundle: currentBundle)
                 guard let data = csvString.data(using: .utf8) else {
                     throw NSError(domain: "CSVEncoding", code: -1, userInfo: [NSLocalizedDescriptionKey: "CSV UTF-8'e çevrilemedi"])
                 }
