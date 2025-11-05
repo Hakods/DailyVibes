@@ -16,9 +16,15 @@ final class AIService {
     private let model: GenerativeModel
     
     init() {
+        let apiKey = APIKeyLoader.loadAPIKey(named: "GEMINI_API_KEY")
+        
         let ai = FirebaseAI.firebaseAI(backend: .googleAI())
-        self.model = ai.generativeModel(modelName: "gemini-2.5-flash")
-        print("✅ AIService, 'gemini-2.5-flash' ile başarıyla başlatıldı.")
+        
+        self.model = ai.generativeModel(
+            modelName: "gemini-2.5-flash",
+            apiKey: apiKey
+        )
+        print("✅ AIService, 'gemini-2.5-flash' ile GÜVENLİ anahtarla başarıyla başlatıldı.")
     }
     
     func askAIStream(
