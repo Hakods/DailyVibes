@@ -157,7 +157,7 @@ final class CoachVM: ObservableObject {
             let mode: AIService.Mode = self.isCreative ? .creative : .balanced
             
             let responseStream = self.aiService.askAIStream(
-                question: question,
+                chatHistory: chatMessages,
                 entries: entries,
                 mode: mode,
                 style: style,

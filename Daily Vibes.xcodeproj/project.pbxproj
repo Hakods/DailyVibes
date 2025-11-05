@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3C222A522EBB4BCC0098534C /* APIKeyLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C222A512EBB4BCC0098534C /* APIKeyLoader.swift */; };
-		3C222A562EBB4C510098534C /* Keys.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3C222A552EBB4C510098534C /* Keys.plist */; };
 		3C227EE62EB233B700EEF6C3 /* LegalTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C227EE52EB233B700EEF6C3 /* LegalTextView.swift */; };
 		3C294E2E2EB372F700B4E78A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 3C294E2D2EB372F700B4E78A /* FirebaseAppCheck */; };
 		3C2B39DF2EA65AE000D8E5AB /* TestStore.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 3C2B39DE2EA65AE000D8E5AB /* TestStore.storekit */; };
@@ -59,8 +57,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3C222A512EBB4BCC0098534C /* APIKeyLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeyLoader.swift; sourceTree = "<group>"; };
-		3C222A552EBB4C510098534C /* Keys.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Keys.plist; sourceTree = "<group>"; };
 		3C227EE52EB233B700EEF6C3 /* LegalTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegalTextView.swift; sourceTree = "<group>"; };
 		3C294E2F2EB3733F00B4E78A /* Daily Vibes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Daily Vibes.entitlements"; sourceTree = "<group>"; };
 		3C2B39DE2EA65AE000D8E5AB /* TestStore.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestStore.storekit; sourceTree = "<group>"; };
@@ -135,7 +131,6 @@
 		3C96F0342E85555700BB73A9 = {
 			isa = PBXGroup;
 			children = (
-				3C222A552EBB4C510098534C /* Keys.plist */,
 				3CFD9B602EB383F4009C3D62 /* Localizable.xcstrings */,
 				3C294E2F2EB3733F00B4E78A /* Daily Vibes.entitlements */,
 				3CA2CB2B2EBB55470068F72E /* Release.entitlements */,
@@ -224,7 +219,6 @@
 		3C96F0532E85567300BB73A9 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				3C222A512EBB4BCC0098534C /* APIKeyLoader.swift */,
 				3CEDF5112E9E6A3100595983 /* ThemeManager.swift */,
 				3CC8D0DD2E9525A800C5A259 /* AnimatedAuroraBackground.swift */,
 				3CC8D0D82E9414FC00C5A259 /* Formatters.swift */,
@@ -317,7 +311,6 @@
 				3C2B39DF2EA65AE000D8E5AB /* TestStore.storekit in Resources */,
 				3CFD9B612EB383F4009C3D62 /* Localizable.xcstrings in Resources */,
 				3CCCE12B2EA0FEA500BC7727 /* GoogleService-Info.plist in Resources */,
-				3C222A562EBB4C510098534C /* Keys.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -363,7 +356,6 @@
 				3CCCE1342EA1048800BC7727 /* CoachVM.swift in Sources */,
 				3CB610CC2EA914F800508731 /* SummaryVM.swift in Sources */,
 				3CC8D0D22E94136B00C5A259 /* Card.swift in Sources */,
-				3C222A522EBB4BCC0098534C /* APIKeyLoader.swift in Sources */,
 				3C96F0812E8559AF00BB73A9 /* TimeWindow.swift in Sources */,
 				3C96F0822E8559AF00BB73A9 /* FileDayEntryRepository.swift in Sources */,
 				3C96F0832E8559AF00BB73A9 /* DayEntryRepository.swift in Sources */,

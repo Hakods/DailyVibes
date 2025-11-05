@@ -16,19 +16,13 @@ final class AIService {
     private let model: GenerativeModel
     
     init() {
-        let apiKey = APIKeyLoader.loadAPIKey(named: "GEMINI_API_KEY")
-        
         let ai = FirebaseAI.firebaseAI(backend: .googleAI())
-        
-        self.model = ai.generativeModel(
-            modelName: "gemini-2.5-flash",
-            apiKey: apiKey
-        )
-        print("✅ AIService, 'gemini-2.5-flash' ile GÜVENLİ anahtarla başarıyla başlatıldı.")
+        self.model = ai.generativeModel(modelName: "gemini-2.5-flash")
+        print("✅ AIService, 'gemini-2.5-flash' ile başarıyla başlatıldı.")
     }
     
     func askAIStream(
-        question: String,
+        chatHistory: [ChatMessage],
         entries: [DayEntry],
         mode: Mode,
         style: ResponseStyle,
@@ -40,7 +34,7 @@ final class AIService {
         let content = PromptContent(languageCode: languageCode)
         let scoped = scopeEntries(entries, lastDays: useLastDays, lastCount: useLastCount)
         
-        let prompt = buildPrompt(question: question, entries: scoped, mode: mode, style: style, content: content)
+        let prompt = buildPrompt(chatHistory: chatHistory, entries: scoped, mode: mode, style: style, content: content)
         
         return AsyncThrowingStream { continuation in
             Task {
@@ -68,9 +62,8 @@ final class AIService {
         return result
     }
     
-    // GÜNCELLENDİ: 'content' objesini parametre olarak alır
     private func buildPrompt(
-        question: String,
+        chatHistory: [ChatMessage],
         entries: [DayEntry],
         mode: Mode,
         style: ResponseStyle,
@@ -86,8 +79,10 @@ final class AIService {
         dateFormatter.locale = content.locale
         let todayString = dateFormatter.string(from: Date())
         
+        let lastQuestion = chatHistory.last?.text ?? ""
+        
         // GÜNCELLENDİ: Soru analizini dile göre yap
-        let lowerQuestion = question.lowercased()
+        let lowerQuestion = lastQuestion.lowercased()
         var questionType = "analysis"
         if content.generalGreetings.contains(where: { lowerQuestion.contains($0) }) {
             questionType = "greeting"
@@ -127,6 +122,8 @@ final class AIService {
             ----
             """ : ""
         
+        let historyText = formatChatHistory(chatHistory, locale: content.locale)
+        
         // GÜNCELLENDİ: Ana prompt'un tamamı artık 'content' objesinden geliyor
         return """
             \(content.systemRole)
@@ -142,8 +139,23 @@ final class AIService {
             
             \(userDataSection)
             
-            \(content.userQuestionHeader): "\(question)"
+            \(content.chatHistoryHeader)
+            \(historyText)
             """
+    }
+    
+    
+    private func formatChatHistory(_ messages: [ChatMessage], locale: Locale) -> String {
+        let langID = locale.language.languageCode?.identifier ?? "en"
+        let userLabel = (langID == "tr") ? "Kullanıcı" : "User"
+        let modelLabel = (langID == "tr") ? "Koç" : "Coach"
+      
+        return messages.dropFirst()
+            .map { message in
+                let label = message.isFromUser ? userLabel : modelLabel
+                return "\(label): \(message.text)"
+            }
+            .joined(separator: "\n\n")
     }
     
     // GÜNCELLENDİ: 'locale' parametresi eklendi
@@ -259,7 +271,7 @@ private struct PromptContent {
     let userDataInfoOmitted: String
     let userDataHeader: String
     let userDataEmpty: String
-    let userQuestionHeader: String
+    let chatHistoryHeader: String
     
     // --- Soru Tipleri (Keywords) ---
     let specificDataKeywords: [String]
@@ -323,7 +335,7 @@ private struct PromptContent {
             userDataInfoOmitted = "Bu soru için kullanıcı verileri kullanılmamaktadır."
             userDataHeader = "KULLANICI VERİLERİ (Referans için)"
             userDataEmpty = "Henüz analiz edilecek kayıt yok."
-            userQuestionHeader = "KULLANICININ SORUSU"
+            chatHistoryHeader = "KONUŞMA GEÇMİŞİ:"
             
             specificDataKeywords = ["dün", "geçen hafta", "hangi gün", "kaç kere", "listele", "ne zaman", "skoru", "puanı", "modu", "notu", "kaçtı"]
             analysisKeywords = ["neden", "nasıl", "analiz", "tavsiye", "sebep", "hissetmemin", "sence", "yorumla", "psikolog", "içgörü"]
@@ -369,7 +381,7 @@ private struct PromptContent {
             userDataInfoOmitted = "User data is not being used for this question."
             userDataHeader = "USER DATA (For Reference)"
             userDataEmpty = "No entries available to analyze yet."
-            userQuestionHeader = "USER'S QUESTION"
+            chatHistoryHeader = "CONVERSATION HISTORY:"
             
             specificDataKeywords = ["yesterday", "last week", "which day", "how many times", "list", "when", "score", "rating", "mood", "note", "what was"]
             analysisKeywords = ["why", "how", "analyze", "advice", "reason", "feeling", "what do you think", "interpret", "psychologist", "insight"]
