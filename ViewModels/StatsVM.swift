@@ -42,6 +42,9 @@ final class StatsVM: ObservableObject {
     private let repo: DayEntryRepository
     private var cancellable: AnyCancellable?
     
+    private(set) var currentLocale: Locale = Locale.autoupdatingCurrent
+    private(set) var currentBundle: Bundle = .main
+    
     init(repo: DayEntryRepository? = nil) {
         self.repo = repo ?? RepositoryProvider.shared.dayRepo
         loadStats()
@@ -53,6 +56,26 @@ final class StatsVM: ObservableObject {
             }
     }
     
+    func updateLanguage(langCode: String) {
+        let newCode: String
+        if langCode == "system" {
+            newCode = Bundle.main.preferredLocalizations.first ?? "en"
+            self.currentLocale = Locale.autoupdatingCurrent
+        } else {
+            newCode = langCode
+            self.currentLocale = Locale(identifier: newCode)
+        }
+        
+        if let path = Bundle.main.path(forResource: newCode, ofType: "lproj"),
+           let bundle = Bundle(path: path) {
+            self.currentBundle = bundle
+        } else {
+            self.currentBundle = .main
+        }
+        
+        loadStats()
+    }
+    
     func loadStats() {
         guard let entries = try? repo.load() else { return }
         
@@ -61,13 +84,15 @@ final class StatsVM: ObservableObject {
         
         var moodCounts: [String: MoodStat] = [:]
         for entry in answeredEntries {
-            guard let title = entry.emojiTitle, let emoji = entry.emojiVariant else { continue }
+            guard let titleKey = entry.emojiTitle, let emoji = entry.emojiVariant else { continue }
+     
+            let localizedTitle = NSLocalizedString(titleKey, bundle: self.currentBundle, comment: "Mood title for stats")
             
-            if var stat = moodCounts[title] {
+            if var stat = moodCounts[titleKey] {
                 stat.count += 1
-                moodCounts[title] = stat
+                moodCounts[titleKey] = stat
             } else {
-                moodCounts[title] = MoodStat(emoji: emoji, title: title, count: 1)
+                moodCounts[titleKey] = MoodStat(emoji: emoji, title: localizedTitle, count: 1)
             }
         }
         self.moodStats = moodCounts.values.sorted { $0.count > $1.count }
@@ -95,8 +120,13 @@ final class StatsVM: ObservableObject {
     }
     
     private func calculateDayOfWeekStats(from entries: [DayEntry]) {
-        let calendar = Calendar.current
-        let weekdaySymbols = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"] // Türkçe ve sıralı
+        let calendar = self.currentLocale.calendar
+        var weekdaySymbols = self.currentLocale.calendar.shortWeekdaySymbols
+        
+        if weekdaySymbols.count == 7 {
+            let firstDay = weekdaySymbols.removeFirst()
+            weekdaySymbols.append(firstDay)
+        }
         
         let scoresByWeekday = Dictionary(grouping: entries.compactMap { $0.score != nil ? $0 : nil }) { entry -> Int in
             let weekday = calendar.component(.weekday, from: entry.day)

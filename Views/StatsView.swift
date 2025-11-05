@@ -11,6 +11,7 @@ import Charts
 
 struct StatsView: View {
     @StateObject private var vm = StatsVM()
+    @EnvironmentObject var languageSettings: LanguageSettings
     
     var body: some View {
         NavigationView {
@@ -37,7 +38,7 @@ struct StatsView: View {
                         }
                         
                         if !vm.scoreStats.isEmpty {
-                            ScoreTimelineCard(scoreStats: vm.scoreStats)
+                            ScoreTimelineCard(scoreStats: vm.scoreStats, locale: vm.currentLocale)
                         }
                         
                         if vm.moodStats.isEmpty && vm.scoreStats.isEmpty {
@@ -47,8 +48,14 @@ struct StatsView: View {
                     .padding()
                 }
                 .background(Color.clear)
-                .navigationTitle("İstatistikler")
-                .toolbar { Button("Yenile") { vm.loadStats() } }
+                .navigationTitle(LocalizedStringKey("stats.nav.title"))
+                .toolbar { Button(LocalizedStringKey("button.refresh")) { vm.loadStats() } }
+                .onAppear {
+                    vm.updateLanguage(langCode: languageSettings.selectedLanguageCode)
+                }
+                .onChange(of: languageSettings.selectedLanguageCode) { _, newLangCode in
+                    vm.updateLanguage(langCode: newLangCode)
+                }
             }
         }
     }
@@ -104,7 +111,7 @@ private struct HighlightsCard: View {
                             Text(entry.emojiVariant ?? "✨")
                                 .font(.title)
                             VStack(alignment: .leading) {
-                                Text(entry.emojiTitle ?? "Harika Bir Gün")
+                                Text(LocalizedStringKey(entry.emojiTitle ?? "emoji.joyful"))
                                     .font(.subheadline.bold())
                                 Text(entry.day.formatted(date: .abbreviated, time: .omitted))
                                     .font(.caption)
@@ -198,13 +205,14 @@ private struct MoodDistributionCard: View {
 // --- GÜNCELLEME BURADA ---
 private struct ScoreTimelineCard: View {
     let scoreStats: [ScoreStat]
+    let locale: Locale
     
     // YENİ: Türkçe tarih formatını burada tanımlıyoruz.
-    private var turkishDateFormat: Date.FormatStyle {
+    private var dynamicDateFormat: Date.FormatStyle {
         return .dateTime
             .month(.abbreviated)
             .day()
-            .locale(Locale(identifier: "tr_TR"))
+            .locale(locale)
     }
     
     var body: some View {
@@ -229,12 +237,10 @@ private struct ScoreTimelineCard: View {
                     .foregroundStyle(LinearGradient(colors: [Theme.accent.opacity(0.5), .clear], startPoint: .top, endPoint: .bottom))
                 }
                 .chartYScale(domain: 0...10)
-                // GÜNCELLEME: X ekseni formatlaması yeni yönteme göre düzeltildi.
                 .chartXAxis {
                     AxisMarks(values: .automatic(desiredCount: 5)) { value in
                         AxisGridLine()
-                        // Önceden hazırladığımız Türkçe formatı burada kullanıyoruz.
-                        AxisValueLabel(format: turkishDateFormat)
+                        AxisValueLabel(format: dynamicDateFormat)
                     }
                 }
                 .frame(height: 200)

@@ -2409,6 +2409,7 @@
       }
     },
     "İstatistikler" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2438,6 +2439,22 @@
         }
       }
     },
+    "stats.nav.title" : {
+          "localizations" : {
+            "en" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "Statistics"
+              }
+            },
+            "tr" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "İstatistikler"
+              }
+            }
+          }
+        },
     "Kafa Karışık" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3719,6 +3736,9 @@
         }
       }
     },
+    "stats.nav.title" : {
+
+    },
     "Status.answered" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4453,6 +4473,7 @@
       }
     },
     "Yenile" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
