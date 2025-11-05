@@ -85,6 +85,7 @@
 		3C96F0892E855C6700BB73A9 /* TodayVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayVM.swift; sourceTree = "<group>"; };
 		3C96F08B2E855F1800BB73A9 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		3C96F08D2E856C6000BB73A9 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		3CA2CB2B2EBB55470068F72E /* Release.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Release.entitlements; sourceTree = "<group>"; };
 		3CA7FBCB2EB4ADE300059D61 /* LanguageSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSettings.swift; sourceTree = "<group>"; };
 		3CB610CA2EA790A700508731 /* Daily-Vibes-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Daily-Vibes-Info.plist"; sourceTree = "<group>"; };
 		3CB610CB2EA914F800508731 /* SummaryVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryVM.swift; sourceTree = "<group>"; };
@@ -137,6 +138,7 @@
 				3C222A552EBB4C510098534C /* Keys.plist */,
 				3CFD9B602EB383F4009C3D62 /* Localizable.xcstrings */,
 				3C294E2F2EB3733F00B4E78A /* Daily Vibes.entitlements */,
+				3CA2CB2B2EBB55470068F72E /* Release.entitlements */,
 				3CB610CA2EA790A700508731 /* Daily-Vibes-Info.plist */,
 				3C2B39DE2EA65AE000D8E5AB /* TestStore.storekit */,
 				3CEDF50D2E9E42F500595983 /* PersistenceController.swift */,
@@ -538,7 +540,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "Daily Vibes.entitlements";
+				CODE_SIGN_ENTITLEMENTS = Release.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
