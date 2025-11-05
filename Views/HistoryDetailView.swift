@@ -108,7 +108,7 @@ struct HistoryDetailView: View {
                     } else {
                         // Not yoksa boş durumu gösteren bir kart
                         Card {
-                            Label("Bu gün için not eklenmemiş.", systemImage: "text.slash")
+                            Label("Bu gün için not eklenmemiş.", systemImage: "text.badge.xmark")
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .foregroundStyle(Theme.textSec)
                                 .padding(.vertical)

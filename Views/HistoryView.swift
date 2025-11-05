@@ -150,10 +150,25 @@ struct HistoryView: View {
 // MARK: - Header: Özet
 
 private struct SummaryHeader: View {
+    @EnvironmentObject var languageSettings: LanguageSettings
+    
     let entries: [DayEntry]
     let locale: Locale
     
     var body: some View {
+        let bundle: Bundle = {
+            let langCode = languageSettings.selectedLanguageCode
+            if langCode == "system" {
+                return .main
+            }
+            
+            if let path = Bundle.main.path(forResource: langCode, ofType: "lproj"),
+               let langBundle = Bundle(path: path) {
+                return langBundle
+            }
+            return .main
+        }()
+        
         let today = Calendar.current.startOfDay(for: Date())
         let answered = entries.filter { $0.status == .answered }.count
         let missed   = entries.filter { $0.status == .missed }.count
@@ -168,7 +183,8 @@ private struct SummaryHeader: View {
                 MetricCard(titleKey: "history.metric.answered", value: "\(answered)", subtitleKey: "history.metric.total")
                 MetricCard(titleKey: "history.metric.missed", value: "\(missed)", subtitleKey: "history.metric.total")
                 if pendingToday {
-                    MetricCard(titleKey: "history.metric.today", value: NSLocalizedString("history.metric.pending", comment:""), subtitleKey: "history.metric.pending.sub")
+                    let pendingValue = NSLocalizedString("history.metric.pending", bundle: bundle, comment: "")
+                    MetricCard(titleKey: "history.metric.today", value: pendingValue, subtitleKey: "history.metric.pending.sub")
                 }
             }
             .padding(.horizontal, 16)
