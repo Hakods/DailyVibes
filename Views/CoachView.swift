@@ -12,6 +12,7 @@ struct CoachView: View {
     
     @EnvironmentObject var store: StoreService
     @EnvironmentObject var languageSettings: LanguageSettings
+    @EnvironmentObject var themeManager: ThemeManager
     
     @FocusState private var isTextFieldFocused: Bool
     @State private var showSettings = false
@@ -85,6 +86,7 @@ struct CoachView: View {
             .sheet(isPresented: $vm.showPaywall) {
                 PaywallView(vm: PaywallVM(store: self.store))
                     .environmentObject(self.store)
+                    .environmentObject(self.themeManager)
             }
             .sheet(isPresented: $showSettings) {
                 CoachSettingsView(vm: vm)

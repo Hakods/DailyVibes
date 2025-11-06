@@ -10,6 +10,7 @@ struct SettingsView: View {
     @EnvironmentObject var schedule: ScheduleService
     @EnvironmentObject var store: StoreService
     @EnvironmentObject var languageSettings: LanguageSettings
+    @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.openURL) var openURL
     
     @StateObject private var vm = SettingsVM()
@@ -204,6 +205,7 @@ struct SettingsView: View {
             .sheet(isPresented: $showPaywallSheet) {
                 PaywallView(vm: PaywallVM(store: self.store))
                     .environmentObject(self.store)
+                    .environmentObject(self.themeManager)
             }
     }
     

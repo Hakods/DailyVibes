@@ -44,6 +44,7 @@ struct DailyVibesApp: App {
     @StateObject private var schedule = ScheduleService()
     @StateObject private var themeManager = ThemeManager()
     @StateObject private var languageSettings = LanguageSettings()
+    @State private var isDataReady: Bool = false
     
     init() {
         _store = StateObject(wrappedValue: RepositoryProvider.shared.store)
@@ -51,35 +52,51 @@ struct DailyVibesApp: App {
     
     var body: some Scene {
         WindowGroup {
-            Group {
-                if hasCompletedOnboarding {
-                    RootView()
-                        .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                        .environmentObject(store)
-                        .environmentObject(schedule)
-                        .environmentObject(themeManager)
-                        .environmentObject(languageSettings)
-                        .tint(Theme.accent)
-                        .background(Theme.bg)
-                        .preferredColorScheme(.light)
-                } else {
-                    OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
-                        .environmentObject(RepositoryProvider.shared.notification)
-                        .environmentObject(themeManager)
-                        .tint(Theme.accent)
-                        .background(Theme.bg)
-                        .preferredColorScheme(.light)
+            if isDataReady {
+                Group {
+                    if hasCompletedOnboarding {
+                        RootView()
+                            .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                            .environmentObject(store)
+                            .environmentObject(schedule)
+                            .environmentObject(themeManager)
+                            .environmentObject(languageSettings)
+                            .tint(Theme.accent)
+                            .background(Theme.bg)
+                            .preferredColorScheme(.light)
+                    }
+                    else {
+                        OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                            .environmentObject(RepositoryProvider.shared.notification)
+                            .environmentObject(themeManager)
+                            .tint(Theme.accent)
+                            .background(Theme.bg)
+                            .preferredColorScheme(.light)
+                    }
                 }
+                .environment(\.locale, languageSettings.computedLocale ?? Locale.autoupdatingCurrent)
+                .id(languageSettings.selectedLanguageCode)
+                
             }
-            .environment(\.locale, languageSettings.computedLocale ?? Locale.autoupdatingCurrent)
-            .id(languageSettings.selectedLanguageCode)
+            else {
+                ZStack {
+                    AnimatedAuroraBackground()
+                        .ignoresSafeArea()
+                    ProgressView()
+                        .scaleEffect(1.5)
+                }
+                .environmentObject(themeManager)
+            }
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
-            
             if newPhase == .active {
                 Task {
                     await schedule.planForNext(days: 14)
-                    print("Uygulama aktif oldu: Gelecek 14 gün için planlama kontrol edildi.")
+                    print("Uygulama aktif oldu: Gelecek 14 gün için planlama tamamlandı.")
+                    
+                    await MainActor.run {
+                        isDataReady = true
+                    }
                 }
             }
         }

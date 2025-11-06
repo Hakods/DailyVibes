@@ -20,7 +20,9 @@ struct TodayView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             AnimatedAuroraBackground()
-                .sheet(isPresented: $vm.showBreathingExercise) { BreathingExerciseView() }
+                .sheet(isPresented: $vm.showBreathingExercise) { BreathingExerciseView()
+                        .environmentObject(themeManager)
+                }
             
             ScrollViewReader { proxy in
                 ScrollView {
