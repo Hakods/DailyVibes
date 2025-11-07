@@ -36,7 +36,7 @@
       "localizations" : [
 
       ],
-      "name" : "Daily Vibes Pro",
+      "name" : "Vibe Mind Pro",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -59,7 +59,7 @@
           ],
           "productID" : "pro_monthly",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Daily Vibes Pro",
+          "referenceName" : "Vibe Mind Pro",
           "subscriptionGroupID" : "0D3A4444",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
@@ -87,7 +87,7 @@
           ],
           "productID" : "pro_yearly",
           "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "Daily Vibes Pro Yearly",
+          "referenceName" : "Vibe Mind Pro Yearly",
           "subscriptionGroupID" : "0D3A4444",
           "type" : "RecurringSubscription",
           "winbackOffers" : [

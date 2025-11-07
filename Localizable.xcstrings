@@ -82,7 +82,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "✨ Daily Vibes Pro"
+            "value" : "✨ Vibe Mind Pro"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✨ Vibe Mind Pro"
           }
         }
       }
@@ -92,7 +98,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "✨ Upgrade to Daily Vibes Pro"
+            "value" : "✨ Upgrade to Vibe Mind Pro"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✨ Vibe Mind Pro'ya Geçin"
           }
         }
       }
@@ -1029,7 +1041,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Get unlimited insights, special analyses, and more with Daily Vibes Pro."
+            "value" : "Get unlimited insights, special analyses, and more with Vibe Mind Pro."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vibe Mind Pro ile sınırsız içgörüye, özel analizlere ve daha fazlasına erişin."
           }
         }
       }
@@ -2643,13 +2661,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "**Privacy Policy**\n\nLast Updated: October 29, 2025\n\nThank you for using Daily Vibes. Your privacy is very important to us.\n\n**1. Data We Collect**\n\nWhen you use the app, the following data is stored ONLY locally on your device:\n* Your mood entries (emoji, rating, notes).\n* The timestamps of your entries.\n\n**2. Third-Party Data Sharing (Vibe Coach)**\n\nWhen you use the \"Vibe Coach\" feature, the following data is sent SECURELY to the Firebase AI (Google Gemini) service for analysis and response generation:\n* The mood, rating, and note texts from your past entries (if any).\n* The questions you ask the coach.\n\nThis data is processed subject to Google's privacy policies and is used solely to generate a response for you. Personally identifiable information (name, email, etc.) is not collected or sent.\n\n**3. Permissions**\n\n* **Notifications:** Notification permission is requested so the app can send you daily reminders (\"pings\").\n\n\n**4. Data Security**\n\nApart from the Vibe Coach feature, all your data is stored only on your own device using Core Data. No one else can access your data.\n\n**5. Contact**\n\nFor questions, please contact us at [dailyvibes.develop@gmail.com]."
+            "value" : "**Privacy Policy**\n\nLast Updated: October 29, 2025\n\nThank you for using Mind Vibe. Your privacy is very important to us.\n\n**1. Data We Collect**\n\nWhen you use the app, the following data is stored ONLY locally on your device:\n* Your mood entries (emoji, rating, notes).\n* The timestamps of your entries.\n\n**2. Third-Party Data Sharing (Vibe Coach)**\n\nWhen you use the “Vibe Coach\" feature, the following data is sent SECURELY to the Firebase AI (Google Gemini) service for analysis and response generation:\n* The mood, rating, and note texts from your past entries (if any).\n* The questions you ask the coach.\n\nThis data is processed subject to Google's privacy policies and is used solely to generate a response for you. Personally identifiable information (name, email, etc.) is not collected or sent.\n\n**3. Permissions**\n\n* **Notifications:** Notification permission is requested so the app can send you daily reminders (\"pings\").\n\n\n**4. Data Security**\n\nApart from the Vibe Coach feature, all your data is stored only on your own device using Core Data. No one else can access your data.\n\n**5. Contact**\n\nFor questions, please contact us at [vibemind.development@gmail.com]."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "**Gizlilik Politikası**\n\nSon Güncelleme: 29 Ekim 2025\n\nDaily Vibes'ı kullandığınız için teşekkür ederiz. Gizliliğiniz bizim için çok önemlidir.\n\n**1. Topladığımız Veriler**\n\nUygulamayı kullandığınızda aşağıdaki veriler SADECE cihazınızda yerel olarak saklanır:\n* Ruh hali girişleriniz (emoji, puan, notlar).\n* Girişlerinizin zaman damgaları.\n\n**2. Üçüncü Taraf Veri Paylaşımı (Vibe Koçu)**\n\n\"Vibe Koçu\" özelliğini kullandığınızda, analiz ve cevap üretilmesi amacıyla aşağıdaki veriler Firebase AI (Google Gemini) servisine GÜVENLİ BİR ŞEKİLDE gönderilir:\n* Geçmiş kayıtlarınızdaki ruh hali, puan ve not metinleri (eğer varsa).\n* Koça sorduğunuz sorular.\n\nBu veriler, Google'ın gizlilik politikalarına tabi olarak işlenir ve sadece size cevap üretmek amacıyla kullanılır. Kişisel tanımlayıcı bilgiler (isim, e-posta vb.) toplanmaz veya gönderilmez.\n\n**3. İzinler**\n\n* **Bildirimler:** Uygulamanın size günlük hatırlatma (\"ping\") gönderebilmesi için bildirim izni istenir.\n\n**4. Veri Güvenliği**\n\nVibe Koçu özelliği dışında, tüm verileriniz sadece kendi cihazınızda, Core Data kullanılarak saklanır. Verilerinize sizden başka kimse erişemez.\n\n**5. İletişim**\n\nSorularınız için lütfen [dailyvibes.develop@gmail.com] adresinden bize ulaşın."
+            "value" : "**Gizlilik Politikası**\n\nSon Güncelleme: 29 Ekim 2025\n\nVibe Mind’ı kullandığınız için teşekkür ederiz. Gizliliğiniz bizim için çok önemlidir.\n\n**1. Topladığımız Veriler**\n\nUygulamayı kullandığınızda aşağıdaki veriler SADECE cihazınızda yerel olarak saklanır:\n* Ruh hali girişleriniz (emoji, puan, notlar).\n* Girişlerinizin zaman damgaları.\n\n**2. Üçüncü Taraf Veri Paylaşımı (Vibe Koçu)**\n\n\"Vibe Koçu\" özelliğini kullandığınızda, analiz ve cevap üretilmesi amacıyla aşağıdaki veriler Firebase AI (Google Gemini) servisine GÜVENLİ BİR ŞEKİLDE gönderilir:\n* Geçmiş kayıtlarınızdaki ruh hali, puan ve not metinleri (eğer varsa).\n* Koça sorduğunuz sorular.\n\nBu veriler, Google'ın gizlilik politikalarına tabi olarak işlenir ve sadece size cevap üretmek amacıyla kullanılır. Kişisel tanımlayıcı bilgiler (isim, e-posta vb.) toplanmaz veya gönderilmez.\n\n**3. İzinler**\n\n* **Bildirimler:** Uygulamanın size günlük hatırlatma (\"ping\") gönderebilmesi için bildirim izni istenir.\n\n**4. Veri Güvenliği**\n\nVibe Koçu özelliği dışında, tüm verileriniz sadece kendi cihazınızda, Core Data kullanılarak saklanır. Verilerinize sizden başka kimse erişemez.\n\n**5. İletişim**\n\nSorularınız için lütfen [vibemind.development@gmail.com] adresinden bize ulaşın."
           }
         }
       }
@@ -2677,13 +2695,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "**Terms of Service (EULA)**\n\nLast Updated: October 29, 2025\n\nPlease read these Terms of Service carefully.\n\n**1. Description of Service**\n\nDaily Vibes (\"The App\") is a mobile application that allows users to record their daily moods and notes, analyze them, and receive insights through an artificial intelligence (\"Vibe Coach\").\n\n**2. Subscriptions**\n\nSome features of the App (marked as \"Pro\") may require a paid subscription.\n* Payments will be charged to your Apple ID account.\n* Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period.\n* You can manage and cancel your subscriptions in your App Store account settings.\n\n**3. Disclaimer (IMPORTANT)**\n\nThe content provided by the \"Vibe Coach\" is generated by artificial intelligence and **does not constitute medical advice, psychological counseling, or diagnosis.**\n\nThe App cannot replace a professional mental health expert. If you are experiencing serious mental or emotional difficulties, please consult a licensed therapist or doctor. Decisions you make based on the information from the Vibe Coach are entirely your own responsibility.\n\n**4. İletişim**\n\nFor questions, please contact us at [dailyvibes.develop@gmail.com]."
+            "value" : "**Terms of Service (EULA)**\n\nLast Updated: October 29, 2025\n\nPlease read these Terms of Service carefully.\n\n**1. Description of Service**\n\nVibe Mind (\"The App\") is a mobile application that allows users to record their daily moods and notes, analyze them, and receive insights through an artificial intelligence (“Vibe Coach\").\n\n**2. Subscriptions**\n\nSome features of the App (marked as \"Pro\") may require a paid subscription.\n* Payments will be charged to your Apple ID account.\n* Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period.\n* You can manage and cancel your subscriptions in your App Store account settings.\n\n**3. Disclaimer (IMPORTANT)**\n\nThe content provided by the “Vibe Coach\" is generated by artificial intelligence and **does not constitute medical advice, psychological counseling, or diagnosis.**\n\nThe App cannot replace a professional mental health expert. If you are experiencing serious mental or emotional difficulties, please consult a licensed therapist or doctor. Decisions you make based on the information from the Vibe Coach are entirely your own responsibility.\n\n**4. İletişim**\n\nFor questions, please contact us at [vibemind.development@gmail.com]."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "**Kullanım Koşulları (EULA)**\n\nSon Güncelleme: 29 Ekim 2025\n\nLütfen bu Kullanım Koşullarını dikkatlice okuyun.\n\n**1. Hizmetin Tanımı**\n\nDaily Vibes (\"Uygulama\"), kullanıcıların günlük ruh hallerini ve notlarını kaydetmelerine, analiz etmelerine ve bir yapay zeka (\"Vibe Koçu\") aracılığıyla içgörüler almalarına olanak tanıyan bir mobil uygulamadır.\n\n**2. Abonelikler**\n\nUygulamanın bazı özellikleri (\"Pro\" olarak işaretlenenler) ücretli bir abonelik gerektirebilir.\n* Ödemeler Apple Kimliği hesabınız üzerinden alınacaktır.\n* Abonelikler, mevcut dönemin bitiminden en az 24 saat önce iptal edilmediği sürece otomatik olarak yenilenir.\n* Aboneliklerinizi App Store hesap ayarlarınızdan yönetebilir ve iptal edebilirsiniz.\n\n**3. Sorumluluk Reddi (ÖNEMLİ)**\n\n\"Vibe Koçu\" tarafından sağlanan içerikler, yapay zeka tarafından üretilmiştir ve **tıbbi tavsiye, psikolojik danışmanlık veya teşhis niteliği taşımaz.**\n\nUygulama, profesyonel bir ruh sağlığı uzmanının yerini alamaz. Ciddi zihinsel veya duygusal zorluklar yaşıyorsanız, lütfen lisanslı bir terapiste veya doktora danışın. Vibe Koçu'nun verdiği bilgilere dayanarak aldığınız kararlar tamamen kendi sorumluluğunuzdadır.\n\n**4. İletişim**\n\nSorularınız için lütfen [dailyvibes.develop@gmail.com] adresinden bize ulaşın."
+            "value" : "**Kullanım Koşulları (EULA)**\n\nSon Güncelleme: 29 Ekim 2025\n\nLütfen bu Kullanım Koşullarını dikkatlice okuyun.\n\n**1. Hizmetin Tanımı**\n\nVibe Mind (\"Uygulama\"), kullanıcıların günlük ruh hallerini ve notlarını kaydetmelerine, analiz etmelerine ve bir yapay zeka (“Vibe Koçu\") aracılığıyla içgörüler almalarına olanak tanıyan bir mobil uygulamadır.\n\n**2. Abonelikler**\n\nUygulamanın bazı özellikleri (\"Pro\" olarak işaretlenenler) ücretli bir abonelik gerektirebilir.\n* Ödemeler Apple Kimliği hesabınız üzerinden alınacaktır.\n* Abonelikler, mevcut dönemin bitiminden en az 24 saat önce iptal edilmediği sürece otomatik olarak yenilenir.\n* Aboneliklerinizi App Store hesap ayarlarınızdan yönetebilir ve iptal edebilirsiniz.\n\n**3. Sorumluluk Reddi (ÖNEMLİ)**\n\n“Vibe Koçu\" tarafından sağlanan içerikler, yapay zeka tarafından üretilmiştir ve **tıbbi tavsiye, psikolojik danışmanlık veya teşhis niteliği taşımaz.**\n\nUygulama, profesyonel bir ruh sağlığı uzmanının yerini alamaz. Ciddi zihinsel veya duygusal zorluklar yaşıyorsanız, lütfen lisanslı bir terapiste veya doktora danışın. Vibe Koçu'nun verdiği bilgilere dayanarak aldığınız kararlar tamamen kendi sorumluluğunuzdadır.\n\n**4. İletişim**\n\nSorularınız için lütfen [vibemind.development@gmail.com] adresinden bize ulaşın."
           }
         }
       }
@@ -3146,13 +3164,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "✨ Daily Vibes Pro ✨"
+            "value" : "✨ Vibe Mind Pro ✨"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "✨ Daily Vibes Pro ✨"
+            "value" : "✨ Vibe Mind Pro ✨"
           }
         }
       }
