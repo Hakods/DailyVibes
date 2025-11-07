@@ -115,15 +115,6 @@ struct SettingsView: View {
                 // MARK: - Planlama Bilgisi
                 Section {
                     PlanningInfoView()
-                    Button {
-                        Task {
-                            await schedule.planAdminOneMinute()
-                        }
-                    } label: {
-                        Label("Test Bildirimi (1 dk)", systemImage: "timer")
-                            .foregroundStyle(Theme.warn)
-                    }
-                    
                 } header: {
                     Text("📅 Planlama")
                 } footer: {

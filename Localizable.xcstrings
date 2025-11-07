@@ -2439,22 +2439,6 @@
         }
       }
     },
-    "stats.nav.title" : {
-          "localizations" : {
-            "en" : {
-              "stringUnit" : {
-                "state" : "translated",
-                "value" : "Statistics"
-              }
-            },
-            "tr" : {
-              "stringUnit" : {
-                "state" : "translated",
-                "value" : "İstatistikler"
-              }
-            }
-          }
-        },
     "Kafa Karışık" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3737,7 +3721,20 @@
       }
     },
     "stats.nav.title" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistics"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İstatistikler"
+          }
+        }
+      }
     },
     "Status.answered" : {
       "extractionState" : "manual",
@@ -4140,9 +4137,6 @@
           }
         }
       }
-    },
-    "Test Bildirimi (1 dk)" : {
-
     },
     "today.subtitle.answered" : {
       "extractionState" : "manual",
