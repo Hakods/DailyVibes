@@ -82,7 +82,6 @@ final class NotificationService: NSObject, ObservableObject {
     func scheduleUniqueDaily(for day: Date, at fire: Date) async throws {
         let id = Notif.id(for: day)
         
-        // 1) Aynı güne ait TÜM eski mood- isteklerini temizle (güçlü tekilleştirme)
         let center = UNUserNotificationCenter.current()
         let pending = await pendingRequests()
         let sameDayIds = pending
@@ -92,12 +91,37 @@ final class NotificationService: NSObject, ObservableObject {
         if !sameDayIds.isEmpty {
             center.removePendingNotificationRequests(withIdentifiers: sameDayIds)
         }
+
+        let langCode = UserDefaults.standard.string(forKey: "appLanguage") ?? "system"
         
-        // 2) Yeniyi oluştur
+        let effectiveLangCode: String
+        if langCode == "system" {
+            effectiveLangCode = (Bundle.main.preferredLocalizations.first ?? "en") == "tr" ? "tr" : "en"
+        } else {
+            effectiveLangCode = langCode
+        }
+        
+        let bundle: Bundle
+        if let path = Bundle.main.path(forResource: effectiveLangCode, ofType: "lproj"),
+           let langBundle = Bundle(path: path) {
+            bundle = langBundle
+            print("🔔 Bildirim dili bulundu: \(effectiveLangCode)")
+        } else {
+            bundle = .main
+            print("⚠️ Bildirim dili için '\(effectiveLangCode).lproj' bulunamadı, varsayılan kullanılıyor.")
+        }
+
+        let titleKey = "notification.title"
+        let bodyKey = "notification.body"
+        
+        let title = NSLocalizedString(titleKey, bundle: bundle, comment: "Notification title")
+        let body = NSLocalizedString(bodyKey, bundle: bundle, comment: "Notification body")
+        
         let content = UNMutableNotificationContent()
-        content.title = "Bugün nasılsın?"
-        content.body  = "10 dakika içinde kısaca yaz."
+        content.title = title
+        content.body  = body
         content.categoryIdentifier = Notif.categoryId
+        content.sound = .default
         
         let comps = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute], from: fire)
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)

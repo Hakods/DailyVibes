@@ -115,6 +115,14 @@ struct SettingsView: View {
                 // MARK: - Planlama Bilgisi
                 Section {
                     PlanningInfoView()
+                    Button {
+                        Task {
+                            await schedule.planAdminOneMinute()
+                        }
+                    } label: {
+                        Label("Test Bildirimi (1 dk)", systemImage: "timer")
+                            .foregroundStyle(Theme.warn)
+                    }
                 } header: {
                     Text("📅 Planlama")
                 } footer: {
@@ -129,18 +137,25 @@ struct SettingsView: View {
                 }
                 
                 Section {
-                    Picker("Uygulama Dili", selection: $languageSettings.selectedLanguageCode) {
-                        ForEach(LanguageCode.allCases) { lang in
-                            Text(lang.displayName).tag(lang.rawValue)
-                        }
+                    Picker(LocalizedStringKey("settings.language.pickerLabel"), selection: $languageSettings.selectedLanguageCode) {
+                        
+                        Text(LocalizedStringKey("settings.language.systemDefault"))
+                            .tag(LanguageCode.system.rawValue)
+                        
+                        Text("English")
+                            .tag(LanguageCode.english.rawValue)
+                        
+                        Text("Türkçe")
+                            .tag(LanguageCode.turkish.rawValue)
+                        
                     }
                     .pickerStyle(.inline)
                     .labelsHidden()
                 } header: {
-                    Text("Dil (Test Amaçlı)")
+                    Text(LocalizedStringKey("settings.language.title"))
                 }
                 
-                Section("Hakkında & Destek") {
+                Section(LocalizedStringKey("Hakkında & Destek")) {
                     
                     NavigationLink {
                         LegalTextView(content: .privacyPolicy)
@@ -157,7 +172,7 @@ struct SettingsView: View {
                     }
                     
                     AboutLink(
-                        title: "Destek & Geri Bildirim",
+                        title: "settings.supportLink.title",
                         iconName: "envelope.fill",
                         urlString: "https://github.com/Hakods/DailyVibes-Support"
                     )
@@ -367,7 +382,7 @@ private struct TipsView: View {
 }
 
 private struct AboutLink: View {
-    let title: String
+    let title: LocalizedStringKey
     let iconName: String
     let urlString: String
     @Environment(\.openURL) var openURL

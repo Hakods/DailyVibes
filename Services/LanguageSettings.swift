@@ -8,7 +8,6 @@
 import SwiftUI
 import Combine
 
-// Hangi dillerin seçilebileceğini tanımlayan enum
 enum LanguageCode: String, CaseIterable, Identifiable {
     case system = "system"
     case english = "en"
@@ -20,7 +19,7 @@ enum LanguageCode: String, CaseIterable, Identifiable {
     var displayName: String {
         switch self {
         case .system:
-            return "Sistem (Default)" // Bunu da localize edebiliriz ama test için böyle kalsın
+            return "Sistem (Default)"
         case .english:
             return "English"
         case .turkish:

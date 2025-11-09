@@ -1074,11 +1074,18 @@
       }
     },
     "Dil (Test Amaçlı)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Language (For Testing)"
+            "value" : "Language"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dil"
           }
         }
       }
@@ -1979,6 +1986,9 @@
         }
       }
     },
+    "English" : {
+
+    },
     "Erken cevap" : {
       "localizations" : {
         "en" : {
@@ -2815,6 +2825,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Neşeli"
+          }
+        }
+      }
+    },
+    "notification.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Write a short note within 10 minutes."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 dakika içinde kısaca yaz."
+          }
+        }
+      }
+    },
+    "notification.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How are you today?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bugün nasılsın?"
           }
         }
       }
@@ -3707,6 +3751,74 @@
         }
       }
     },
+    "settings.language.pickerLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Language"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulama Dili"
+          }
+        }
+      }
+    },
+    "settings.language.systemDefault" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System (Default)"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistem (Varsayılan)"
+          }
+        }
+      }
+    },
+    "settings.language.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dil"
+          }
+        }
+      }
+    },
+    "settings.supportLink.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support & Feedback"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Destek & Geri Bildirim"
+          }
+        }
+      }
+    },
     "Şimdi Oluştur" : {
       "localizations" : {
         "en" : {
@@ -4156,6 +4268,9 @@
         }
       }
     },
+    "Test Bildirimi (1 dk)" : {
+
+    },
     "today.subtitle.answered" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4251,6 +4366,9 @@
         }
       }
     },
+    "Türkçe" : {
+
+    },
     "Üşütmüş" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4263,6 +4381,7 @@
       }
     },
     "Uygulama Dili" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
