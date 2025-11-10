@@ -5,6 +5,7 @@
 
 import SwiftUI
 import StoreKit
+import UIKit
 
 struct SettingsView: View {
     @EnvironmentObject var schedule: ScheduleService
@@ -15,6 +16,8 @@ struct SettingsView: View {
     
     @StateObject private var vm = SettingsVM()
     
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = true
+    
     @State private var showPaywallSheet = false
     @State private var exportURL: URL?
     @State private var tempURLToDelete: URL?
@@ -22,7 +25,6 @@ struct SettingsView: View {
     @State private var showExportToast = false
     @State private var showingExportErrorAlert = false
     @State private var exportErrorMessage = ""
-    
     
     var body: some View {
         ZStack {
@@ -155,7 +157,7 @@ struct SettingsView: View {
                     Text(LocalizedStringKey("settings.language.title"))
                 }
                 
-                Section(LocalizedStringKey("Hakkında & Destek")) {
+                Section(LocalizedStringKey("settings.section.app")) {
                     
                     NavigationLink {
                         LegalTextView(content: .privacyPolicy)
@@ -176,6 +178,13 @@ struct SettingsView: View {
                         iconName: "envelope.fill",
                         urlString: "https://github.com/Hakods/DailyVibes-Support"
                     )
+                    
+                    Button {
+                        hasCompletedOnboarding = false
+                    } label: {
+                        Label(LocalizedStringKey("settings.button.redoOnboarding"), systemImage: "arrow.circlepath")
+                            .foregroundStyle(Theme.accent)
+                    }
                 }
                 .listRowBackground(Theme.card.opacity(0.8))
                 

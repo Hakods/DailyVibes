@@ -10,41 +10,42 @@ import SwiftUI
 struct OnboardingStep: Identifiable {
     let id = UUID()
     let imageName: String
-    let title: String
-    let description: String
+    let title: String // Bu artık bir anahtar (key)
+    let description: String // Bu artık bir anahtar (key)
     let isPermissionStep: Bool
     let isFinalStep: Bool
 }
 
+// GÜNCELLENDİ: Artık hardcoded metinler yerine anahtarları (key) tutuyor
 private let onboardingSteps: [OnboardingStep] = [
     .init(imageName: "figure.mind.and.body",
-          title: "İç Dünyanı Anlamaya Bir Adım At",
-          description: "Günlük küçük kayıtlarla duygusal desenlerini keşfet, kendini daha iyi tanı.",
+          title: "onboarding.step1.title",
+          description: "onboarding.step1.description",
           isPermissionStep: false, isFinalStep: false),
     
     .init(imageName: "pencil.and.scribble",
-          title: "Günde Birkaç Dakika Yeterli",
-          description: "Modunu seç, gününe puan ver ve aklındakileri kısaca not al. Bu kadar basit!",
+          title: "onboarding.step2.title",
+          description: "onboarding.step2.description",
           isPermissionStep: false, isFinalStep: false),
     
     .init(imageName: "bell.badge.fill",
-          title: "Anı Kaçırma Diye Hatırlatırız",
-          description: "Günün Vibe'ını unutmaman için rastgele bir 'ping' ile sana nazikçe sesleneceğiz (10:00-22:00).",
+          title: "onboarding.step3.title",
+          description: "onboarding.step3.description",
           isPermissionStep: false, isFinalStep: false),
     
     .init(imageName: "brain.head.profile.fill",
-          title: "Sana Özel İçgörüler",
-          description: "AI Koçun, *senin* kayıtlarını analiz ederek genel tavsiyeler yerine kişisel yorumlar ve cevaplar sunar.",
+          title: "onboarding.step4.title",
+          description: "onboarding.step4.description",
           isPermissionStep: false, isFinalStep: false),
     
     .init(imageName: "bell.fill",
-          title: "Hatırlatmalar İçin İzin",
-          description: "Sana 'ping' gönderebilmemiz için bildirimlere izin vermen gerekiyor. Söz, spam yok!",
+          title: "onboarding.step5.title",
+          description: "onboarding.step5.description",
           isPermissionStep: true, isFinalStep: false),
     
     .init(imageName: "figure.walk.arrival",
-          title: "Keşif Yolculuğun Başlıyor!",
-          description: "Her şey hazır. Kendini daha iyi anlamak için ilk adımını at.",
+          title: "onboarding.step6.title",
+          description: "onboarding.step6.description",
           isPermissionStep: false, isFinalStep: true)
 ]
 
@@ -64,7 +65,8 @@ struct OnboardingView: View {
     @ViewBuilder
     private var legalTextView: some View {
         if currentStep.isFinalStep {
-            Text("Devam ederek, [Kullanım Koşulları](terms) ve [Gizlilik Politikası](privacy)'nı kabul etmiş olursunuz.")
+            // GÜNCELLENDİ: Text'i LocalizedStringKey ile çağır
+            Text(LocalizedStringKey("onboarding.legal.text"))
                 .font(.caption)
                 .foregroundStyle(Theme.textSec)
                 .tint(Theme.accent)
@@ -131,7 +133,8 @@ struct OnboardingView: View {
                 Button {
                     handleNextButtonTap()
                 } label: {
-                    Text(currentStep.isFinalStep ? "Başla!" : "İleri")
+                    // GÜNCELLENDİ: Button Text'i LocalizedStringKey ile çağır
+                    Text(LocalizedStringKey(currentStep.isFinalStep ? "onboarding.button.start" : "onboarding.button.next"))
                         .fontWeight(.bold)
                         .padding(.vertical, 12)
                         .frame(maxWidth: .infinity)
@@ -150,7 +153,8 @@ struct OnboardingView: View {
                 LegalTextView(content: .privacyPolicy)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Kapat") { showPrivacyPolicy = false }
+                            // GÜNCELLENDİ
+                            Button(LocalizedStringKey("button.close")) { showPrivacyPolicy = false }
                         }
                     }
             }
@@ -160,7 +164,8 @@ struct OnboardingView: View {
                 LegalTextView(content: .termsOfService)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Kapat") { showTermsOfService = false }
+                            // GÜNCELLENDİ
+                            Button(LocalizedStringKey("button.close")) { showTermsOfService = false }
                         }
                     }
             }
@@ -206,14 +211,16 @@ struct OnboardingStepView: View {
                 .opacity(appeared ? 1 : 0)
             
             VStack(spacing: 15) {
-                Text(step.title)
+                // GÜNCELLENDİ: Text'i LocalizedStringKey ile çağır
+                Text(LocalizedStringKey(step.title))
                     .font(.title.bold())
                     .multilineTextAlignment(.center)
                     .scaleEffect(appeared ? 1 : 0.8)
                     .opacity(appeared ? 1 : 0)
                     .animation(.easeOut(duration: 0.5).delay(0.1), value: appeared)
                 
-                Text(step.description)
+                // GÜNCELLENDİ: Text'i LocalizedStringKey ile çağır
+                Text(LocalizedStringKey(step.description))
                     .font(.body)
                     .foregroundStyle(Theme.textSec)
                     .multilineTextAlignment(.center)
@@ -249,13 +256,15 @@ struct NotificationPermissionStepView: View {
                 .scaleEffect(appeared ? 1 : 0.7)
             
             VStack(spacing: 15) {
-                Text(step.title)
+                // GÜNCELLENDİ: Text'i LocalizedStringKey ile çağır
+                Text(LocalizedStringKey(step.title))
                     .font(.title.bold())
                     .multilineTextAlignment(.center)
                     .opacity(appeared ? 1 : 0)
                     .animation(.easeOut(duration: 0.5).delay(0.1), value: appeared)
                 
-                Text(step.description)
+                // GÜNCELLENDİ: Text'i LocalizedStringKey ile çağır
+                Text(LocalizedStringKey(step.description))
                     .font(.body)
                     .foregroundStyle(Theme.textSec)
                     .multilineTextAlignment(.center)
@@ -270,7 +279,8 @@ struct NotificationPermissionStepView: View {
                         notificationGranted = await notificationService.requestAuth()
                     }
                 } label: {
-                    Label("Bildirimlere İzin Ver", systemImage: "bell.fill")
+                    // GÜNCELLENDİ: Label'ı LocalizedStringKey ile çağır
+                    Label(LocalizedStringKey("onboarding.button.allowNotifications"), systemImage: "bell.fill")
                         .fontWeight(.semibold)
                         .padding(.vertical, 5)
                         .frame(maxWidth: 250)
@@ -286,7 +296,8 @@ struct NotificationPermissionStepView: View {
             } else {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
-                    Text("İzin verildi!")
+                    // GÜNCELLENDİ: Text'i LocalizedStringKey ile çağır
+                    Text(LocalizedStringKey("onboarding.permission.granted"))
                 }
                 .foregroundStyle(Theme.good)
                 .padding(.top)

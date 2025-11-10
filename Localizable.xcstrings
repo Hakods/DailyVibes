@@ -183,6 +183,7 @@
       }
     },
     "Başla!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -233,6 +234,7 @@
       }
     },
     "Bildirimlere İzin Ver" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1064,6 +1066,7 @@
       }
     },
     "Devam ederek, [Kullanım Koşulları](terms) ve [Gizlilik Politikası](privacy)'nı kabul etmiş olursunuz." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1987,7 +1990,20 @@
       }
     },
     "English" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İngilizce"
+          }
+        }
+      }
     },
     "Erken cevap" : {
       "localizations" : {
@@ -2139,6 +2155,7 @@
       }
     },
     "Hakkında & Destek" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2406,6 +2423,7 @@
       }
     },
     "İleri" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2458,6 +2476,7 @@
       }
     },
     "İzin verildi!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2489,6 +2508,7 @@
       }
     },
     "Kapat" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2901,6 +2921,292 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Generating..."
+          }
+        }
+      }
+    },
+    "onboarding.button.allowNotifications" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Notifications"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildirimlere İzin Ver"
+          }
+        }
+      }
+    },
+    "onboarding.button.next" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İleri"
+          }
+        }
+      }
+    },
+    "onboarding.button.start" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start!"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Başla!"
+          }
+        }
+      }
+    },
+    "onboarding.legal.text" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By continuing, you agree to the [Terms of Service](terms) and [Privacy Policy](privacy)."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devam ederek, [Kullanım Koşulları](terms) ve [Gizlilik Politikası](privacy)'nı kabul etmiş olursunuz."
+          }
+        }
+      }
+    },
+    "onboarding.permission.granted" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permission Granted!"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İzin verildi!"
+          }
+        }
+      }
+    },
+    "onboarding.step1.description" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discover your emotional patterns with small daily entries and get to know yourself better."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Günlük küçük kayıtlarla duygusal desenlerini keşfet, kendini daha iyi tanı."
+          }
+        }
+      }
+    },
+    "onboarding.step1.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a Step to Understand Your Inner World"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İç Dünyanı Anlamaya Bir Adım At"
+          }
+        }
+      }
+    },
+    "onboarding.step2.description" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select your mood, rate your day, and jot down what's on your mind. It's that simple!"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modunu seç, gününe puan ver ve aklındakileri kısaca not al. Bu kadar basit!"
+          }
+        }
+      }
+    },
+    "onboarding.step2.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Few Minutes a Day is Enough"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Günde Birkaç Dakika Yeterli"
+          }
+        }
+      }
+    },
+    "onboarding.step3.description" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We'll gently ping you at a random time (10:00-22:00) so you don't forget your Vibe of the day."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Günün Vibe'ını unutmaman için rastgele bir 'ping' ile sana nazikçe sesleneceğiz (10:00-22:00)."
+          }
+        }
+      }
+    },
+    "onboarding.step3.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We'll Remind You So You Don't Miss the Moment"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anı Kaçırma Diye Hatırlatırız"
+          }
+        }
+      }
+    },
+    "onboarding.step4.description" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your AI Coach analyzes *your* entries to offer personal comments and answers, not generic advice."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Koçun, *senin* kayıtlarını analiz ederek genel tavsiyeler yerine kişisel yorumlar ve cevaplar sunar."
+          }
+        }
+      }
+    },
+    "onboarding.step4.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personalized Insights for You"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sana Özel İçgörüler"
+          }
+        }
+      }
+    },
+    "onboarding.step5.description" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We need your permission to send you 'pings'. No spam, promise!"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sana 'ping' gönderebilmemiz için bildirimlere izin vermen gerekiyor. Söz, spam yok!"
+          }
+        }
+      }
+    },
+    "onboarding.step5.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permission for Reminders"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hatırlatmalar İçin İzin"
+          }
+        }
+      }
+    },
+    "onboarding.step6.description" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Everything is set. Take your first step to understand yourself better."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her şey hazır. Kendini daha iyi anlamak için ilk adımını at."
+          }
+        }
+      }
+    },
+    "onboarding.step6.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Journey of Discovery Begins!"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keşif Yolculuğun Başlıyor!"
           }
         }
       }
@@ -3751,6 +4057,40 @@
         }
       }
     },
+    "settings.button.rateApp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate the App"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamayı Değerlendir"
+          }
+        }
+      }
+    },
+    "settings.button.redoOnboarding" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Onboarding Screen Again"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tanıtım Ekranını Tekrar Göster"
+          }
+        }
+      }
+    },
     "settings.language.pickerLabel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3798,6 +4138,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dil"
+          }
+        }
+      }
+    },
+    "settings.section.app" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulama"
           }
         }
       }
@@ -4367,7 +4718,14 @@
       }
     },
     "Türkçe" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turkish"
+          }
+        }
+      }
     },
     "Üşütmüş" : {
       "extractionState" : "manual",
