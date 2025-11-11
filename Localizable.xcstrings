@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "tr",
   "strings" : {
+    " %@" : {
+
+    },
     "'%@' için sonuç bulunamadı." : {
       "localizations" : {
         "en" : {
@@ -2085,6 +2088,7 @@
       }
     },
     "Güncel" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2662,6 +2666,9 @@
           }
         }
       }
+    },
+    "Kontrol ediliyor..." : {
+
     },
     "Korkmuş" : {
       "extractionState" : "manual",
@@ -4171,6 +4178,7 @@
       }
     },
     "Şimdi Oluştur" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4365,6 +4373,7 @@
       }
     },
     "summary.error.prefix %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

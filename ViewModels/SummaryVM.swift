@@ -19,31 +19,38 @@ final class SummaryVM: ObservableObject {
     @Published var errorMessage: String? = nil
     @Published var canGenerateWeeklySummary: Bool = false
     @Published var canGenerateMonthlySummary: Bool = false
-
+    
+    // --- YENİ ---
+    // Butonların durumunu belirlemek için ilk kontrolün yapılıp yapılmadığını tutar.
+    @Published var isCheckingInitialState: Bool = true
+    
     private let repo: DayEntryRepository
     private let aiService = AIService()
     private var streamTask: Task<Void, Never>?
     private var cancellable: AnyCancellable?
     private var currentLangCode: String = "system"
     private var currentBundle: Bundle = .main
-
+    
     // UserDefaults Anahtarları
     private let weeklySummaryKey = "savedWeeklySummaryText"
     private let monthlySummaryKey = "savedMonthlySummaryText"
     private let weeklyGenerationDateKey = "savedWeeklySummaryDate"
     private let monthlyGenerationDateKey = "savedMonthlySummaryDate"
-
+    
     init(repo: DayEntryRepository? = nil) {
         self.repo = repo ?? RepositoryProvider.shared.dayRepo
-        loadSavedSummaries() // Kayıtlı özetleri yükle
-        checkForNewDataAndUpdateButtonStates() // Başlangıçta durumu kontrol et
-
-        // Yeni kayıt sinyalini dinle
+        loadSavedSummaries()
+        Task {
+            await checkForNewDataAndUpdateButtonStates()
+            isCheckingInitialState = false //
+        }
+        
         cancellable = RepositoryProvider.shared.entriesChanged
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .sink { [weak self] in
-                print("SummaryVM: Yeni kayıt algılandı, buton durumları kontrol ediliyor...")
-                self?.checkForNewDataAndUpdateButtonStates()
+                Task {
+                    await self?.checkForNewDataAndUpdateButtonStates()
+                }
             }
     }
     
@@ -66,7 +73,7 @@ final class SummaryVM: ObservableObject {
         }
         print("SummaryVM DİLİ GÜNCELLENDİ: \(newCode)")
     }
-
+    
     // Özet oluşturma fonksiyonu (kaydetme dahil)
     func generateSummary(for period: SummaryPeriod) {
         guard canGenerate(for: period), !isLoading(for: period) else {
@@ -77,86 +84,82 @@ final class SummaryVM: ObservableObject {
         setSummary("", for: period) // Geçici olarak temizle
         errorMessage = nil
         streamTask?.cancel()
-
+        
         streamTask = Task { [weak self] in
-             guard let self else { return }
-             var finalSummaryText: String? = nil
-
-             do {
-                 let allEntries = try self.repo.load()
-                 let relevantEntries = filterEntries(allEntries, for: period)
-
-                 guard relevantEntries.count > 2 else {
-                     await MainActor.run {
-                         self.setSummary("", for: period)
-                         self.saveSummary("", date: Date(), for: period)
-                         self.setIsLoading(false, for: period)
-                         self.checkForNewDataAndUpdateButtonStates()
-                     }
-                     return
-                 }
-
-                 let aiPeriod: AIService.SummaryPeriod
-                 switch period {
-                 case .week: aiPeriod = .week
-                 case .month: aiPeriod = .month
-                 }
-                 
-                 let responseStream = self.aiService.generateSummaryStream(
+            guard let self else { return }
+            var finalSummaryText: String? = nil
+            
+            do {
+                let allEntries = try self.repo.load()
+                let relevantEntries = filterEntries(allEntries, for: period)
+                
+                guard relevantEntries.count > 2 else {
+                    // --- DÜZELTME 1 ---
+                    // @MainActor class'ında olduğumuz için 'MainActor.run' GEREKSİZDİ.
+                    self.setSummary("", for: period)
+                    self.saveSummary("", date: Date(), for: period)
+                    self.setIsLoading(false, for: period)
+                    await self.checkForNewDataAndUpdateButtonStates()
+                    return
+                }
+                
+                let aiPeriod: AIService.SummaryPeriod
+                switch period {
+                case .week: aiPeriod = .week
+                case .month: aiPeriod = .month
+                }
+                
+                let responseStream = self.aiService.generateSummaryStream(
                     entries: relevantEntries,
                     period: aiPeriod,
                     languageCode: self.currentLangCode
-                 )
+                )
+                
+                var summaryText = ""
+                for try await chunk in responseStream {
+                    try Task.checkCancellation()
+                    summaryText.append(chunk)
+                    // Bu zaten @MainActor'da, wrapper'a gerek yok
+                    self.setSummary(summaryText, for: period)
+                }
+                finalSummaryText = summaryText // Başarıyla bitti
+                
+            } catch is CancellationError {
+                print("Özet oluşturma iptal edildi.")
+                self.loadSavedSummaries() // Wrapper'a gerek yok
+            } catch {
+                print("🛑 SummaryVM: Özet oluşturma hatası: \(error)")
+                self.errorMessage = NSLocalizedString("summary.error.generationFailed", comment: "Summary generation failed")
+                self.loadSavedSummaries()
+            }
 
-                 var summaryText = ""
-                 for try await chunk in responseStream {
-                     try Task.checkCancellation()
-                     summaryText.append(chunk)
-                     // Güncellemeyi MainActor.run içine alalım (zaten @MainActor'dayız ama garanti olsun)
-                     await MainActor.run {
-                        self.setSummary(summaryText, for: period)
-                     }
-                 }
-                 finalSummaryText = summaryText // Başarıyla bitti
-
-             } catch is CancellationError {
-                 print("Özet oluşturma iptal edildi.")
-                 await MainActor.run { self.loadSavedSummaries() }
-             } catch {
-                 print("🛑 SummaryVM: Özet oluşturma hatası: \(error)")
-                 await MainActor.run {
-                     self.errorMessage = NSLocalizedString("summary.error.generationFailed", comment: "Summary generation failed")
-                     self.loadSavedSummaries()
-                 }
-             }
-
-             // İşlem bitince (MainActor üzerinde)
-             await MainActor.run {
-                 self.setIsLoading(false, for: period)
-                 if let summary = finalSummaryText {
-                     self.saveSummary(summary, date: Date(), for: period)
-                 }
-                 self.checkForNewDataAndUpdateButtonStates()
-             }
-         }
+            self.setIsLoading(false, for: period)
+            if let summary = finalSummaryText {
+                self.saveSummary(summary, date: Date(), for: period)
+            }
+            await self.checkForNewDataAndUpdateButtonStates()
+        }
     }
-
+    
     func cancel() {
         streamTask?.cancel()
         isLoadingWeekly = false
         isLoadingMonthly = false
         loadSavedSummaries()
-        checkForNewDataAndUpdateButtonStates()
+        
+        Task { //
+            await checkForNewDataAndUpdateButtonStates() //
+        }
     }
-
+    
     // MARK: - UserDefaults ve Durum Kontrolü
-
+    
     private func loadSavedSummaries() {
         let defaults = UserDefaults.standard
         weeklySummary = defaults.string(forKey: weeklySummaryKey) ?? ""
         monthlySummary = defaults.string(forKey: monthlySummaryKey) ?? ""
     }
-
+    
     private func saveSummary(_ text: String, date: Date, for period: SummaryPeriod) {
         let defaults = UserDefaults.standard
         switch period {
@@ -170,26 +173,21 @@ final class SummaryVM: ObservableObject {
             monthlySummary = text // UI'ı güncelle
         }
     }
-
-    func checkForNewDataAndUpdateButtonStates() {
-        Task { // Bu işlemi arka planda yapabiliriz
-             let allEntries = (try? repo.load()) ?? []
-             let shouldRegenWeekly = shouldRegenerateSummary(for: .week, allEntries: allEntries)
-             let shouldRegenMonthly = shouldRegenerateSummary(for: .month, allEntries: allEntries)
-
-             // @Published değişkenleri main thread'de güncelle
-             await MainActor.run {
-                 self.canGenerateWeeklySummary = shouldRegenWeekly
-                 self.canGenerateMonthlySummary = shouldRegenMonthly
-             }
-         }
+    
+    func checkForNewDataAndUpdateButtonStates() async { //
+        let allEntries = (try? repo.load()) ?? []
+        let shouldRegenWeekly = shouldRegenerateSummary(for: .week, allEntries: allEntries)
+        let shouldRegenMonthly = shouldRegenerateSummary(for: .month, allEntries: allEntries)
+        
+        self.canGenerateWeeklySummary = shouldRegenWeekly
+        self.canGenerateMonthlySummary = shouldRegenMonthly
     }
-
+    
     private func shouldRegenerateSummary(for period: SummaryPeriod, allEntries: [DayEntry]) -> Bool {
         let defaults = UserDefaults.standard
         let generationDateKey: String
         let summaryKey: String
-
+        
         switch period {
         case .week:
             generationDateKey = weeklyGenerationDateKey
@@ -198,47 +196,47 @@ final class SummaryVM: ObservableObject {
             generationDateKey = monthlyGenerationDateKey
             summaryKey = monthlySummaryKey
         }
-
+        
         let lastGenerationDate = defaults.object(forKey: generationDateKey) as? Date
         let savedSummary = defaults.string(forKey: summaryKey)
-
+        
         guard let lastDate = lastGenerationDate, let summary = savedSummary, !summary.isEmpty else {
             return filterEntries(allEntries, for: period).count > 2 // Veri varsa oluştur
         }
         
         if !isDate(lastDate, stillValidFor: period) {
-             return filterEntries(allEntries, for: period).count > 2 // Yeni dönem için veri varsa oluştur
+            return filterEntries(allEntries, for: period).count > 2 // Yeni dönem için veri varsa oluştur
         }
-
+        
         let relevantEntries = filterEntries(allEntries, for: period)
         let hasNewData = relevantEntries.contains { $0.day > lastDate }
         return hasNewData // Sadece yeni veri varsa oluştur
     }
-
+    
     private func isDate(_ date: Date, stillValidFor period: SummaryPeriod) -> Bool {
         let calendar = Calendar.current
         let now = Date()
         let referencePeriodStartDate: Date?
-
+        
         switch period {
         case .week:
-             let lastWeek = calendar.date(byAdding: .weekOfYear, value: -1, to: now)!
-             referencePeriodStartDate = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: lastWeek))
+            let lastWeek = calendar.date(byAdding: .weekOfYear, value: -1, to: now)!
+            referencePeriodStartDate = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: lastWeek))
         case .month:
-             let lastMonth = calendar.date(byAdding: .month, value: -1, to: now)!
-             referencePeriodStartDate = calendar.date(from: calendar.dateComponents([.year, .month], from: lastMonth))
+            let lastMonth = calendar.date(byAdding: .month, value: -1, to: now)!
+            referencePeriodStartDate = calendar.date(from: calendar.dateComponents([.year, .month], from: lastMonth))
         }
         guard let start = referencePeriodStartDate else { return false }
         return calendar.compare(date, to: start, toGranularity: .day) != .orderedAscending
     }
-
+    
     private func canGenerate(for period: SummaryPeriod) -> Bool {
         switch period {
         case .week: return canGenerateWeeklySummary
         case .month: return canGenerateMonthlySummary
         }
     }
-
+    
     // --- Diğer Helper Fonksiyonlar ---
     private func isLoading(for period: SummaryPeriod) -> Bool {
         switch period {
@@ -280,7 +278,7 @@ final class SummaryVM: ObservableObject {
         }
         guard let end = endDate else { return [] }
         return entries.filter { $0.status == .answered && $0.day >= start && $0.day < end }
-                     .sorted { $0.day < $1.day }
+            .sorted { $0.day < $1.day }
     }
 }
 
