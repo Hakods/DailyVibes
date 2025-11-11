@@ -77,7 +77,6 @@ private struct FeaturesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             FeatureItem(icon: "brain.head.profile.fill", textKey: "paywall.feature.ai")
-            FeatureItem(icon: "chart.line.uptrend.xyaxis.circle.fill", textKey: "paywall.feature.summaries")
             FeatureItem(icon: "arrow.down.doc.fill", textKey: "paywall.feature.export")
         }
         .padding()
