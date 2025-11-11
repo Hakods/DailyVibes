@@ -20,6 +20,8 @@ final class ScheduleService: ObservableObject {
     private let lastPlanKey = "lastPlanDayKey"
     private let lastPlanTimestampKey = "lastPlanTimestampKey"
 
+    private let firstPlanDateKey = "firstPlanDateKey"
+    
     init(repo: DayEntryRepository? = nil,
          notifier: NotificationService? = nil) {
         self.repo = repo ?? RepositoryProvider.shared.dayRepo
@@ -54,26 +56,49 @@ final class ScheduleService: ObservableObject {
         let now = Date()
         let today = cal.startOfDay(for: now)
         
-        for i in -30..<0 {
-            guard let day = cal.date(byAdding: .day, value: i, to: today) else { continue }
-            
-            if let idx = entries.firstIndex(where: { cal.isDate($0.day, inSameDayAs: day) }) {
-                if entries[idx].status == .pending && now > entries[idx].expiresAt {
-                    entries[idx].status = .missed
-                }
-            } else {
-                let fakeScheduledAt = cal.date(bySettingHour: 12, minute: 0, second: 0, of: day) ?? day
-                let fakeExpiresAt = cal.date(byAdding: .minute, value: 10, to: fakeScheduledAt) ?? day
+        // 1) İlk planlama tarihini al veya ayarla
+        let firstPlanDate: Date
+        if let storedTimeInterval = defaults.object(forKey: firstPlanDateKey) as? TimeInterval {
+            // Eski kullanıcı: Kayıtlı tarihi al
+            firstPlanDate = cal.startOfDay(for: Date(timeIntervalSince1970: storedTimeInterval))
+        } else {
+            // Yeni kullanıcı: Bu, fonksiyonun İLK ÇALIŞMASI.
+            // İlk planlama tarihini "bugün" olarak kaydet.
+            firstPlanDate = today
+            defaults.set(today.timeIntervalSince1970, forKey: firstPlanDateKey)
+            print("ScheduleService: Yeni kullanıcı. İlk planlama tarihi 'bugün' (\(today)) olarak ayarlandı.")
+        }
+        
+        // 2) Geçmişi doldur: "ilk planlama" tarihinden "düne" kadar
+        let daysBetween = cal.dateComponents([.day], from: firstPlanDate, to: today).day ?? 0
+        
+        if daysBetween > 0 { // Sadece 'firstPlanDate' geçmişteyse bu döngüye gir
+            print("ScheduleService: \(daysBetween) günlük geçmiş kontrol ediliyor...")
+            for i in 0..<daysBetween { // 'i' 0'dan başlar (ilk gün) 'daysBetween - 1'e (dün) kadar gider
+                guard let day = cal.date(byAdding: .day, value: i, to: firstPlanDate) else { continue }
                 
-                let missedEntry = DayEntry(
-                    day: day,
-                    scheduledAt: fakeScheduledAt,
-                    expiresAt: fakeExpiresAt,
-                    status: .missed
-                )
-                entries.append(missedEntry)
+                // O gün için bir kayıt var mı?
+                if let idx = entries.firstIndex(where: { cal.isDate($0.day, inSameDayAs: day) }) {
+                    // Kayıt var: Durumu .pending ve süresi dolmuşsa .missed yap
+                    if entries[idx].status == .pending && now > entries[idx].expiresAt {
+                        entries[idx].status = .missed
+                    }
+                } else {
+                    // Kayıt yok: Bu, kullanıcının atladığı bir gün. .missed olarak oluştur.
+                    let fakeScheduledAt = cal.date(bySettingHour: 12, minute: 0, second: 0, of: day) ?? day
+                    let fakeExpiresAt = cal.date(byAdding: .minute, value: 10, to: fakeScheduledAt) ?? day
+                    
+                    let missedEntry = DayEntry(
+                        day: day,
+                        scheduledAt: fakeScheduledAt,
+                        expiresAt: fakeExpiresAt,
+                        status: .missed
+                    )
+                    entries.append(missedEntry)
+                }
             }
         }
+        
         // 2) Bugün dâhil ileri günleri planla (her gün tek bildirim)
         for i in 0..<days {
             guard let day = cal.date(byAdding: .day, value: i, to: today),
@@ -84,18 +109,21 @@ final class ScheduleService: ObservableObject {
             if cal.isDate(day, inSameDayAs: today), fire <= now { continue }
 
             let exp = expiry(for: fire)
-
+            
             if let idx = entries.firstIndex(where: { cal.isDate($0.day, inSameDayAs: day) }) {
-                entries[idx].scheduledAt = fire
-                entries[idx].expiresAt   = exp
-                entries[idx].status      = .pending
-                entries[idx].text        = nil
-                entries[idx].allowEarlyAnswer = false
+                if cal.isDate(day, inSameDayAs: today) || day > today {
+                    entries[idx].scheduledAt = fire
+                    entries[idx].expiresAt   = exp
+                    entries[idx].status      = .pending
+                    entries[idx].text        = nil
+                    entries[idx].allowEarlyAnswer = false
+                    
+                    try? await notifier.scheduleUniqueDaily(for: day, at: fire)
+                }
             } else {
                 entries.append(DayEntry(day: day, scheduledAt: fire, expiresAt: exp))
+                try? await notifier.scheduleUniqueDaily(for: day, at: fire)
             }
-
-            try? await notifier.scheduleUniqueDaily(for: day, at: fire)
         }
 
         try? repo.save(entries)
