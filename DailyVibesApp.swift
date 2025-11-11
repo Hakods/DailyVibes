@@ -82,8 +82,19 @@ struct DailyVibesApp: App {
                 ZStack {
                     AnimatedAuroraBackground()
                         .ignoresSafeArea()
-                    ProgressView()
-                        .scaleEffect(1.5)
+                    
+                    VStack(spacing: 24) {
+                        Image("AppLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 120, height: 120)
+                            .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                        
+                        ProgressView() 
+                            .scaleEffect(1.2)
+                            .tint(.secondary)
+                    }
                 }
                 .environmentObject(themeManager)
             }

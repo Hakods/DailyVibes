@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		3C227EE62EB233B700EEF6C3 /* LegalTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C227EE52EB233B700EEF6C3 /* LegalTextView.swift */; };
 		3C294E2E2EB372F700B4E78A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 3C294E2D2EB372F700B4E78A /* FirebaseAppCheck */; };
-		3C2B39DF2EA65AE000D8E5AB /* TestStore.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 3C2B39DE2EA65AE000D8E5AB /* TestStore.storekit */; };
 		3C490BE52EB8DC6C0092EB63 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C490BE42EB8DC6C0092EB63 /* MoreView.swift */; };
 		3C96F0452E85555800BB73A9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3C96F0442E85555800BB73A9 /* Assets.xcassets */; };
 		3C96F0732E8559AF00BB73A9 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C96F06F2E85587700BB73A9 /* HapticsService.swift */; };
@@ -308,7 +307,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C96F0452E85555800BB73A9 /* Assets.xcassets in Resources */,
-				3C2B39DF2EA65AE000D8E5AB /* TestStore.storekit in Resources */,
 				3CFD9B612EB383F4009C3D62 /* Localizable.xcstrings in Resources */,
 				3CCCE12B2EA0FEA500BC7727 /* GoogleService-Info.plist in Resources */,
 			);

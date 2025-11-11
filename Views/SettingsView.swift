@@ -13,6 +13,7 @@ struct SettingsView: View {
     @EnvironmentObject var languageSettings: LanguageSettings
     @EnvironmentObject var themeManager: ThemeManager
     @Environment(\.openURL) var openURL
+    @Environment(\.requestReview) var requestReview
     
     @StateObject private var vm = SettingsVM()
     
@@ -117,14 +118,6 @@ struct SettingsView: View {
                 // MARK: - Planlama Bilgisi
                 Section {
                     PlanningInfoView()
-                    Button {
-                        Task {
-                            await schedule.planAdminOneMinute()
-                        }
-                    } label: {
-                        Label("Test Bildirimi (1 dk)", systemImage: "timer")
-                            .foregroundStyle(Theme.warn)
-                    }
                 } header: {
                     Text("📅 Planlama")
                 } footer: {
@@ -178,6 +171,13 @@ struct SettingsView: View {
                         iconName: "envelope.fill",
                         urlString: "https://github.com/Hakods/DailyVibes-Support"
                     )
+                    
+                    Button {
+                        requestReview()
+                    } label: {
+                        Label(LocalizedStringKey("settings.button.rateApp"), systemImage: "star.fill")
+                            .foregroundStyle(Theme.accent)
+                    }
                     
                     Button {
                         hasCompletedOnboarding = false
