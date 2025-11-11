@@ -85,14 +85,15 @@ final class StatsVM: ObservableObject {
         var moodCounts: [String: MoodStat] = [:]
         for entry in answeredEntries {
             guard let titleKey = entry.emojiTitle, let emoji = entry.emojiVariant else { continue }
-     
-            let localizedTitle = NSLocalizedString(titleKey, bundle: self.currentBundle, comment: "Mood title for stats")
             
-            if var stat = moodCounts[titleKey] {
+            let localizedTitle = NSLocalizedString(titleKey, bundle: self.currentBundle, comment: "Mood title for stats")
+            let dictKey = localizedTitle
+            
+            if var stat = moodCounts[dictKey] {
                 stat.count += 1
-                moodCounts[titleKey] = stat
+                moodCounts[dictKey] = stat
             } else {
-                moodCounts[titleKey] = MoodStat(emoji: emoji, title: localizedTitle, count: 1)
+                moodCounts[dictKey] = MoodStat(emoji: emoji, title: localizedTitle, count: 1)
             }
         }
         self.moodStats = moodCounts.values.sorted { $0.count > $1.count }
