@@ -482,7 +482,7 @@ private struct PlaceholderTextEditor: View {
 
 struct BreathingExerciseView: View {
     @State private var scale: CGFloat = 0.5
-    @State private var text = "Nefes Al..."
+    @State private var text = "breath.in"
     @Environment(\.dismiss) var dismiss
     
     let animationDuration = 4.0
@@ -492,7 +492,7 @@ struct BreathingExerciseView: View {
             Theme.AnimatedBackground().opacity(0.7)
             
             VStack(spacing: 40) {
-                Text("Sadece Nefesine Odaklan")
+                Text(LocalizedStringKey("breath.title"))
                     .font(.title2.bold())
                 
                 ZStack {
@@ -506,11 +506,11 @@ struct BreathingExerciseView: View {
                 }
                 .frame(width: 200, height: 200)
                 
-                Text(text)
+                Text(LocalizedStringKey(text))
                     .font(.headline)
                     .animation(nil, value: text)
                 
-                Button("Bitir") {
+                Button(LocalizedStringKey("Bitir")) {
                     dismiss()
                 }
                 .buttonStyle(SubtleButtonStyle())
@@ -523,18 +523,18 @@ struct BreathingExerciseView: View {
     
     func startAnimation() {
         scale = 0.5
-        text = "Nefes Al..."
+        text = "breath.in"
         
         withAnimation(.easeInOut(duration: animationDuration)) {
             scale = 1.0
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
-            text = "Tut..."
+            text = "breath.hold"
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration * 2) {
-            text = "Nefes Ver..."
+            text = "breath.out"
             withAnimation(.easeInOut(duration: animationDuration)) {
                 scale = 0.5
             }

@@ -291,6 +291,74 @@
         }
       }
     },
+    "breath.hold" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Hold…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tut…"
+          }
+        }
+      }
+    },
+    "breath.in" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Breathe In…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nefes Al…"
+          }
+        }
+      }
+    },
+    "breath.out" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Breathe Out…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nefes Ver…"
+          }
+        }
+      }
+    },
+    "breath.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Just Focus On Your Breath"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sadece Nefesine Odaklan"
+          }
+        }
+      }
+    },
     "Bu filtreye uygun kayıt yok." : {
       "localizations" : {
         "en" : {
@@ -2053,7 +2121,14 @@
       }
     },
     "Gizlilik Politikası" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy policy"
+          }
+        }
+      }
     },
     "Gözyaşı Döküyor" : {
       "extractionState" : "manual",
@@ -2674,7 +2749,14 @@
       }
     },
     "Kontrol ediliyor..." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Being checked…"
+          }
+        }
+      }
     },
     "Korkmuş" : {
       "extractionState" : "manual",
@@ -2688,7 +2770,14 @@
       }
     },
     "Kullanım Şartları" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms Of Use"
+          }
+        }
+      }
     },
     "Kutlama Modu" : {
       "extractionState" : "manual",
@@ -3891,6 +3980,7 @@
       }
     },
     "Sadece Nefesine Odaklan" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4161,6 +4251,12 @@
     "settings.section.app" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App"
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
