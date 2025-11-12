@@ -9,21 +9,14 @@ import SwiftUI
 import FirebaseCore
 import CoreData
 import FirebaseAppCheck
+import FirebaseAppCheckInterop
+import DeviceCheck
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        
-        var providerFactory: AppCheckProviderFactory
-#if DEBUG
-        providerFactory = AppCheckDebugProviderFactory()
-        print("🔔 App Check: DEBUG modu aktif.")
-#else
-        providerFactory = AppAttestProviderFactory()
-        print("🔒 App Check: RELEASE (App Attest) modu aktif.")
-#endif
-        
-        AppCheck.setAppCheckProviderFactory(providerFactory)
+
+        AppCheck.setAppCheckProviderFactory(VibeMindAppCheckProviderFactory())
         
         FirebaseApp.configure()
         

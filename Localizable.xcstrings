@@ -70,6 +70,9 @@
         }
       }
     },
+    "|" : {
+
+    },
     "✅ Dışa aktarma tamamlandı!" : {
       "localizations" : {
         "en" : {
@@ -2049,6 +2052,9 @@
         }
       }
     },
+    "Gizlilik Politikası" : {
+
+    },
     "Gözyaşı Döküyor" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2680,6 +2686,9 @@
           }
         }
       }
+    },
+    "Kullanım Şartları" : {
+
     },
     "Kutlama Modu" : {
       "extractionState" : "manual",

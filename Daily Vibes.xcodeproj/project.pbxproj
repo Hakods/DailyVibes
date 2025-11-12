@@ -39,6 +39,7 @@
 		3CC8D0DA2E9416E800C5A259 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC8D0D82E9414FC00C5A259 /* Formatters.swift */; };
 		3CC8D0DC2E9516C100C5A259 /* DailyVibesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC8D0DB2E95168D00C5A259 /* DailyVibesApp.swift */; };
 		3CC8D0DE2E9525AF00C5A259 /* AnimatedAuroraBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC8D0DD2E9525A800C5A259 /* AnimatedAuroraBackground.swift */; };
+		3CCB67B12EC36AD7008ADC71 /* VibeMindAppCheckProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CCB67B02EC36AD7008ADC71 /* VibeMindAppCheckProviderFactory.swift */; };
 		3CCCE12B2EA0FEA500BC7727 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3CCCE12A2EA0FEA500BC7727 /* GoogleService-Info.plist */; };
 		3CCCE12E2EA102FC00BC7727 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 3CCCE12D2EA102FC00BC7727 /* FirebaseAI */; };
 		3CCCE1302EA102FC00BC7727 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 3CCCE12F2EA102FC00BC7727 /* FirebaseAnalytics */; };
@@ -92,6 +93,7 @@
 		3CC8D0D82E9414FC00C5A259 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		3CC8D0DB2E95168D00C5A259 /* DailyVibesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyVibesApp.swift; sourceTree = "<group>"; };
 		3CC8D0DD2E9525A800C5A259 /* AnimatedAuroraBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedAuroraBackground.swift; sourceTree = "<group>"; };
+		3CCB67B02EC36AD7008ADC71 /* VibeMindAppCheckProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeMindAppCheckProviderFactory.swift; sourceTree = "<group>"; };
 		3CCCE12A2EA0FEA500BC7727 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		3CCCE1312EA1034B00BC7727 /* AIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIService.swift; sourceTree = "<group>"; };
 		3CCCE1332EA1048800BC7727 /* CoachVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoachVM.swift; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				3CEDF50D2E9E42F500595983 /* PersistenceController.swift */,
 				3CEDF50A2E9E416600595983 /* DailyVibes.xcdatamodeld */,
 				3CC8D0DB2E95168D00C5A259 /* DailyVibesApp.swift */,
+				3CCB67B02EC36AD7008ADC71 /* VibeMindAppCheckProviderFactory.swift */,
 				3C96F0542E85567800BB73A9 /* Resources */,
 				3C96F0532E85567300BB73A9 /* Shared */,
 				3C96F0522E85566C00BB73A9 /* Views */,
@@ -352,6 +355,7 @@
 				3C96F0802E8559AF00BB73A9 /* NotificationService.swift in Sources */,
 				3CEDF5072E9E3F4900595983 /* StatsVM.swift in Sources */,
 				3CCCE1342EA1048800BC7727 /* CoachVM.swift in Sources */,
+				3CCB67B12EC36AD7008ADC71 /* VibeMindAppCheckProviderFactory.swift in Sources */,
 				3CB610CC2EA914F800508731 /* SummaryVM.swift in Sources */,
 				3CC8D0D22E94136B00C5A259 /* Card.swift in Sources */,
 				3C96F0812E8559AF00BB73A9 /* TimeWindow.swift in Sources */,
@@ -419,7 +423,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -480,7 +484,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -521,12 +525,15 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -559,12 +566,15 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

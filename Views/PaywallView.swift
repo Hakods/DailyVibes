@@ -15,7 +15,7 @@ struct PaywallView: View {
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
                     HeaderView()
@@ -37,7 +37,7 @@ struct PaywallView: View {
                 }
             }
             .overlay {
-                if store.products.isEmpty || vm.isPurchasing {
+                if !store.isReady || vm.isPurchasing {
                     ProgressView(LocalizedStringKey("Yükleniyor..."))
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
@@ -200,11 +200,32 @@ private struct ErrorTextView: View {
 }
 
 private struct TermsTextView: View {
+    
+    let privacyPolicyURL = "https://github.com/Hakods/VibeMind-Support"
+    let termsOfUseURL = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+
     var body: some View {
-        Text(LocalizedStringKey("Satın alma Apple Kimliğinize bağlıdır. Aile Paylaşımı ve iade hakları Apple politikalarına tabidir. Abonelik, iptal edilmediği sürece otomatik olarak yenilenir."))
-            .font(.caption2)
-            .foregroundStyle(.secondary)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal)
+        VStack(spacing: 14) {
+            HStack(spacing: 20) {
+                if let url = URL(string: privacyPolicyURL) {
+                    Link("Gizlilik Politikası", destination: url)
+                }
+                
+                Text("|")
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+                
+                if let url = URL(string: termsOfUseURL) {
+                    Link("Kullanım Şartları", destination: url)
+                }
+            }
+            .font(.caption.weight(.medium))
+            .tint(Theme.accent)
+            Text(LocalizedStringKey("Satın alma Apple Kimliğinize bağlıdır. Aile Paylaşımı ve iade hakları Apple politikalarına tabidir. Abonelik, iptal edilmediği sürece otomatik olarak yenilenir."))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.horizontal)
     }
 }
