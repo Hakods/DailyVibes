@@ -34,13 +34,20 @@ struct DailyVibesApp: App {
     
     let persistenceController = PersistenceController.shared
     @StateObject private var store: StoreService
-    @StateObject private var schedule = ScheduleService()
+    @StateObject private var schedule: ScheduleService
     @StateObject private var themeManager = ThemeManager()
-    @StateObject private var languageSettings = LanguageSettings()
+    @StateObject private var languageSettings: LanguageSettings // Önce tanımla
     @State private var isDataReady: Bool = false
     
     init() {
         _store = StateObject(wrappedValue: RepositoryProvider.shared.store)
+        
+        // ÖNCE languageSettings oluşturulur
+        let langSettings = LanguageSettings()
+        _languageSettings = StateObject(wrappedValue: langSettings)
+        
+        // SONRA schedule oluşturulurken 'langSettings' içine verilir
+        _schedule = StateObject(wrappedValue: ScheduleService(languageSettings: langSettings))
     }
     
     var body: some Scene {
@@ -84,7 +91,7 @@ struct DailyVibesApp: App {
                             .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
                             .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
                         
-                        ProgressView() 
+                        ProgressView()
                             .scaleEffect(1.2)
                             .tint(.secondary)
                     }

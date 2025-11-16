@@ -2954,6 +2954,15 @@
         }
       }
     },
+    "notification.action.placeholder" : {
+      "comment" : "Bildirimdeki metin alanı placeholder'ı"
+    },
+    "notification.action.reply" : {
+      "comment" : "Bildirimdeki cevaplama butonu"
+    },
+    "notification.action.send" : {
+      "comment" : "Bildirimdeki gönderme butonu"
+    },
     "notification.body" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -33,12 +33,16 @@ final class NotificationService: NSObject, ObservableObject {
     }
     
     func configureCategories() {
+        // Bu metinler aslında bildirim geldiğinde ve kullanıcı bildirime
+        // uzun bastığında görünür. Bunların da localize olması iyi olur
+        // ama şimdilik ana sorunu çözmek için böyle bırakabiliriz.
+        // Asıl bildirim metni (title/body) DİNAMİK olarak ayarlanacak.
         let text = UNTextInputNotificationAction(
             identifier: Notif.actionText,
-            title: "Kısa not yaz",
+            title: NSLocalizedString("notification.action.reply", bundle: .main, comment: "Bildirimdeki cevaplama butonu"), // Örn: "Kısa not yaz"
             options: [],
-            textInputButtonTitle: "Gönder",
-            textInputPlaceholder: "Bugün nasılsın?"
+            textInputButtonTitle: NSLocalizedString("notification.action.send", bundle: .main, comment: "Bildirimdeki gönderme butonu"), // Örn: "Gönder"
+            textInputPlaceholder: NSLocalizedString("notification.action.placeholder", bundle: .main, comment: "Bildirimdeki metin alanı placeholder'ı") // Örn: "Bugün nasılsın?"
         )
         
         let cat = UNNotificationCategory(
@@ -56,8 +60,8 @@ final class NotificationService: NSObject, ObservableObject {
     /// Serbest ID ile planla (gerekirse)
     func schedule(on date: Date, id: String) async throws {
         let content = UNMutableNotificationContent()
-        content.title = "Bugün nasılsın?"
-        content.body  = "10 dakika içinde kısaca yaz."
+        content.title = NSLocalizedString("notification.title", comment: "Bildirim başlığı") // "system" gibi davranır
+        content.body  = NSLocalizedString("notification.body", comment: "Bildirim içeriği") // "system" gibi davranır
         content.categoryIdentifier = Notif.categoryId
         
         let comps = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute], from: date)
@@ -79,7 +83,8 @@ final class NotificationService: NSObject, ObservableObject {
         try? await UNUserNotificationCenter.current().add(req)
     }
     
-    func scheduleUniqueDaily(for day: Date, at fire: Date) async throws {
+    // GÜNCELLENMİŞ FONKSİYON
+    func scheduleUniqueDaily(for day: Date, at fire: Date, langCode: String) async throws {
         let id = Notif.id(for: day)
         
         let center = UNUserNotificationCenter.current()
@@ -93,8 +98,33 @@ final class NotificationService: NSObject, ObservableObject {
         }
     
         let content = UNMutableNotificationContent()
-        content.title = NSLocalizedString("notification.title", comment: "Bildirim başlığı")
-        content.body  = NSLocalizedString("notification.body", comment: "Bildirim içeriği")
+        
+        // --- YENİ DİL SEÇME MANTIĞI ---
+        let titleKey = "notification.title"
+        let bodyKey = "notification.body"
+        
+        if langCode == "system" {
+            // "Sistem" seçiliyse, eski gibi yap (iOS karar versin)
+            // NSLocalizedString, bundle parametresi olmadan çağrıldığında
+            // ana bundle'ı (ve cihaz dilini) kullanır.
+            content.title = NSLocalizedString(titleKey, comment: "Bildirim başlığı")
+            content.body  = NSLocalizedString(bodyKey, comment: "Bildirim içeriği")
+        } else {
+            // "en" veya "tr" seçiliyse, o dile ait bundle'ı bul
+            let bundle: Bundle
+            if let path = Bundle.main.path(forResource: langCode, ofType: "lproj"),
+               let langBundle = Bundle(path: path) {
+                bundle = langBundle
+            } else {
+                bundle = Bundle.main // Bulamazsa varsayılan
+            }
+            
+            // Metni o bundle'dan (Localizable.xcstrings) çek
+            content.title = NSLocalizedString(titleKey, bundle: bundle, comment: "Bildirim başlığı")
+            content.body  = NSLocalizedString(bodyKey, bundle: bundle, comment: "Bildirim içeriği")
+        }
+        // --- YENİ DİL SEÇME MANTIĞI BİTTİ ---
+        
         content.categoryIdentifier = Notif.categoryId
         content.sound = .default
         

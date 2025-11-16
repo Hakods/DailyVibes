@@ -16,17 +16,21 @@ final class ScheduleService: ObservableObject {
     private let repo: DayEntryRepository
     private let notifier: NotificationService
     private let defaults: UserDefaults
+    private let languageSettings: LanguageSettings // YENİ
 
     private let lastPlanKey = "lastPlanDayKey"
     private let lastPlanTimestampKey = "lastPlanTimestampKey"
 
     private let firstPlanDateKey = "firstPlanDateKey"
     
+    // GÜNCELLENDİ: 'init' artık 'languageSettings' alıyor
     init(repo: DayEntryRepository? = nil,
-         notifier: NotificationService? = nil) {
+         notifier: NotificationService? = nil,
+         languageSettings: LanguageSettings) {
         self.repo = repo ?? RepositoryProvider.shared.dayRepo
         self.notifier = notifier ?? RepositoryProvider.shared.notification
         self.defaults = UserDefaults.standard
+        self.languageSettings = languageSettings // YENİ
         self.lastManualPlanAt = defaults.object(forKey: lastPlanTimestampKey) as? Date
     }
 
@@ -50,6 +54,9 @@ final class ScheduleService: ObservableObject {
         guard canPlanToday() else {
             return
         }
+
+        // YENİ: Dil kodunu en başta al
+        let langCode = languageSettings.selectedLanguageCode
 
         var entries = (try? repo.load()) ?? []
         let cal = Calendar.current
@@ -118,11 +125,13 @@ final class ScheduleService: ObservableObject {
                     entries[idx].text        = nil
                     entries[idx].allowEarlyAnswer = false
                     
-                    try? await notifier.scheduleUniqueDaily(for: day, at: fire)
+                    // GÜNCELLENDİ: langCode eklendi
+                    try? await notifier.scheduleUniqueDaily(for: day, at: fire, langCode: langCode)
                 }
             } else {
                 entries.append(DayEntry(day: day, scheduledAt: fire, expiresAt: exp))
-                try? await notifier.scheduleUniqueDaily(for: day, at: fire)
+                // GÜNCELLENDİ: langCode eklendi
+                try? await notifier.scheduleUniqueDaily(for: day, at: fire, langCode: langCode)
             }
         }
 
@@ -132,6 +141,7 @@ final class ScheduleService: ObservableObject {
     }
     
     func planAdminOneMinute() async {
+        let langCode = languageSettings.selectedLanguageCode // YENİ
         var entries = (try? repo.load()) ?? []
         let now = Date()
         let cal = Calendar.current
@@ -154,11 +164,13 @@ final class ScheduleService: ObservableObject {
         }
 
         try? repo.save(entries)
-        try? await notifier.scheduleUniqueDaily(for: today, at: fire)
+        // GÜNCELLENDİ: langCode eklendi
+        try? await notifier.scheduleUniqueDaily(for: today, at: fire, langCode: langCode)
     }
 
     /// Belirli bir saate **tekil** bildirim planla (aynı güne eskileri iptal eder).
     func planTestNotification(at date: Date) async {
+        let langCode = languageSettings.selectedLanguageCode // YENİ
         var entries = (try? repo.load()) ?? []
         let cal = Calendar.current
         let day = cal.startOfDay(for: date)
@@ -175,7 +187,8 @@ final class ScheduleService: ObservableObject {
         }
 
         try? repo.save(entries)
-        try? await notifier.scheduleUniqueDaily(for: day, at: date)
+        // GÜNCELLENDİ: langCode eklendi
+        try? await notifier.scheduleUniqueDaily(for: day, at: date, langCode: langCode)
     }
 
     // MARK: - Private helpers (TimeWindow bağımsız)
