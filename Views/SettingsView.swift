@@ -205,6 +205,13 @@ struct SettingsView: View {
                 await store.updateSubscriptionStatus()
             }
         }
+        .onChange(of: languageSettings.selectedLanguageCode) { oldValue, newValue in
+            Task {
+                await RepositoryProvider.shared.notification.purgeAllAppPending()
+                RepositoryProvider.shared.notification.configureCategories()
+                await schedule.replanAllAfterLanguageChange()
+            }
+        }
         .sheet(item: $exportURL, onDismiss: {
             cleanupTemporaryFile(url: tempURLToDelete)
             tempURLToDelete = nil

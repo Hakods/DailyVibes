@@ -19,6 +19,28 @@ enum Notif {
 
 final class NotificationService: NSObject, ObservableObject {
     
+    private func currentLangCode() -> String {
+        UserDefaults.standard.string(forKey: "appLanguage") ?? LanguageCode.system.rawValue
+    }
+    
+    private func bundle(for langCode: String) -> Bundle {
+        // system ise cihaz diline bakan ana bundle
+        if langCode == LanguageCode.system.rawValue {
+            return .main
+        }
+        
+        if let path = Bundle.main.path(forResource: langCode, ofType: "lproj"),
+           let langBundle = Bundle(path: path) {
+            return langBundle
+        }
+        
+        return .main
+    }
+    func scheduleUniqueDaily(for day: Date, at fire: Date) async throws {
+        let langCode = currentLangCode()
+        try await scheduleUniqueDaily(for: day, at: fire, langCode: langCode)
+    }
+    
     // MARK: - Auth & Category
     
     func requestAuth() async -> Bool {
@@ -33,16 +55,28 @@ final class NotificationService: NSObject, ObservableObject {
     }
     
     func configureCategories() {
-        // Bu metinler aslında bildirim geldiğinde ve kullanıcı bildirime
-        // uzun bastığında görünür. Bunların da localize olması iyi olur
-        // ama şimdilik ana sorunu çözmek için böyle bırakabiliriz.
-        // Asıl bildirim metni (title/body) DİNAMİK olarak ayarlanacak.
+        // Seçilen dili UserDefaults'tan oku
+        let langCode = currentLangCode()
+        let langBundle = bundle(for: langCode)
+        
         let text = UNTextInputNotificationAction(
             identifier: Notif.actionText,
-            title: NSLocalizedString("notification.action.reply", bundle: .main, comment: "Bildirimdeki cevaplama butonu"), // Örn: "Kısa not yaz"
+            title: NSLocalizedString(
+                "notification.action.reply",
+                bundle: langBundle,
+                comment: "Bildirimdeki cevaplama butonu"
+            ),
             options: [],
-            textInputButtonTitle: NSLocalizedString("notification.action.send", bundle: .main, comment: "Bildirimdeki gönderme butonu"), // Örn: "Gönder"
-            textInputPlaceholder: NSLocalizedString("notification.action.placeholder", bundle: .main, comment: "Bildirimdeki metin alanı placeholder'ı") // Örn: "Bugün nasılsın?"
+            textInputButtonTitle: NSLocalizedString(
+                "notification.action.send",
+                bundle: langBundle,
+                comment: "Bildirimdeki gönderme butonu"
+            ),
+            textInputPlaceholder: NSLocalizedString(
+                "notification.action.placeholder",
+                bundle: langBundle,
+                comment: "Bildirimdeki metin alanı placeholder'ı"
+            )
         )
         
         let cat = UNNotificationCategory(
@@ -54,21 +88,26 @@ final class NotificationService: NSObject, ObservableObject {
         
         UNUserNotificationCenter.current().setNotificationCategories([cat])
     }
+
     
     // MARK: - Scheduling
     
     /// Serbest ID ile planla (gerekirse)
     func schedule(on date: Date, id: String) async throws {
+        let langCode = currentLangCode()
+        let langBundle = bundle(for: langCode)
+
         let content = UNMutableNotificationContent()
-        content.title = NSLocalizedString("notification.title", comment: "Bildirim başlığı") // "system" gibi davranır
-        content.body  = NSLocalizedString("notification.body", comment: "Bildirim içeriği") // "system" gibi davranır
+        content.title = NSLocalizedString("notification.title", bundle: langBundle, comment: "Bildirim başlığı")
+        content.body  = NSLocalizedString("notification.body", bundle: langBundle, comment: "Bildirim içeriği")
         content.categoryIdentifier = Notif.categoryId
-        
+
         let comps = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute], from: date)
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
         let req = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
         try await UNUserNotificationCenter.current().add(req)
     }
+
     
     /// Hızlı test: N sn sonra
     func scheduleIn(seconds: TimeInterval) async {
@@ -91,40 +130,18 @@ final class NotificationService: NSObject, ObservableObject {
         let pending = await pendingRequests()
         let sameDayIds = pending
             .map(\.identifier)
-            .filter { $0.hasPrefix("mood-") && $0 == id }
+            .filter { $0 == id }
         
         if !sameDayIds.isEmpty {
             center.removePendingNotificationRequests(withIdentifiers: sameDayIds)
         }
-    
+
         let content = UNMutableNotificationContent()
         
-        // --- YENİ DİL SEÇME MANTIĞI ---
-        let titleKey = "notification.title"
-        let bodyKey = "notification.body"
+        let bundle = bundle(for: langCode)
         
-        if langCode == "system" {
-            // "Sistem" seçiliyse, eski gibi yap (iOS karar versin)
-            // NSLocalizedString, bundle parametresi olmadan çağrıldığında
-            // ana bundle'ı (ve cihaz dilini) kullanır.
-            content.title = NSLocalizedString(titleKey, comment: "Bildirim başlığı")
-            content.body  = NSLocalizedString(bodyKey, comment: "Bildirim içeriği")
-        } else {
-            // "en" veya "tr" seçiliyse, o dile ait bundle'ı bul
-            let bundle: Bundle
-            if let path = Bundle.main.path(forResource: langCode, ofType: "lproj"),
-               let langBundle = Bundle(path: path) {
-                bundle = langBundle
-            } else {
-                bundle = Bundle.main // Bulamazsa varsayılan
-            }
-            
-            // Metni o bundle'dan (Localizable.xcstrings) çek
-            content.title = NSLocalizedString(titleKey, bundle: bundle, comment: "Bildirim başlığı")
-            content.body  = NSLocalizedString(bodyKey, bundle: bundle, comment: "Bildirim içeriği")
-        }
-        // --- YENİ DİL SEÇME MANTIĞI BİTTİ ---
-        
+        content.title = NSLocalizedString("notification.title", bundle: bundle, comment: "Bildirim başlığı")
+        content.body  = NSLocalizedString("notification.body", bundle: bundle, comment: "Bildirim içeriği")
         content.categoryIdentifier = Notif.categoryId
         content.sound = .default
         
@@ -133,6 +150,7 @@ final class NotificationService: NSObject, ObservableObject {
         let req = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
         try await center.add(req)
     }
+
     
     
     // MARK: - Debug / Helpers

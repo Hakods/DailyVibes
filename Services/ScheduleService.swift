@@ -54,10 +54,7 @@ final class ScheduleService: ObservableObject {
         guard canPlanToday() else {
             return
         }
-
-        // YENİ: Dil kodunu en başta al
-        let langCode = languageSettings.selectedLanguageCode
-
+        
         var entries = (try? repo.load()) ?? []
         let cal = Calendar.current
         let now = Date()
@@ -126,12 +123,12 @@ final class ScheduleService: ObservableObject {
                     entries[idx].allowEarlyAnswer = false
                     
                     // GÜNCELLENDİ: langCode eklendi
-                    try? await notifier.scheduleUniqueDaily(for: day, at: fire, langCode: langCode)
+                    try? await notifier.scheduleUniqueDaily(for: day, at: fire)
                 }
             } else {
                 entries.append(DayEntry(day: day, scheduledAt: fire, expiresAt: exp))
                 // GÜNCELLENDİ: langCode eklendi
-                try? await notifier.scheduleUniqueDaily(for: day, at: fire, langCode: langCode)
+                try? await notifier.scheduleUniqueDaily(for: day, at: fire)
             }
         }
 
@@ -140,8 +137,14 @@ final class ScheduleService: ObservableObject {
         markPlannedToday()
     }
     
+    func replanAllAfterLanguageChange(days: Int = 14) async {
+        defaults.removeObject(forKey: lastPlanKey)
+        defaults.removeObject(forKey: lastPlanTimestampKey)
+        
+        await planForNext(days: days)
+    }
+    
     func planAdminOneMinute() async {
-        let langCode = languageSettings.selectedLanguageCode // YENİ
         var entries = (try? repo.load()) ?? []
         let now = Date()
         let cal = Calendar.current
@@ -165,12 +168,11 @@ final class ScheduleService: ObservableObject {
 
         try? repo.save(entries)
         // GÜNCELLENDİ: langCode eklendi
-        try? await notifier.scheduleUniqueDaily(for: today, at: fire, langCode: langCode)
+        try? await notifier.scheduleUniqueDaily(for: today, at: fire)
     }
 
     /// Belirli bir saate **tekil** bildirim planla (aynı güne eskileri iptal eder).
     func planTestNotification(at date: Date) async {
-        let langCode = languageSettings.selectedLanguageCode // YENİ
         var entries = (try? repo.load()) ?? []
         let cal = Calendar.current
         let day = cal.startOfDay(for: date)
@@ -188,7 +190,7 @@ final class ScheduleService: ObservableObject {
 
         try? repo.save(entries)
         // GÜNCELLENDİ: langCode eklendi
-        try? await notifier.scheduleUniqueDaily(for: day, at: date, langCode: langCode)
+        try? await notifier.scheduleUniqueDaily(for: day, at: date)
     }
 
     // MARK: - Private helpers (TimeWindow bağımsız)

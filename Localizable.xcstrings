@@ -135,6 +135,9 @@
         }
       }
     },
+    "📜 Pending bildirimleri logla" : {
+
+    },
     "🔔 Günlük Ping Ayarları" : {
       "localizations" : {
         "en" : {
@@ -144,6 +147,15 @@
           }
         }
       }
+    },
+    "🧪 30 saniye sonra test bildirimi" : {
+
+    },
+    "🧪 Debug (Geçici)" : {
+
+    },
+    "🧹 Tüm app bildirimlerini temizle" : {
+
     },
     "Ağrılı" : {
       "extractionState" : "manual",
