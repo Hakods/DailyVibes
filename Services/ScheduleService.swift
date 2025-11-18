@@ -103,7 +103,7 @@ final class ScheduleService: ObservableObject {
             }
         }
         
-        // 2) Bugün dâhil ileri günleri planla (her gün tek bildirim)
+        // 3) Bugün dâhil ileri günleri planla (her gün tek bildirim)
         for i in 0..<days {
             guard let day = cal.date(byAdding: .day, value: i, to: today),
                   let fire = randomTime(on: day, startHour: fixedStartHour, endHour: fixedEndHour)
@@ -115,6 +115,10 @@ final class ScheduleService: ObservableObject {
             let exp = expiry(for: fire)
             
             if let idx = entries.firstIndex(where: { cal.isDate($0.day, inSameDayAs: day) }) {
+                if entries[idx].status == .answered {
+                    continue
+                }
+                
                 if cal.isDate(day, inSameDayAs: today) || day > today {
                     entries[idx].scheduledAt = fire
                     entries[idx].expiresAt   = exp
@@ -122,12 +126,10 @@ final class ScheduleService: ObservableObject {
                     entries[idx].text        = nil
                     entries[idx].allowEarlyAnswer = false
                     
-                    // GÜNCELLENDİ: langCode eklendi
                     try? await notifier.scheduleUniqueDaily(for: day, at: fire)
                 }
             } else {
                 entries.append(DayEntry(day: day, scheduledAt: fire, expiresAt: exp))
-                // GÜNCELLENDİ: langCode eklendi
                 try? await notifier.scheduleUniqueDaily(for: day, at: fire)
             }
         }
