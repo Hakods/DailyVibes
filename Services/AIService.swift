@@ -13,6 +13,14 @@ final class AIService {
     enum Mode { case strict, balanced, creative }
     enum ResponseStyle { case concise, normal, deep }
     
+    // MARK: - Rate Limit Hatası
+    enum AIServiceError: Error {
+        case rateLimited
+    }
+    
+    private var requestTimestamps: [Date] = []
+    private let maxRequestsPerMinute = 60
+    
     private let model: GenerativeModel
     
     init() {
@@ -21,6 +29,18 @@ final class AIService {
         print("✅ AIService, 'gemini-2.5-flash' ile başarıyla başlatıldı.")
     }
     
+    // MARK: - Rate Limit Yardımcıları
+    
+    private func canSendRequest() -> Bool {
+        let now = Date()
+        requestTimestamps = requestTimestamps.filter { now.timeIntervalSince($0) < 60 }
+        return requestTimestamps.count < maxRequestsPerMinute
+    }
+    
+    private func trackRequest() {
+        requestTimestamps.append(Date())
+    }
+        
     func askAIStream(
         chatHistory: [ChatMessage],
         entries: [DayEntry],
@@ -34,10 +54,28 @@ final class AIService {
         let content = PromptContent(languageCode: languageCode)
         let scoped = scopeEntries(entries, lastDays: useLastDays, lastCount: useLastCount)
         
-        let prompt = buildPrompt(chatHistory: chatHistory, entries: scoped, mode: mode, style: style, content: content)
+        let prompt = buildPrompt(
+            chatHistory: chatHistory,
+            entries: scoped,
+            mode: mode,
+            style: style,
+            content: content
+        )
         
         return AsyncThrowingStream { continuation in
-            Task {
+            Task { [weak self] in
+                guard let self else {
+                    continuation.finish()
+                    return
+                }
+                
+                // RATE LIMIT KONTROLÜ
+                guard self.canSendRequest() else {
+                    continuation.finish(throwing: AIServiceError.rateLimited)
+                    return
+                }
+                self.trackRequest()
+                
                 do {
                     let stream = try model.generateContentStream(prompt)
                     for try await chunk in stream {
@@ -67,13 +105,13 @@ final class AIService {
         entries: [DayEntry],
         mode: Mode,
         style: ResponseStyle,
-        content: PromptContent // YENİ
+        content: PromptContent
     ) -> String {
         
-        // GÜNCELLENDİ: Veriyi, gelen 'locale' bilgisine göre formatla
+        // Veriyi, gelen 'locale' bilgisine göre formatla
         let entriesText = formatEntriesForAI(entries, locale: content.locale)
         
-        // GÜNCELLENDİ: Tarihi, gelen 'locale' bilgisine göre formatla
+        // Tarihi, gelen 'locale' bilgisine göre formatla
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd MMMM yyyy, EEEE"
         dateFormatter.locale = content.locale
@@ -81,7 +119,7 @@ final class AIService {
         
         let lastQuestion = chatHistory.last?.text ?? ""
         
-        // GÜNCELLENDİ: Soru analizini dile göre yap
+        // Soru analizini dile göre yap
         let lowerQuestion = lastQuestion.lowercased()
         var questionType = "analysis"
         if content.generalGreetings.contains(where: { lowerQuestion.contains($0) }) {
@@ -90,11 +128,16 @@ final class AIService {
             questionType = "data"
         } else if content.analysisKeywords.contains(where: { lowerQuestion.contains($0) }) {
             questionType = "analysis"
-        } else if content.offTopicKeywords.contains(where: { lowerQuestion.contains($0) }) || !entriesText.isEmpty && !lowerQuestion.contains("ben") && !lowerQuestion.contains("his") && !lowerQuestion.contains("günüm") && !lowerQuestion.contains("my") && !lowerQuestion.contains("feel") {
+        } else if content.offTopicKeywords.contains(where: { lowerQuestion.contains($0) })
+                    || !entriesText.isEmpty
+                    && !lowerQuestion.contains("ben")
+                    && !lowerQuestion.contains("his")
+                    && !lowerQuestion.contains("günüm")
+                    && !lowerQuestion.contains("my")
+                    && !lowerQuestion.contains("feel") {
             questionType = "off_topic"
         }
         
-        // GÜNCELLENDİ: Hatırlatma metinlerini dile göre al
         let reminderText = content.reminderVariations.randomElement() ?? content.reminderVariations[0]
         
         let guidance: String
@@ -108,11 +151,16 @@ final class AIService {
         
         let brevity: String
         switch style {
-        case .concise: brevity = content.brevityConcise
-        case .normal: brevity = content.brevityNormal
+        case .concise:
+            brevity = content.brevityConcise
+        case .normal:
+            brevity = content.brevityNormal
         case .deep:
-            if questionType == "analysis" { brevity = content.brevityDeepAnalysis }
-            else { brevity = content.brevityNormal }
+            if questionType == "analysis" {
+                brevity = content.brevityDeepAnalysis
+            } else {
+                brevity = content.brevityNormal
+            }
         }
         
         let includeUserData = (questionType != "off_topic" && questionType != "greeting")
@@ -124,7 +172,6 @@ final class AIService {
         
         let historyText = formatChatHistory(chatHistory, locale: content.locale)
         
-        // GÜNCELLENDİ: Ana prompt'un tamamı artık 'content' objesinden geliyor
         return """
             \(content.systemRole)
             - \(content.ruleMarkdown)
@@ -203,7 +250,18 @@ final class AIService {
         let prompt = buildSummaryPrompt(entries: entries, period: period, content: content)
         
         return AsyncThrowingStream { continuation in
-            Task {
+            Task { [weak self] in
+                guard let self else {
+                    continuation.finish()
+                    return
+                }
+                
+                guard self.canSendRequest() else {
+                    continuation.finish(throwing: AIServiceError.rateLimited)
+                    return
+                }
+                self.trackRequest()
+                
                 do {
                     let stream = try model.generateContentStream(prompt)
                     for try await chunk in stream {
@@ -219,8 +277,12 @@ final class AIService {
         }
     }
     
-    // GÜNCELLENDİ: 'content' objesini parametre olarak alır
-    private func buildSummaryPrompt(entries: [DayEntry], period: SummaryPeriod, content: PromptContent) -> String {
+    // 'content' objesini parametre olarak alır
+    private func buildSummaryPrompt(
+        entries: [DayEntry],
+        period: SummaryPeriod,
+        content: PromptContent
+    ) -> String {
         
         // GÜNCELLENDİ: Veriyi ve tarihi 'locale'e göre formatla
         let entriesText = formatEntriesForAI(entries, locale: content.locale)

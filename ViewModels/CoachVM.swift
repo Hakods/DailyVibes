@@ -124,7 +124,7 @@ final class CoachVM: ObservableObject {
             }
         }
     }
-
+    
     func askQuestion() {
         let trimmed = userQuestion.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -173,7 +173,8 @@ final class CoachVM: ObservableObject {
                     for char in chunk {
                         try Task.checkCancellation()
                         await MainActor.run {
-                            if let id = aiMessageID, let idx = self.chatMessages.firstIndex(where: { $0.id == id }) {
+                            if let id = aiMessageID,
+                               let idx = self.chatMessages.firstIndex(where: { $0.id == id }) {
                                 self.chatMessages[idx].text.append(char)
                             } else {
                                 let newMessage = ChatMessage(text: String(char), isFromUser: false)
@@ -187,8 +188,20 @@ final class CoachVM: ObservableObject {
                 }
             } catch {
                 await MainActor.run {
-                    let errorText = NSLocalizedString("vibeCoach.error.generic", bundle: self.currentBundle, comment: "Generic error message in chat")
-                    self.chatMessages.append(ChatMessage(text: errorText, isFromUser: false))
+                    if let aiError = error as? AIService.AIServiceError,
+                       case .rateLimited = aiError {
+                        // Rate limit'e özel mesaj
+                        let text = NSLocalizedString("vibeCoach.error.rateLimit",
+                                                     bundle: self.currentBundle,
+                                                     comment: "Rate limit error")
+                        self.chatMessages.append(ChatMessage(text: text, isFromUser: false))
+                    } else {
+                        // Generic hata
+                        let text = NSLocalizedString("vibeCoach.error.generic",
+                                                     bundle: self.currentBundle,
+                                                     comment: "Generic error message in chat")
+                        self.chatMessages.append(ChatMessage(text: text, isFromUser: false))
+                    }
                 }
             }
             

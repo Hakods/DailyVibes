@@ -5011,6 +5011,23 @@
         }
       }
     },
+    "vibeCoach.error.rateLimit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I’m getting too many requests right now 😅 Please try again in a few seconds."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Şu an çok fazla istek alıyorum 😅 Birkaç saniye sonra tekrar dener misin?"
+          }
+        }
+      }
+    },
     "vibeCoach.paywall.upsell" : {
       "extractionState" : "manual",
       "localizations" : {
