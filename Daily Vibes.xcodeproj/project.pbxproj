@@ -46,6 +46,7 @@
 		3CCCE1322EA1034B00BC7727 /* AIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CCCE1312EA1034B00BC7727 /* AIService.swift */; };
 		3CCCE1342EA1048800BC7727 /* CoachVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CCCE1332EA1048800BC7727 /* CoachVM.swift */; };
 		3CCCE1362EA1049700BC7727 /* CoachView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CCCE1352EA1049700BC7727 /* CoachView.swift */; };
+		3CD803582ECDE4600098877B /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 3CD803572ECDE4600098877B /* FirebaseRemoteConfig */; };
 		3CEDF5052E9D193400595983 /* HistoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF5042E9D193400595983 /* HistoryDetailView.swift */; };
 		3CEDF5072E9E3F4900595983 /* StatsVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF5062E9E3F4900595983 /* StatsVM.swift */; };
 		3CEDF5092E9E3F7400595983 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDF5082E9E3F7400595983 /* StatsView.swift */; };
@@ -116,6 +117,7 @@
 				3CCCE1302EA102FC00BC7727 /* FirebaseAnalytics in Frameworks */,
 				3C294E2E2EB372F700B4E78A /* FirebaseAppCheck in Frameworks */,
 				3CCCE12E2EA102FC00BC7727 /* FirebaseAI in Frameworks */,
+				3CD803582ECDE4600098877B /* FirebaseRemoteConfig in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -261,6 +263,7 @@
 				3CCCE12D2EA102FC00BC7727 /* FirebaseAI */,
 				3CCCE12F2EA102FC00BC7727 /* FirebaseAnalytics */,
 				3C294E2D2EB372F700B4E78A /* FirebaseAppCheck */,
+				3CD803572ECDE4600098877B /* FirebaseRemoteConfig */,
 			);
 			productName = "Daily Vibes";
 			productReference = 3CC8D0C52E93C7C700C5A259 /* Daily Vibes.app */;
@@ -504,7 +507,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Daily Vibes.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 75R4MMW9Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -520,7 +523,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hakods.DailyVibes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -545,7 +548,7 @@
 				CODE_SIGN_ENTITLEMENTS = Release.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 75R4MMW9Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -561,7 +564,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hakods.DailyVibes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -627,6 +630,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3CCCE12C2EA102FB00BC7727 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
+		};
+		3CD803572ECDE4600098877B /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3CCCE12C2EA102FB00BC7727 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
 		};
 /* End XCSwiftPackageProductDependency section */
 
