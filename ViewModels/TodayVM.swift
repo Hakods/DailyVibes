@@ -79,9 +79,19 @@ final class TodayVM: ObservableObject {
     }
     
     func loadToday() {
-        let entries = (try? repo.load()) ?? []
-        let day = Calendar.current.startOfDay(for: Date())
-        entry = entries.first(where: { Calendar.current.isDate($0.day, inSameDayAs: day) })
+        let today = Date()
+        do {
+            // Veritabanından sadece BUGÜNÜ iste
+            if let foundEntry = try repo.getEntry(for: today) {
+                self.entry = foundEntry
+            } else {
+                // Bugün için kayıt yoksa (nil), yeni boş bir tane oluşturabilirsin
+                // veya UI'da boş state gösterebilirsin.
+                // self.entry = DayEntry(day: today, ...) // Gerekirse
+            }
+        } catch {
+            print("Bugünün verisi yüklenirken hata: \(error)")
+        }
         
         text = entry?.text ?? ""
         score = entry?.score ?? 5
@@ -113,35 +123,35 @@ final class TodayVM: ObservableObject {
     }
     
     func saveNow() {
+        // 1. Mevcut entry'yi al
         guard var entryToSave = entry else {
             lastSaveMessage = "save.error.notFound"; return
         }
         
+        // 2. Zaman kontrolü
         let now = Date()
         let withinWindow = (now >= entryToSave.scheduledAt && now <= entryToSave.expiresAt)
         guard entryToSave.allowEarlyAnswer || withinWindow else {
             lastSaveMessage = "save.error.notInWindow"; return
         }
         
-        var list = (try? repo.load()) ?? []
-        guard let idx = list.firstIndex(where: { $0.id == entryToSave.id }) else {
-            lastSaveMessage = "save.error.notFound"; return
-        }
-        
+        // 3. ÖNCE objenin özelliklerini güncelle (Hata buradaydı, save'den önce güncellemelisin)
         entryToSave.text = text.trimmingCharacters(in: .whitespacesAndNewlines)
         entryToSave.score = score
         entryToSave.emojiVariant = selectedEmojiVariant
         entryToSave.emojiTitle = selectedEmojiTitle
         entryToSave.status = .answered
         
-        list[idx] = entryToSave
-        
+        // 4. Sadece bu objeyi kaydet (Listeye veya Index'e gerek yok!)
         do {
-            try repo.save(list)
+            try repo.save(entry: entryToSave) // Yeni tekil kayıt fonksiyonunu kullanıyoruz
+            
+            // UI ve State güncelleme
             self.entry = entryToSave
             lastSaveMessage = "save.success"
             HapticsService.notification(.success)
             RepositoryProvider.shared.entriesChanged.send()
+            
         } catch {
             lastSaveMessage = "save.error.generic"
             HapticsService.notification(.error)

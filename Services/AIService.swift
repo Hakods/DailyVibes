@@ -7,13 +7,13 @@
 
 import Foundation
 import FirebaseAI
+import FirebaseRemoteConfig
 
 @MainActor
 final class AIService {
     enum Mode { case strict, balanced, creative }
     enum ResponseStyle { case concise, normal, deep }
     
-    // MARK: - Rate Limit Hatası
     enum AIServiceError: Error {
         case rateLimited
     }
@@ -21,14 +21,37 @@ final class AIService {
     private var requestTimestamps: [Date] = []
     private let maxRequestsPerMinute = 60
     
-    private let model: GenerativeModel
+    private var model: GenerativeModel
     
     init() {
+        let remoteConfig = RemoteConfig.remoteConfig()
+        let settings = RemoteConfigSettings()
+
+        settings.minimumFetchInterval = 3600
+        remoteConfig.configSettings = settings
+        
+        let defaultModelName = "gemini-2.5-flash"
+        remoteConfig.setDefaults([
+            "ai_model_name": defaultModelName as NSObject
+        ])
+        
+        let modelName = remoteConfig.configValue(forKey: "ai_model_name").stringValue ?? defaultModelName
+        
+        print("🤖 AIService Başlatılıyor. Hedef Model: \(modelName)")
+        
         let ai = FirebaseAI.firebaseAI(backend: .googleAI())
-        self.model = ai.generativeModel(modelName: "gemini-2.5-flash")
-        print("✅ AIService, 'gemini-2.5-flash' ile başarıyla başlatıldı.")
+        self.model = ai.generativeModel(modelName: modelName)
+
+        remoteConfig.fetchAndActivate { status, error in
+            if let error = error {
+                print("⚠️ Remote Config hatası: \(error.localizedDescription)")
+            } else {
+                if status == .successFetchedFromRemote {
+                    print("✅ Yeni AI Modeli ismi indirildi! Sonraki başlatmada aktif olacak.")
+                }
+            }
+        }
     }
-    
     // MARK: - Rate Limit Yardımcıları
     
     private func canSendRequest() -> Bool {
