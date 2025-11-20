@@ -122,6 +122,7 @@ private struct SubscriptionButton: View {
     
     var isYearly: Bool { product.id == "pro_yearly" }
     
+    // Mevcut fallback key'ler (açıklama kısmı için)
     private var fallbackDescriptionKey: String {
         isYearly ? "paywall.product.year.fallback" : "paywall.product.month.fallback"
     }
@@ -132,9 +133,26 @@ private struct SubscriptionButton: View {
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(product.displayName)
-                        .font(.headline)
                     
+                    // 👇 GÜNCELLEME BURADA: Artık Key kullanıyoruz
+                    if product.id == "pro_monthly" {
+                        // "paywall.plan.monthly" anahtarını kullanıyoruz
+                        Text(LocalizedStringKey("paywall.plan.monthly"))
+                            .font(.headline)
+                            .fontWeight(.bold)
+                    } else if product.id == "pro_yearly" {
+                        // "paywall.plan.yearly" anahtarını kullanıyoruz
+                        Text(LocalizedStringKey("paywall.plan.yearly"))
+                            .font(.headline)
+                            .fontWeight(.bold)
+                    } else {
+                        // Bilinmeyen ürünse App Store ismini göster
+                        Text(product.displayName)
+                            .font(.headline)
+                            .fontWeight(.bold)
+                    }
+                    
+                    // Açıklama kısmı (Aynen kalıyor)
                     if product.description.isEmpty {
                         Text(LocalizedStringKey(fallbackDescriptionKey))
                             .font(.caption)
@@ -160,7 +178,8 @@ private struct SubscriptionButton: View {
             )
             .overlay(alignment: .topTrailing) {
                 if isYearly {
-                    Text(LocalizedStringKey("İndirimli!"))
+                    // Burası için de bir key uyduralım: "paywall.badge.discount"
+                    Text(LocalizedStringKey("paywall.badge.discount"))
                         .font(.caption2.bold())
                         .padding(.horizontal, 8).padding(.vertical, 4)
                         .background(Theme.accent)
@@ -170,10 +189,11 @@ private struct SubscriptionButton: View {
                 }
             }
         }
-        .buttonStyle(.plain) // İçerideki stiller çalışsın diye
-        .disabled(vm.isPurchasing) // Satın alma sırasında pasif yap
+        .buttonStyle(.plain)
+        .disabled(vm.isPurchasing)
     }
 }
+
 
 
 private struct RestoreButtonView: View {

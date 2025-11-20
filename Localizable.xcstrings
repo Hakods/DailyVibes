@@ -2542,6 +2542,7 @@
       }
     },
     "İndirimli!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3379,6 +3380,23 @@
         }
       }
     },
+    "paywall.badge.discount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save %40"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İndirimli!"
+          }
+        }
+      }
+    },
     "paywall.error.clientInvalid" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3647,6 +3665,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "✨ Vibe Mind Pro ✨"
+          }
+        }
+      }
+    },
+    "paywall.plan.monthly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vibe Mind Pro Monthly"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vibe Mind Pro Aylık"
+          }
+        }
+      }
+    },
+    "paywall.plan.yearly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vibe Mind Pro Yearly"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vibe Mind Pro Yıllık"
           }
         }
       }
@@ -4415,6 +4467,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Beklemede"
+          }
+        }
+      }
+    },
+    "subscription.monthly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aylık"
+          }
+        }
+      }
+    },
+    "subscription.yearly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yearly"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yıllık"
           }
         }
       }
