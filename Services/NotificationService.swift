@@ -115,6 +115,7 @@ final class NotificationService: NSObject, ObservableObject {
         content.title = "Test bildirimi"
         content.body  = "Bu bir test. Bildirimler çalışıyor ✅"
         content.categoryIdentifier = Notif.categoryId
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("vibe_tone.wav"))
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: max(1, seconds), repeats: false)
         let id = "test-\(Int(Date().timeIntervalSince1970))"
@@ -143,7 +144,7 @@ final class NotificationService: NSObject, ObservableObject {
         content.title = NSLocalizedString("notification.title", bundle: bundle, comment: "Bildirim başlığı")
         content.body  = NSLocalizedString("notification.body", bundle: bundle, comment: "Bildirim içeriği")
         content.categoryIdentifier = Notif.categoryId
-        content.sound = .default
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("vibe_tone.wav"))
         
         let comps = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute], from: fire)
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)

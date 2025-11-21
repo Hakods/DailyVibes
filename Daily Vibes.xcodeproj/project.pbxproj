@@ -11,6 +11,7 @@
 		3C294E2E2EB372F700B4E78A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 3C294E2D2EB372F700B4E78A /* FirebaseAppCheck */; };
 		3C490BE52EB8DC6C0092EB63 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C490BE42EB8DC6C0092EB63 /* MoreView.swift */; };
 		3C4A4D6E2EC344C4005739C0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3C96F0442E85555800BB73A9 /* Assets.xcassets */; };
+		3C51B4212ED0AFD6007CC687 /* vibe_tone.wav in Resources */ = {isa = PBXBuildFile; fileRef = 3C51B4202ED0AFD6007CC687 /* vibe_tone.wav */; };
 		3C96F0732E8559AF00BB73A9 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C96F06F2E85587700BB73A9 /* HapticsService.swift */; };
 		3C96F0752E8559AF00BB73A9 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C96F06D2E85580800BB73A9 /* PaywallView.swift */; };
 		3C96F0762E8559AF00BB73A9 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C96F06C2E85580300BB73A9 /* SettingsView.swift */; };
@@ -62,6 +63,7 @@
 		3C294E2F2EB3733F00B4E78A /* Daily Vibes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Daily Vibes.entitlements"; sourceTree = "<group>"; };
 		3C2B39DE2EA65AE000D8E5AB /* TestStore.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestStore.storekit; sourceTree = "<group>"; };
 		3C490BE42EB8DC6C0092EB63 /* MoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreView.swift; sourceTree = "<group>"; };
+		3C51B4202ED0AFD6007CC687 /* vibe_tone.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = vibe_tone.wav; sourceTree = "<group>"; };
 		3C96F0442E85555800BB73A9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3C96F05B2E85575300BB73A9 /* DayEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayEntry.swift; sourceTree = "<group>"; };
 		3C96F05C2E85576000BB73A9 /* DayEntryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayEntryRepository.swift; sourceTree = "<group>"; };
@@ -238,6 +240,7 @@
 		3C96F0542E85567800BB73A9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				3C51B4202ED0AFD6007CC687 /* vibe_tone.wav */,
 				3C96F0442E85555800BB73A9 /* Assets.xcassets */,
 			);
 			path = Resources;
@@ -312,6 +315,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C51B4212ED0AFD6007CC687 /* vibe_tone.wav in Resources */,
 				3CFD9B612EB383F4009C3D62 /* Localizable.xcstrings in Resources */,
 				3C4A4D6E2EC344C4005739C0 /* Assets.xcassets in Resources */,
 				3CCCE12B2EA0FEA500BC7727 /* GoogleService-Info.plist in Resources */,
@@ -507,7 +511,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Daily Vibes.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 75R4MMW9Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -523,7 +527,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hakods.DailyVibes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -548,7 +552,7 @@
 				CODE_SIGN_ENTITLEMENTS = Release.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 75R4MMW9Q8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -564,7 +568,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hakods.DailyVibes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
